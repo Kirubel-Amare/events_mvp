@@ -11,6 +11,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false) // Temporary
   const [activeNav, setActiveNav] = useState("home")
+  
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -125,7 +126,7 @@ export default function Header() {
             <>
               <Button 
                 variant="outline" 
-                className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 text-gray-700"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
                 <Link href="/login">
@@ -137,7 +138,6 @@ export default function Header() {
                 asChild
               >
                 <Link href="/register">
-                  <User className="mr-2 h-4 w-4" />
                   Sign Up
                 </Link>
               </Button>

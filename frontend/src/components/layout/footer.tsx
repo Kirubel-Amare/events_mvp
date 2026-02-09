@@ -100,13 +100,13 @@ export default function Footer() {
                   placeholder="Your email"
                   className="flex-1 rounded-l-lg border border-input bg-background px-3 py-2 text-sm"
                 />
-                <Button 
-                variant="outline" 
-                className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 text-gray-700"
+               <Button 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
-                <Link href="/login">
-                  Log In
+                <Link href="/subscribe">
+                  <Mail className="mr-2 h-4 w-4" />
+                
                 </Link>
               </Button>
               </div>

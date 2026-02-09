@@ -1,23 +1,80 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, Eye, EyeOff, User, Sparkles, ArrowRight, Github, Chrome } from "lucide-react"
-import Image from "next/image"
+import { Mail, Lock, Eye, EyeOff, User, Sparkles, ArrowRight, Github, Chrome, Loader2, Calendar, Users, MapPin } from "lucide-react"
+import { useAuthStore } from "@/store/auth-store"
+import toast from "react-hot-toast"
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { login, isLoading, error, isAuthenticated } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      toast.success("Already logged in!")
+      router.push("/")
+    }
+  }, [isAuthenticated, router])
+
+  // Show error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    // TODO: Implement login logic
-    setTimeout(() => setIsLoading(false), 1000)
+    
+    try {
+      await login(formData.email, formData.password)
+      toast.success("Successfully logged in!")
+      router.push("/")
+    } catch (error) {
+      // Error is handled by the store and shown via toast
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleDemoLogin = async () => {
+    // Pre-fill demo credentials
+    setFormData({
+      email: "demo@example.com",
+      password: "password123",
+    })
+    
+    // Auto-submit after a short delay
+    setTimeout(async () => {
+      try {
+        await login("demo@example.com", "password123")
+        toast.success("Demo login successful!")
+        router.push("/")
+      } catch (error) {
+        toast.error("Demo login failed. Please try regular login.")
+      }
+    }, 500)
+  }
+
+  const handleSocialLogin = (provider: string) => {
+    toast.error(`${provider} login not implemented yet`)
   }
 
   return (
@@ -53,21 +110,31 @@ export default function LoginPage() {
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center">
-                    <User className="h-6 w-6 text-blue-600" />
+                    <Calendar className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Join 10,000+ Members</h3>
-                    <p className="text-gray-600">Be part of our vibrant community</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">Discover Events</h3>
+                    <p className="text-gray-600">Browse curated events in your city</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-4">
                   <div className="h-12 w-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-purple-600" />
+                    <Users className="h-6 w-6 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Exclusive Events</h3>
-                    <p className="text-gray-600">Access premium events and experiences</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">Create Plans</h3>
+                    <p className="text-gray-600">Organize social gatherings and meetups</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl flex items-center justify-center">
+                    <MapPin className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Local Connections</h3>
+                    <p className="text-gray-600">Connect with people in your area</p>
                   </div>
                 </div>
               </div>
@@ -112,10 +179,14 @@ export default function LoginPage() {
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                       <Input
                         id="email"
+                        name="email"
                         type="email"
                         placeholder="name@example.com"
                         className="pl-10 h-11 bg-gray-50 border-gray-300 focus:bg-white"
                         required
+                        value={formData.email}
+                        onChange={handleChange}
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
@@ -134,15 +205,20 @@ export default function LoginPage() {
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                       <Input
                         id="password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         className="pl-10 pr-10 h-11 bg-gray-50 border-gray-300 focus:bg-white"
                         required
+                        value={formData.password}
+                        onChange={handleChange}
+                        disabled={isLoading}
                       />
                       <button
                         type="button"
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         onClick={() => setShowPassword(!showPassword)}
+                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -158,6 +234,7 @@ export default function LoginPage() {
                       type="checkbox"
                       id="remember"
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      disabled={isLoading}
                     />
                     <Label htmlFor="remember" className="text-sm text-gray-700">
                       Remember me for 30 days
@@ -170,7 +247,10 @@ export default function LoginPage() {
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      "Signing in..."
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
                     ) : (
                       <>
                         Sign In
@@ -179,6 +259,23 @@ export default function LoginPage() {
                     )}
                   </Button>
                 </form>
+
+                {/* Demo Login Button */}
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11 border-dashed border-gray-300 hover:border-blue-600 hover:bg-blue-50"
+                    onClick={handleDemoLogin}
+                    disabled={isLoading}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Try Demo Account
+                  </Button>
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    Use demo credentials to explore the app
+                  </p>
+                </div>
                 
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
@@ -197,6 +294,7 @@ export default function LoginPage() {
                     type="button" 
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
+                    onClick={() => handleSocialLogin("Google")}
                   >
                     <Chrome className="mr-2 h-4 w-4" />
                     Google
@@ -206,6 +304,7 @@ export default function LoginPage() {
                     type="button" 
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
+                    onClick={() => handleSocialLogin("GitHub")}
                   >
                     <Github className="mr-2 h-4 w-4" />
                     GitHub
@@ -229,10 +328,15 @@ export default function LoginPage() {
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-500 mb-4">Trusted by thousands of event organizers</p>
               <div className="flex items-center justify-center gap-6 opacity-60">
-                <div className="h-8 w-20 bg-gray-200 rounded" />
-                <div className="h-8 w-20 bg-gray-200 rounded" />
-                <div className="h-8 w-20 bg-gray-200 rounded" />
-                <div className="h-8 w-20 bg-gray-200 rounded" />
+                <div className="h-8 w-20 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center">
+                  <span className="text-xs font-medium text-blue-600">TechEvents</span>
+                </div>
+                <div className="h-8 w-20 bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-lg flex items-center justify-center">
+                  <span className="text-xs font-medium text-purple-600">MeetupPro</span>
+                </div>
+                <div className="h-8 w-20 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 rounded-lg flex items-center justify-center">
+                  <span className="text-xs font-medium text-emerald-600">SocialHub</span>
+                </div>
               </div>
             </div>
           </div>

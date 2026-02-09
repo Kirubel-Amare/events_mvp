@@ -1,34 +1,108 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, User, Eye, EyeOff, Sparkles, ArrowRight, Chrome, Github, CheckCircle } from "lucide-react"
+import { Mail, Lock, User, Eye, EyeOff, Sparkles, ArrowRight, Chrome, Github, CheckCircle, Loader2, Calendar, Users, Shield } from "lucide-react"
+import { useAuthStore } from "@/store/auth-store"
+import toast from "react-hot-toast"
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const { register, isLoading, error, isAuthenticated } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [passwordScore, setPasswordScore] = useState(0)
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+  })
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [checkingUsername, setCheckingUsername] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      toast.success("Already logged in!")
+      router.push("/")
+    }
+  }, [isAuthenticated, router])
+
+  // Show error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    // TODO: Implement registration logic
-    setTimeout(() => setIsLoading(false), 1000)
+    
+    if (!agreeToTerms) {
+      toast.error("Please agree to the Terms of Service and Privacy Policy")
+      return
+    }
+
+    if (passwordScore < 2) {
+      toast.error("Please use a stronger password")
+      return
+    }
+
+    try {
+      await register(formData)
+      toast.success("Account created successfully!")
+      router.push("/")
+    } catch (error) {
+      // Error is handled by the store
+    }
   }
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const password = e.target.value
-    // Simple password strength calculation
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData({
+      ...formData,
+      [name]: value,
+    })
+
+    // Check username availability
+    if (name === "username" && value.length >= 3) {
+      checkUsernameAvailability(value)
+    }
+
+    // Calculate password strength
+    if (name === "password") {
+      calculatePasswordStrength(value)
+    }
+  }
+
+  const calculatePasswordStrength = (password: string) => {
     let score = 0
     if (password.length >= 8) score += 1
     if (/[A-Z]/.test(password)) score += 1
     if (/[0-9]/.test(password)) score += 1
     if (/[^A-Za-z0-9]/.test(password)) score += 1
     setPasswordScore(score)
+  }
+
+  const checkUsernameAvailability = async (username: string) => {
+    setCheckingUsername(true)
+    // Simulate API call
+    setTimeout(() => {
+      const unavailableUsernames = ["admin", "test", "user", "demo", "eventhub"]
+      const isAvailable = !unavailableUsernames.includes(username.toLowerCase())
+      setUsernameAvailable(isAvailable)
+      setCheckingUsername(false)
+    }, 500)
+  }
+
+  const handleSocialRegister = (provider: string) => {
+    toast.error(`${provider} registration not implemented yet`)
   }
 
   const benefits = [
@@ -120,12 +194,59 @@ export default function RegisterPage() {
                       <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                       <Input
                         id="name"
+                        name="name"
                         type="text"
                         placeholder="John Doe"
                         className="pl-10 h-11 bg-gray-50 border-gray-300 focus:bg-white"
                         required
+                        value={formData.name}
+                        onChange={handleChange}
+                        disabled={isLoading}
                       />
                     </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label htmlFor="username" className="text-gray-900">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                      <Input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="johndoe"
+                        className="pl-10 h-11 bg-gray-50 border-gray-300 focus:bg-white"
+                        required
+                        value={formData.username}
+                        onChange={handleChange}
+                        disabled={isLoading}
+                        minLength={3}
+                        maxLength={30}
+                      />
+                    </div>
+                    {formData.username.length >= 3 && (
+                      <div className="flex items-center gap-2 text-xs">
+                        {checkingUsername ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+                            <span className="text-blue-600">Checking availability...</span>
+                          </>
+                        ) : usernameAvailable === true ? (
+                          <>
+                            <CheckCircle className="h-3 w-3 text-emerald-500" />
+                            <span className="text-emerald-600">Username available</span>
+                          </>
+                        ) : usernameAvailable === false ? (
+                          <>
+                            <span className="h-3 w-3 rounded-full bg-red-500" />
+                            <span className="text-red-600">Username taken</span>
+                          </>
+                        ) : null}
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      This will be your public username (3-30 characters)
+                    </p>
                   </div>
                   
                   <div className="space-y-3">
@@ -134,10 +255,14 @@ export default function RegisterPage() {
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                       <Input
                         id="email"
+                        name="email"
                         type="email"
                         placeholder="name@example.com"
                         className="pl-10 h-11 bg-gray-50 border-gray-300 focus:bg-white"
                         required
+                        value={formData.email}
+                        onChange={handleChange}
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
@@ -148,17 +273,21 @@ export default function RegisterPage() {
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                       <Input
                         id="password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         className="pl-10 pr-10 h-11 bg-gray-50 border-gray-300 focus:bg-white"
                         required
+                        value={formData.password}
+                        onChange={handleChange}
+                        disabled={isLoading}
                         minLength={8}
-                        onChange={handlePasswordChange}
                       />
                       <button
                         type="button"
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         onClick={() => setShowPassword(!showPassword)}
+                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -169,7 +298,7 @@ export default function RegisterPage() {
                     </div>
                     
                     {/* Password Strength Meter */}
-                    {passwordScore > 0 && (
+                    {formData.password.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-600">Password strength</span>
@@ -198,16 +327,20 @@ export default function RegisterPage() {
                     
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <div className={`h-1.5 w-1.5 rounded-full ${passwordScore >= 1 ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        <div className={`h-1.5 w-1.5 rounded-full ${formData.password.length >= 8 ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                         At least 8 characters
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <div className={`h-1.5 w-1.5 rounded-full ${/[A-Z]/.test((document.getElementById('password') as HTMLInputElement)?.value || '') ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        <div className={`h-1.5 w-1.5 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                         One uppercase letter
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <div className={`h-1.5 w-1.5 rounded-full ${/[0-9]/.test((document.getElementById('password') as HTMLInputElement)?.value || '') ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        <div className={`h-1.5 w-1.5 rounded-full ${/[0-9]/.test(formData.password) ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                         One number
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <div className={`h-1.5 w-1.5 rounded-full ${/[^A-Za-z0-9]/.test(formData.password) ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        One special character
                       </div>
                     </div>
                   </div>
@@ -217,7 +350,9 @@ export default function RegisterPage() {
                       type="checkbox"
                       id="terms"
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1"
-                      required
+                      checked={agreeToTerms}
+                      onChange={(e) => setAgreeToTerms(e.target.checked)}
+                      disabled={isLoading}
                     />
                     <div className="space-y-1">
                       <Label htmlFor="terms" className="text-sm text-gray-700 cursor-pointer">
@@ -239,10 +374,13 @@ export default function RegisterPage() {
                   <Button 
                     type="submit" 
                     className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
-                    disabled={isLoading}
+                    disabled={isLoading || !agreeToTerms || passwordScore < 2 || usernameAvailable === false}
                   >
                     {isLoading ? (
-                      "Creating account..."
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
                     ) : (
                       <>
                         Create Free Account
@@ -269,6 +407,7 @@ export default function RegisterPage() {
                     type="button" 
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
+                    onClick={() => handleSocialRegister("Google")}
                   >
                     <Chrome className="mr-2 h-4 w-4" />
                     Google
@@ -278,6 +417,7 @@ export default function RegisterPage() {
                     type="button" 
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
+                    onClick={() => handleSocialRegister("GitHub")}
                   >
                     <Github className="mr-2 h-4 w-4" />
                     GitHub
@@ -300,7 +440,7 @@ export default function RegisterPage() {
             {/* Security Note */}
             <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-gray-200">
               <div className="flex items-start gap-3">
-                <Sparkles className="h-5 w-5 text-blue-600 mt-0.5" />
+                <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1">Your Security is Our Priority</h4>
                   <p className="text-sm text-gray-600">

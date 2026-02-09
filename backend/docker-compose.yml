@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: events_mvp_db
+    environment:
+      POSTGRES_DB: events_mvp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - events_mvp_network
+
+  backend:
+    build: .
+    container_name: events_mvp_backend
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/events_mvp
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_NAME: events_mvp
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - /app/node_modules
+    networks:
+      - events_mvp_network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  events_mvp_network:
+    driver: bridge
