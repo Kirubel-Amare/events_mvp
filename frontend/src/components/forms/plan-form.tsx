@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { planSchema, type PlanInput } from "@/lib/utils/validators"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 
+import { plansApi } from "@/lib/api/plans"
+
 export function PlanForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -27,12 +29,11 @@ export function PlanForm() {
     const onSubmit = async (data: PlanInput) => {
         setIsLoading(true)
         try {
-            // Mock API call
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            console.log(data)
+            await plansApi.createPlan(data)
             toast.success("Plan created successfully!")
             router.push("/plans")
-        } catch (_error) {
+        } catch (error) {
+            console.error(error)
             toast.error("Failed to create plan.")
         } finally {
             setIsLoading(false)

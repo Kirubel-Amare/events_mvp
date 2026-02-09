@@ -26,7 +26,10 @@ export const eventSchema = z.object({
     title: z.string().min(5, "Title must be at least 5 characters"),
     description: z.string().min(20, "Description must be at least 20 characters"),
     city: z.string().min(2, "City is required"),
-    category: z.string().min(2, "Category is required"),
+    date: z.string().refine((date) => new Date(date) > new Date(), {
+        message: "Date must be in the future",
+    }),
+    category: z.string().min(1, "Category is required"),
     image: z.any().optional(), // For now, handle file separately or as string url
     price: z.string().optional(),
     capacity: z.string().optional(),

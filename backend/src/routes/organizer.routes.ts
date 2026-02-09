@@ -11,7 +11,7 @@ router.post(
   '/apply',
   authenticate,
   [
-    body('name').trim().notEmpty(),
+    body('organizationName').trim().notEmpty(),
     body('city').trim().notEmpty(),
     body('description').trim().notEmpty(),
     body('contactInfo').trim().notEmpty(),
@@ -31,11 +31,11 @@ router.put(
   '/profile',
   authenticate,
   [
-    body('name').optional().trim().notEmpty(),
+    body('organizationName').optional().trim().notEmpty(),
     body('city').optional().trim().notEmpty(),
     body('description').optional().trim().notEmpty(),
     body('contactInfo').optional().trim().notEmpty(),
-    body('profileImage').optional().trim(),
+    body('profilePhoto').optional().trim(),
   ],
   validateRequest,
   organizerController.updateOrganizerProfile

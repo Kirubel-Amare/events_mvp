@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import path from 'path';
 import { config } from './env';
 
 export const AppDataSource = new DataSource({
@@ -10,7 +11,7 @@ export const AppDataSource = new DataSource({
   database: config.database.database,
   synchronize: config.nodeEnv !== 'production',
   logging: config.nodeEnv === 'development',
-  entities: ['src/models/**/*.ts'],
-  migrations: ['src/database/migrations/**/*.ts'],
+  entities: [path.join(__dirname, '../models/**/*.{ts,js}')],
+  migrations: [path.join(__dirname, '../database/migrations/**/*.{ts,js}')],
   subscribers: [],
 });

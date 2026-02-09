@@ -12,13 +12,13 @@ export class Category {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   icon: string | null = null;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   isActive: boolean = true;
 
   @OneToMany(() => Event, (event) => event.category)
@@ -28,6 +28,5 @@ export class Category {
   createdAt!: Date;
 
   constructor() {
-    this.events = [];
   }
 }

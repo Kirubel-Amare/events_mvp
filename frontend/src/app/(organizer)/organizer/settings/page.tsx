@@ -17,10 +17,10 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
 const organizerSettingsSchema = z.object({
-    organizerName: z.string().min(3, "Name must be at least 3 characters"),
+    organizationName: z.string().min(3, "Name must be at least 3 characters"),
     description: z.string().min(20, "Description must be at least 20 characters"),
     city: z.string().min(2, "City is required"),
-    contactEmail: z.string().email("Invalid email"),
+    contactInfo: z.string().min(5, "Contact info is required"),
     website: z.string().url("Invalid URL").optional().or(z.literal("")),
     instagram: z.string().optional(),
     twitter: z.string().optional(),
@@ -41,10 +41,10 @@ export default function OrganizerSettingsPage() {
     } = useForm<OrganizerSettingsInput>({
         resolver: zodResolver(organizerSettingsSchema),
         defaultValues: {
-            organizerName: "City Events Co.",
+            organizationName: "City Events Co.",
             description: "We organize the best city events in New York, bringing together communities through cultural experiences, music festivals, and food markets.",
             city: "New York",
-            contactEmail: "contact@cityevents.com",
+            contactInfo: "contact@cityevents.com",
             website: "https://cityevents.com",
             instagram: "@cityeventsnyc",
             twitter: "@cityevents_nyc"
@@ -119,10 +119,10 @@ export default function OrganizerSettingsPage() {
                                         )}
                                     </Button>
                                 </div>
-                                
+
                                 <h2 className="text-xl font-bold text-gray-900">City Events Co.</h2>
                                 <p className="text-gray-600">@cityeventsco</p>
-                                
+
                                 <div className="mt-4 space-y-2">
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                         <MapPin className="h-4 w-4" />
@@ -195,20 +195,20 @@ export default function OrganizerSettingsPage() {
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="organizerName">
+                                        <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="organizationName">
                                             Organizer Name
                                         </label>
                                         <div className="relative">
                                             <Building2 className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                            <Input 
-                                                id="organizerName" 
-                                                {...register("organizerName")} 
+                                            <Input
+                                                id="organizationName"
+                                                {...register("organizationName")}
                                                 disabled={isLoading}
                                                 className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                             />
                                         </div>
-                                        {errors.organizerName && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.organizerName.message}</p>
+                                        {errors.organizationName && (
+                                            <p className="text-sm text-red-600 mt-1">{errors.organizationName.message}</p>
                                         )}
                                     </div>
 
@@ -239,9 +239,9 @@ export default function OrganizerSettingsPage() {
                                             </label>
                                             <div className="relative">
                                                 <MapPin className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="city" 
-                                                    {...register("city")} 
+                                                <Input
+                                                    id="city"
+                                                    {...register("city")}
                                                     disabled={isLoading}
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
@@ -252,20 +252,20 @@ export default function OrganizerSettingsPage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="contactEmail">
-                                                Public Email
+                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="contactInfo">
+                                                Public Contact
                                             </label>
                                             <div className="relative">
                                                 <Mail className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="contactEmail" 
-                                                    {...register("contactEmail")} 
+                                                <Input
+                                                    id="contactInfo"
+                                                    {...register("contactInfo")}
                                                     disabled={isLoading}
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
                                             </div>
-                                            {errors.contactEmail && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.contactEmail.message}</p>
+                                            {errors.contactInfo && (
+                                                <p className="text-sm text-red-600 mt-1">{errors.contactInfo.message}</p>
                                             )}
                                         </div>
                                     </div>
@@ -276,10 +276,10 @@ export default function OrganizerSettingsPage() {
                                         </label>
                                         <div className="relative">
                                             <Globe className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                            <Input 
-                                                id="website" 
+                                            <Input
+                                                id="website"
                                                 placeholder="https://yourwebsite.com"
-                                                {...register("website")} 
+                                                {...register("website")}
                                                 disabled={isLoading}
                                                 className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                             />
@@ -296,10 +296,10 @@ export default function OrganizerSettingsPage() {
                                             </label>
                                             <div className="relative">
                                                 <Instagram className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="instagram" 
+                                                <Input
+                                                    id="instagram"
                                                     placeholder="@username"
-                                                    {...register("instagram")} 
+                                                    {...register("instagram")}
                                                     disabled={isLoading}
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
@@ -312,10 +312,10 @@ export default function OrganizerSettingsPage() {
                                             </label>
                                             <div className="relative">
                                                 <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="twitter" 
+                                                <Input
+                                                    id="twitter"
                                                     placeholder="@username"
-                                                    {...register("twitter")} 
+                                                    {...register("twitter")}
                                                     disabled={isLoading}
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
@@ -332,8 +332,8 @@ export default function OrganizerSettingsPage() {
                                                 <Label htmlFor="email-notifications" className="text-gray-900">Email Notifications</Label>
                                                 <p className="text-sm text-gray-600">Receive updates about your events</p>
                                             </div>
-                                            <Switch 
-                                                id="email-notifications" 
+                                            <Switch
+                                                id="email-notifications"
                                                 checked={emailNotifications}
                                                 onCheckedChange={setEmailNotifications}
                                             />
@@ -343,8 +343,8 @@ export default function OrganizerSettingsPage() {
                                                 <Label htmlFor="push-notifications" className="text-gray-900">Push Notifications</Label>
                                                 <p className="text-sm text-gray-600">Get real-time event updates</p>
                                             </div>
-                                            <Switch 
-                                                id="push-notifications" 
+                                            <Switch
+                                                id="push-notifications"
                                                 checked={pushNotifications}
                                                 onCheckedChange={setPushNotifications}
                                             />
@@ -353,25 +353,25 @@ export default function OrganizerSettingsPage() {
                                 </div>
 
                                 <div className="flex gap-3 pt-6 border-t border-gray-200">
-                                    <Button 
-                                        type="submit" 
+                                    <Button
+                                        type="submit"
                                         disabled={isLoading}
                                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                                     >
                                         {isLoading && <LoadingSpinner className="mr-2 h-4 w-4" />}
                                         Save Changes
                                     </Button>
-                                    <Button 
-                                        type="button" 
-                                        variant="outline" 
+                                    <Button
+                                        type="button"
+                                        variant="outline"
                                         disabled={isLoading}
                                         className="border-gray-300 hover:bg-gray-100"
                                     >
                                         Cancel
                                     </Button>
-                                    <Button 
-                                        type="button" 
-                                        variant="ghost" 
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
                                         disabled={isLoading}
                                         className="text-gray-600 hover:text-gray-900 ml-auto"
                                         asChild

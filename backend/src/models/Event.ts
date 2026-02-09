@@ -23,7 +23,7 @@ export class Event {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   title!: string;
 
   @Column({ type: 'text' })
@@ -32,22 +32,22 @@ export class Event {
   @Column('text', { array: true, default: [] })
   images: string[] = [];
 
-  @Column()
+  @Column({ type: 'varchar' })
   city!: string;
 
   @Column({ type: 'timestamp' })
   date!: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   price: string | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   capacity: number | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   externalLink: string | null = null;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isFeatured: boolean = false;
 
   @Column({
@@ -62,7 +62,7 @@ export class Event {
   })
   organizer!: OrganizerProfile;
 
-  @Column()
+  @Column({ type: 'uuid' })
   organizerId!: string;
 
   @ManyToOne(() => Category, (category) => category.events, {
@@ -70,7 +70,7 @@ export class Event {
   })
   category: Category | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   categoryId: number | null = null;
 
   @OneToMany(() => Application, (application) => application.event)
@@ -84,6 +84,5 @@ export class Event {
 
   constructor() {
     this.images = [];
-    this.applications = [];
   }
 }

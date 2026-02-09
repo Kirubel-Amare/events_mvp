@@ -24,8 +24,8 @@ export interface PersonalProfileResponse {
 
 export interface OrganizerProfileResponse {
   id: string;
-  name: string;
-  profileImage: string;
+  organizationName: string;
+  profilePhoto: string;
   city: string;
   description: string;
   contactInfo: string;

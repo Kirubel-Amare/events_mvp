@@ -1,28 +1,18 @@
-import { DataSource } from "typeorm"
-import dotenv from "dotenv"
-
-dotenv.config()
-
-export const AppDataSource = new DataSource({
-  type: "postgres",
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  synchronize: false,
-  logging: true,
-  entities: ["src/entity/**/*.ts"],
-  migrations: ["src/database/migrations/**/*.ts"],
-  subscribers: [],
-})
+import { AppDataSource } from '../config/database';
 
 // Prevent multiple initializations
 export const initializeDatabase = async () => {
   if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize()
-    console.log("Database connected successfully")
+    try {
+      await AppDataSource.initialize();
+      console.log("Database connected successfully");
+    } catch (error) {
+      console.error("Database connection failed:", error);
+      throw error;
+    }
   } else {
-    console.log("Database already initialized")
+    console.log("Database already initialized");
   }
-}
+};
+
+export { AppDataSource };

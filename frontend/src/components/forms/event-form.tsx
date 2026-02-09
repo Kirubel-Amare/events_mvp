@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "react-hot-toast"
 
 import { Button } from "@/components/ui/button"
@@ -11,12 +11,27 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { eventSchema, type EventInput } from "@/lib/utils/validators"
-import { CATEGORIES } from "@/lib/data"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
+import { eventsApi } from "@/lib/api/events"
+import { Category } from "@/types"
 
 export function EventForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [categories, setCategories] = useState<Category[]>([])
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await eventsApi.getCategories()
+                setCategories(data)
+            } catch (error) {
+                console.error("Failed to fetch categories", error)
+                toast.error("Failed to load categories")
+            }
+        }
+        fetchCategories()
+    }, [])
 
     const {
         register,
@@ -30,12 +45,27 @@ export function EventForm() {
     const onSubmit = async (data: EventInput) => {
         setIsLoading(true)
         try {
-            // Mock API call
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            console.log(data)
+            // Find category ID from the selected value (which is the ID as string)
+            const categoryId = parseInt(data.category)
+
+            await eventsApi.createEvent({
+                title: data.title,
+                description: data.description,
+                date: new Date(data.date).toISOString(),
+                city: data.city,
+                images: data.image ? [data.image] : [],
+                price: data.price,
+                capacity: data.capacity ? parseInt(data.capacity) : undefined,
+                externalLink: data.externalLink,
+                categoryId: categoryId
+            })
+
             toast.success("Event created successfully!")
-            router.push("/organizer/events")
-        } catch (_error) {
+            router.push("/organizer/events") // Or dashboard? 
+            // The router.push was /organizer/events in previous code.
+            // I should check if that route exists.
+        } catch (error) {
+            console.error(error)
             toast.error("Failed to create event.")
         } finally {
             setIsLoading(false)
@@ -70,9 +100,9 @@ export function EventForm() {
                             <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                            {CATEGORIES.filter(c => c !== "All").map((category) => (
-                                <SelectItem key={category} value={category}>
-                                    {category}
+                            {categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id.toString()}>
+                                    {category.name}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -85,6 +115,17 @@ export function EventForm() {
                     <Input id="city" placeholder="e.g. New York" {...register("city")} disabled={isLoading} />
                     {errors.city && <p className="text-sm text-destructive">{errors.city.message}</p>}
                 </div>
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="date">Date & Time</label>
+                <Input
+                    id="date"
+                    type="datetime-local"
+                    {...register("date")}
+                    disabled={isLoading}
+                />
+                {errors.date && <p className="text-sm text-destructive">{errors.date.message}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

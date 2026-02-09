@@ -11,13 +11,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
+import { organizerApi } from "@/lib/api/organizer"
 
 const organizerSchema = z.object({
-    organizerName: z.string().min(3, "Name must be at least 3 characters"),
+    organizationName: z.string().min(3, "Name must be at least 3 characters"),
     description: z.string().min(20, "Description must be at least 20 characters"),
     city: z.string().min(2, "City is required"),
-    contactEmail: z.string().email("Invalid email"),
-    instagram: z.string().optional(),
+    contactInfo: z.string().min(5, "Contact info is required (email or phone)"),
 })
 
 type OrganizerInput = z.infer<typeof organizerSchema>
@@ -37,13 +37,11 @@ export function OrganizerApplicationForm() {
     const onSubmit = async (data: OrganizerInput) => {
         setIsLoading(true)
         try {
-            // Mock API call
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            console.log(data)
+            await organizerApi.apply(data)
             toast.success("Application submitted!")
-            router.push("/organizer/dashboard") // Auto-approve for MVP
-        } catch (_error) {
-            toast.error("Failed to submit application.")
+            router.push("/dashboard") // Redirect to dashboard to see organizer view
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Failed to submit application.")
         } finally {
             setIsLoading(false)
         }
@@ -52,9 +50,9 @@ export function OrganizerApplicationForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
             <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="organizerName">Organizer / Brand Name</label>
-                <Input id="organizerName" placeholder="e.g. City Events Co." {...register("organizerName")} disabled={isLoading} />
-                {errors.organizerName && <p className="text-sm text-destructive">{errors.organizerName.message}</p>}
+                <label className="text-sm font-medium" htmlFor="organizationName">Organizer / Brand Name</label>
+                <Input id="organizationName" placeholder="e.g. City Events Co." {...register("organizationName")} disabled={isLoading} />
+                {errors.organizationName && <p className="text-sm text-destructive">{errors.organizationName.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -77,16 +75,13 @@ export function OrganizerApplicationForm() {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="contactEmail">Contact Email</label>
-                    <Input id="contactEmail" type="email" {...register("contactEmail")} disabled={isLoading} />
-                    {errors.contactEmail && <p className="text-sm text-destructive">{errors.contactEmail.message}</p>}
+                    <label className="text-sm font-medium" htmlFor="contactInfo">Contact Info</label>
+                    <Input id="contactInfo" placeholder="Email or Phone" {...register("contactInfo")} disabled={isLoading} />
+                    {errors.contactInfo && <p className="text-sm text-destructive">{errors.contactInfo.message}</p>}
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="instagram">Instagram (Optional)</label>
-                <Input id="instagram" placeholder="@username" {...register("instagram")} disabled={isLoading} />
-            </div>
+
 
             <div className="flex gap-4">
                 <Button type="submit" disabled={isLoading}>

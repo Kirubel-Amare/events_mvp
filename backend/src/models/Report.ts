@@ -33,7 +33,7 @@ export class Report {
   })
   type!: ReportType;
 
-  @Column()
+  @Column({ type: 'varchar' })
   contentId!: string;
 
   @Column({ type: 'text' })
@@ -49,10 +49,10 @@ export class Report {
   })
   status: ReportStatus = ReportStatus.PENDING;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   resolvedAt: Date | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   resolvedBy: string | null = null;
 
   @ManyToOne(() => User, (user) => user.reports, {
@@ -60,7 +60,7 @@ export class Report {
   })
   reporter!: User;
 
-  @Column()
+  @Column({ type: 'uuid' })
   reporterId!: string;
 
   @CreateDateColumn()

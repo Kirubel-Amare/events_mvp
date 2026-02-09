@@ -14,22 +14,22 @@ export class PersonalProfile {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   name!: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   username!: string;
 
   @Column({ type: 'text', nullable: true })
   bio: string | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   profilePhoto: string | null = null;
 
   @Column('text', { array: true, default: [] })
   additionalImages: string[] = [];
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   city: string | null = null;
 
   @OneToOne(() => User, (user) => user.personalProfile, {
@@ -38,7 +38,7 @@ export class PersonalProfile {
   @JoinColumn()
   user!: User;
 
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
   @CreateDateColumn()

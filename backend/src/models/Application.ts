@@ -35,7 +35,7 @@ export class Application {
   })
   user!: User;
 
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
   @ManyToOne(() => Plan, (plan) => plan.applications, {
@@ -44,7 +44,7 @@ export class Application {
   })
   plan: Plan | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   planId: string | null = null;
 
   @ManyToOne(() => Event, (event) => event.applications, {
@@ -53,7 +53,7 @@ export class Application {
   })
   event: Event | null = null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   eventId: string | null = null;
 
   @CreateDateColumn()

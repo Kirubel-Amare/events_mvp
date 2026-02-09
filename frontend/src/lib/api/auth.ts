@@ -1,5 +1,7 @@
 import { apiClient } from './client';
 
+import { User } from '@/types';
+
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -13,20 +15,7 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    username: string;
-    isOrganizer: boolean;
-    isAdmin: boolean;
-    personalProfile?: {
-      id: string;
-      profilePhoto: string;
-      bio: string;
-      city: string;
-    };
-  };
+  user: User;
   token: string;
 }
 

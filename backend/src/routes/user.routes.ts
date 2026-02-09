@@ -6,9 +6,6 @@ import * as userController from '../controllers/user.controller';
 
 const router = Router();
 
-// Get user profile (public)
-router.get('/:username', optionalAuth, userController.getUserProfile);
-
 // Update user profile (authenticated)
 router.put(
   '/profile',
@@ -43,14 +40,17 @@ router.delete(
   userController.removeProfileImage
 );
 
-// Get user's plans
-router.get('/:userId/plans', optionalAuth, userController.getUserPlans);
-
 // Get user's applications
 router.get(
   '/applications',
   authenticate,
   userController.getUserApplications
 );
+
+// Get user's plans
+router.get('/:userId/plans', optionalAuth, userController.getUserPlans);
+
+// Get user profile (public) - Must be last to avoid capturing other routes
+router.get('/:username', optionalAuth, userController.getUserProfile);
 
 export default router;

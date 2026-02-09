@@ -23,7 +23,13 @@ export const authenticate = async (
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, config.jwt.secret) as { userId: string };
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.jwt.secret) as { userId: string };
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
 
     const user = await userRepository.findOne({
       where: { id: decoded.userId },

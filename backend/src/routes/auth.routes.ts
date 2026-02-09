@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { validateRequest } from '../middleware/validation';
+import { authenticate } from '../middleware/auth';
 import * as authController from '../controllers/auth.controller';
 
 const router = Router();
@@ -33,7 +34,7 @@ router.post(
 router.post('/logout', authController.logout);
 
 // Get current user
-router.get('/me', authController.getCurrentUser);
+router.get('/me', authenticate, authController.getCurrentUser);
 
 // Refresh token
 router.post('/refresh', authController.refreshToken);

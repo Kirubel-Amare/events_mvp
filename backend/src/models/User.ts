@@ -18,22 +18,22 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   email!: string;
 
-  @Column({ select: false })
+  @Column({ type: 'varchar', select: false })
   passwordHash!: string;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isEmailVerified: boolean = false;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isOrganizer: boolean = false;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isAdmin: boolean = false;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   lastLogin: Date | null = null;
 
   @OneToOne(() => PersonalProfile, (profile) => profile.user, {
@@ -63,8 +63,5 @@ export class User {
   updatedAt!: Date;
 
   constructor() {
-    this.plans = [];
-    this.applications = [];
-    this.reports = [];
   }
 }

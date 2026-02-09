@@ -16,28 +16,28 @@ export class OrganizerProfile {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
-  name!: string;
+  @Column({ type: 'varchar' })
+  organizationName!: string;
 
-  @Column({ nullable: true })
-  profileImage: string | null = null;
+  @Column({ type: 'varchar', nullable: true })
+  profilePhoto: string | null = null;
 
-  @Column()
+  @Column({ type: 'varchar' })
   city!: string;
 
   @Column({ type: 'text' })
   description!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   contactInfo!: string;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isVerified: boolean = false;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   verifiedAt: Date | null = null;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isActive: boolean = false;
 
   @OneToOne(() => User, (user) => user.organizerProfile, {
@@ -46,7 +46,7 @@ export class OrganizerProfile {
   @JoinColumn()
   user!: User;
 
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
   @OneToMany(() => Event, (event) => event.organizer)
@@ -59,6 +59,5 @@ export class OrganizerProfile {
   updatedAt!: Date;
 
   constructor() {
-    this.events = [];
   }
 }

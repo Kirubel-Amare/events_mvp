@@ -3,15 +3,30 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart } from "lucide-react"
+import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { useAuthStore } from "@/store/auth-store"
+import { useRouter } from "next/navigation"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // Temporary
+  const { isAuthenticated, user, logout } = useAuthStore()
   const [activeNav, setActiveNav] = useState("home")
-  
+  const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
+
+  const handleLogout = () => {
+    logout()
+    router.push("/")
+  }
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      router.push(`/browse/events?search=${encodeURIComponent(searchQuery)}`)
+      setIsMenuOpen(false) // Close mobile menu if open
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -29,10 +44,10 @@ export default function Header() {
               <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 EventHub
               </span>
-              
+
             </div>
           </Link>
-          
+
           {/* Mobile Search */}
           <Button
             variant="ghost"
@@ -47,21 +62,20 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-1">
           {[
             { label: "Home", href: "/", active: activeNav === "home" },
-            { label: "Browse", href: "/browse", active: activeNav === "browse" },
-            { label: "Events", href: "/events", active: activeNav === "events" },
+            { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
+            { label: "Events", href: "/browse/events", active: activeNav === "events" },
             { label: "Plans", href: "/plans", active: activeNav === "plans" },
             // { label: "Trending", href: "/trending", active: activeNav === "trending" },
             // { label: "Organizers", href: "/organizer", active: activeNav === "organizer" },
           ].map((item) => (
             <Link
-              key={item.href}
+              key={item.href + item.label}
               href={item.href}
               onClick={() => setActiveNav(item.href.slice(1) || "home")}
-              className={`relative px-4 py-2 text-sm font-medium transition-colors ${
-                item.active
-                  ? "text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
-              }`}
+              className={`relative px-4 py-2 text-sm font-medium transition-colors ${item.active
+                ? "text-blue-600"
+                : "text-gray-700 hover:text-blue-600"
+                }`}
             >
               {item.label}
               {item.active && (
@@ -78,6 +92,9 @@ export default function Header() {
             <Input
               placeholder="Search events, categories, or locations..."
               className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
             />
           </div>
           <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-100 hover:border-gray-300">
@@ -87,7 +104,7 @@ export default function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
-          {isLoggedIn ? (
+          {isAuthenticated && user ? (
             <>
               <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 <Bell className="h-5 w-5" />
@@ -98,34 +115,39 @@ export default function Header() {
               <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 <Heart className="h-5 w-5" />
               </Button>
-              <div className="relative">
+              <div className="relative flex items-center gap-2">
                 <Button
                   variant="outline"
-                  className="h-9 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
+                  className="h-9 border-gray-200 hover:bg-gray-100 hover:border-gray-300 px-2"
                   asChild
                 >
                   <Link href="/dashboard">
                     <div className="h-6 w-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mr-2 flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">JD</span>
+                      <span className="text-white text-xs font-medium">
+                        {user.name?.[0] || user.email?.[0] || "U"}
+                      </span>
                     </div>
-                    Dashboard
+                    <span className="max-w-[100px] truncate">{user.name || "User"}</span>
                   </Link>
                 </Button>
+                <Button variant="ghost" size="icon" onClick={handleLogout} title="Log out">
+                  <LogOut className="h-5 w-5 text-gray-500" />
+                </Button>
               </div>
-              <Button 
+              <Button
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
-                <Link href="/plans/create">
+                <Link href={user.isOrganizer ? "/events/create" : "/plans/create"}>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Create
+                  {user.isOrganizer ? "Create Event" : "Create Plan"}
                 </Link>
               </Button>
             </>
           ) : (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
@@ -133,7 +155,7 @@ export default function Header() {
                   Log In
                 </Link>
               </Button>
-              <Button 
+              <Button
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
@@ -166,6 +188,9 @@ export default function Header() {
               <Input
                 placeholder="Search events..."
                 className="pl-10 bg-gray-50 border-gray-200"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
               />
             </div>
 
@@ -173,16 +198,16 @@ export default function Header() {
             <div className="space-y-1">
               {[
                 { label: "Home", href: "/", icon: "🏠" },
-                { label: "Browse", href: "/browse", icon: "🔍" },
-                { label: "Events", href: "/events", icon: "🎫" },
+                { label: "Browse", href: "/browse/events", icon: "🔍" },
+                { label: "Events", href: "/browse/events", icon: "🎫" },
                 { label: "Plans", href: "/plans", icon: "📅" },
-                { label: "Trending", href: "/trending", icon: "🔥" },
-                { label: "Organizers", href: "/organizer", icon: "👥" },
-                { label: "Saved", href: "/saved", icon: "❤️" },
-                { label: "Notifications", href: "/notifications", icon: "🔔" },
+                // { label: "Trending", href: "/trending", icon: "🔥" },
+                // { label: "Organizers", href: "/organizer", icon: "👥" },
+                // { label: "Saved", href: "/saved", icon: "❤️" },
+                // { label: "Notifications", href: "/notifications", icon: "🔔" },
               ].map((item) => (
                 <Link
-                  key={item.href}
+                  key={item.href + item.label}
                   href={item.href}
                   className="flex items-center gap-3 py-3 px-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
@@ -195,15 +220,15 @@ export default function Header() {
 
             {/* Mobile Auth Buttons */}
             <div className="pt-4 border-t border-gray-200 space-y-3">
-              {isLoggedIn ? (
+              {isAuthenticated && user ? (
                 <>
                   <div className="flex items-center gap-3 px-2 py-3">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">JD</span>
+                      <span className="text-white text-sm font-medium">{user.name?.[0] || "U"}</span>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">John Doe</div>
-                      <div className="text-sm text-gray-500">john@example.com</div>
+                      <div className="font-semibold text-gray-900">{user.name}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full border-gray-300" asChild>
@@ -211,20 +236,28 @@ export default function Header() {
                       Dashboard
                     </Link>
                   </Button>
-                  <Button 
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log Out
+                  </Button>
+                  <Button
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     asChild
                   >
-                    <Link href="/plans/create">
+                    <Link href={user.isOrganizer ? "/events/create" : "/plans/create"}>
                       <Sparkles className="mr-2 h-4 w-4" />
-                      Create New Plan
+                      {user.isOrganizer ? "Create Event" : "Create Plan"}
                     </Link>
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full border-gray-300 hover:bg-gray-100"
                     asChild
                   >
@@ -232,7 +265,7 @@ export default function Header() {
                       Log In
                     </Link>
                   </Button>
-                  <Button 
+                  <Button
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     asChild
                   >

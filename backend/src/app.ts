@@ -32,19 +32,19 @@ class App {
     // Security
     this.app.use(helmet());
     this.app.use(cors(corsOptions));
-    
+
     // Compression
     this.app.use(compression());
-    
+
     // Logging
     if (config.nodeEnv === 'development') {
       this.app.use(morgan('dev'));
     }
-    
+
     // Body parsing
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-    
+
     // Static files
     this.app.use('/uploads', express.static('public/uploads'));
   }
@@ -52,8 +52,8 @@ class App {
   private initializeRoutes(): void {
     // Health check
     this.app.get('/api/health', (req, res) => {
-      res.json({ 
-        status: 'ok', 
+      res.json({
+        status: 'ok',
         timestamp: new Date().toISOString(),
         environment: config.nodeEnv,
         version: config.apiVersion,
@@ -80,7 +80,7 @@ class App {
     try {
       // Initialize database
       await initializeDatabase();
-      
+
       // Start server
       this.app.listen(config.port, () => {
         console.log(`Server running on port ${config.port}`);

@@ -21,19 +21,19 @@ export class Plan {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   title!: string;
 
   @Column({ type: 'text' })
   description!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   location!: string;
 
   @Column({ type: 'timestamp' })
   date!: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   externalLink: string | null = null;
 
   @Column({
@@ -48,7 +48,7 @@ export class Plan {
   })
   creator!: User;
 
-  @Column()
+  @Column({ type: 'uuid' })
   creatorId!: string;
 
   @OneToMany(() => Application, (application) => application.plan)
@@ -61,6 +61,5 @@ export class Plan {
   updatedAt!: Date;
 
   constructor() {
-    this.applications = [];
   }
 }

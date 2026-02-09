@@ -1,4 +1,4 @@
-    export interface EventResponse {
+export interface EventResponse {
   id: string;
   title: string;
   description: string;
@@ -12,8 +12,8 @@
   status: string;
   organizer: {
     id: string;
-    name: string;
-    profileImage: string;
+    organizationName: string;
+    profilePhoto: string;
     city: string;
     isVerified: boolean;
   };

@@ -25,6 +25,9 @@ router.get(
 // Get featured events
 router.get('/featured', optionalAuth, eventController.getFeaturedEvents);
 
+// Get all categories
+router.get('/categories', optionalAuth, eventController.getCategories);
+
 // Get single event
 router.get('/:id', optionalAuth, eventController.getEventById);
 
