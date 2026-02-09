@@ -1,19 +1,33 @@
+"use client"
+
 import Link from "next/link"
 import { Calendar, Mail, Facebook, Twitter, Instagram } from "lucide-react"
+import { useState } from "react"
+import { Button } from "../ui/button"
 
 export default function Footer() {
+  const [activeNav, setActiveNav] = useState("home")
+
   return (
     <footer className="border-t bg-muted/40">
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <Calendar className="h-6 w-6 text-primary-foreground" />
+              <Link href="/" className="flex items-center gap-2" onClick={() => setActiveNav("home")}>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur" />
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
+                <Calendar className="h-4 w-4 text-white" />
               </div>
-              <span className="text-xl font-bold">EventHub</span>
-            </Link>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                EventHub
+              </span>
+              
+            </div>
+          </Link>
             <p className="text-sm text-muted-foreground">
               Discover events and create social plans. Connect through shared interests.
             </p>
@@ -86,12 +100,15 @@ export default function Footer() {
                   placeholder="Your email"
                   className="flex-1 rounded-l-lg border border-input bg-background px-3 py-2 text-sm"
                 />
-                <button
-                  type="submit"
-                  className="rounded-r-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  <Mail className="h-4 w-4" />
-                </button>
+                <Button 
+                variant="outline" 
+                className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 text-gray-700"
+                asChild
+              >
+                <Link href="/login">
+                  Log In
+                </Link>
+              </Button>
               </div>
             </form>
             <div className="flex gap-4 mt-6">

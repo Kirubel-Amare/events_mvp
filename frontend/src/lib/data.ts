@@ -1,5 +1,3 @@
-
-
 export const CATEGORIES = ["All", "Music", "Food", "Art", "Tech", "Social", "Sports"]
 
 export const MOCK_EVENTS = [
@@ -14,6 +12,8 @@ export const MOCK_EVENTS = [
         category: "Music",
         organizer: "City Events",
         featured: true,
+        attendees: 120,
+        reviews: 34,
     },
     {
         id: "2",
@@ -26,6 +26,8 @@ export const MOCK_EVENTS = [
         category: "Tech",
         organizer: "TechCommunity",
         featured: false,
+        attendees: 80,
+        reviews: 23,
     },
     {
         id: "3",
@@ -38,6 +40,8 @@ export const MOCK_EVENTS = [
         category: "Food",
         organizer: "FoodieGroup",
         featured: false,
+        attendees: 150,
+        reviews: 45,
     },
     {
         id: "4",
@@ -50,6 +54,8 @@ export const MOCK_EVENTS = [
         category: "Art",
         organizer: "ArtCollective",
         featured: true,
+        attendees: 90,
+        reviews: 28,
     },
 ]
 
