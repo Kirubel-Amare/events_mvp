@@ -1,0 +1,75 @@
+
+
+export const CATEGORIES = ["All", "Music", "Food", "Art", "Tech", "Social", "Sports"]
+
+export const MOCK_EVENTS = [
+    {
+        id: "1",
+        title: "Summer Music Festival",
+        description: "Join us for a day of live music, food, and fun! Featuring standard local artists and great vibes.",
+        date: "2024-07-15",
+        time: "12:00 PM",
+        location: "Central Park, NY",
+        image: "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?auto=format&fit=crop&q=80&w=1000",
+        category: "Music",
+        organizer: "City Events",
+        featured: true,
+    },
+    {
+        id: "2",
+        title: "Tech Startup Mixer",
+        description: "Network with founders, investors, and developers in the local tech scene.",
+        date: "2024-06-20",
+        time: "6:00 PM",
+        location: "Innovation Hub",
+        image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=1000",
+        category: "Tech",
+        organizer: "TechCommunity",
+        featured: false,
+    },
+    {
+        id: "3",
+        title: "Food Truck Friday",
+        description: "The best food trucks in the city gathering in one place.",
+        date: "2024-06-21",
+        time: "5:00 PM",
+        location: "Downtown Plaza",
+        image: "https://images.unsplash.com/photo-1565123409695-7b5ef637204a?auto=format&fit=crop&q=80&w=1000",
+        category: "Food",
+        organizer: "FoodieGroup",
+        featured: false,
+    },
+    {
+        id: "4",
+        title: "Art Gallery Opening",
+        description: "Experience modern art from upcoming artists.",
+        date: "2024-06-25",
+        time: "7:00 PM",
+        location: "The Gallery",
+        image: "https://images.unsplash.com/photo-1518998053901-5348d3969104?auto=format&fit=crop&q=80&w=1000",
+        category: "Art",
+        organizer: "ArtCollective",
+        featured: true,
+    },
+]
+
+export const MOCK_PLANS = [
+    {
+        id: "1",
+        title: "Weekend Hiking Trip",
+        description: "Planning to go hiking this weekend. Looking for company!",
+        date: "2024-06-22",
+        location: "Blue Mountain",
+        organizer: "Alex User",
+        avatar: "https://github.com/shadcn.png",
+    },
+    {
+        id: "2",
+        title: "Coffee & Coding",
+        description: "Let's meet up and code together at a query coffee shop.",
+        date: "2024-06-23",
+        location: "Brew Café",
+        organizer: "Sarah Dev",
+        avatar: "https://github.com/shadcn.png",
+    },
+]
