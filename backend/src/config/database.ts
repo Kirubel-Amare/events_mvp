@@ -9,8 +9,17 @@ export const AppDataSource = new DataSource({
   username: config.database.username,
   password: config.database.password,
   database: config.database.database,
-  synchronize: config.nodeEnv !== 'production',
-  logging: config.nodeEnv === 'development',
+  
+  // Auto-sync only in development for convenience
+  synchronize: config.nodeEnv === 'development',
+
+  // Logging options:
+  // - 'all' logs everything
+  // - ['query', 'error'] logs queries + errors
+  // - ['error'] logs only errors
+  // - false disables all SQL logging
+  logging: config.nodeEnv === 'development' ? ['error'] : false,
+
   entities: [path.join(__dirname, '../models/**/*.{ts,js}')],
   migrations: [path.join(__dirname, '../database/migrations/**/*.{ts,js}')],
   subscribers: [],

@@ -22,14 +22,14 @@ export class OrganizerProfile {
   @Column({ type: 'varchar', nullable: true })
   profilePhoto: string | null = null;
 
-  @Column({ type: 'varchar' })
-  city!: string;
+  @Column({ type: 'varchar', nullable: true })
+  city: string | null = null;
 
-  @Column({ type: 'text' })
-  description!: string;
+  @Column({ type: 'text', nullable: true })
+  description: string | null = null;
 
-  @Column({ type: 'varchar' })
-  contactInfo!: string;
+  @Column({ type: 'varchar', nullable: true })
+  contactInfo: string | null = null;
 
   @Column({ type: 'boolean', default: false })
   isVerified: boolean = false;

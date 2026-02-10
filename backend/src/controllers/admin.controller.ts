@@ -111,7 +111,7 @@ export const handleOrganizerApplication = async (req: AuthRequest, res: Response
       if (!profile) {
         profile = new OrganizerProfile();
         profile.userId = user.id;
-        profile.organizationName = application.organizationName || user.name;
+        profile.organizationName = application.organizationName || user.name || 'Unknown Organization';
         profile.isVerified = true;
         profile.verifiedAt = new Date();
         await organizerProfileRepository.save(profile);

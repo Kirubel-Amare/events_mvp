@@ -111,34 +111,13 @@ export default function Header() {
                   3
                 </Badge>
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                <Heart className="h-5 w-5" />
-              </Button>
-              <div className="relative flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  className="h-9 border-gray-200 hover:bg-gray-100 hover:border-gray-300 px-2"
-                  asChild
-                >
-                  <Link href="/dashboard">
-                    <div className="h-6 w-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mr-2 flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">
-                        {user.name?.[0] || user.email?.[0] || "U"}
-                      </span>
-                    </div>
-                    <span className="max-w-[100px] truncate">{user.name || "User"}</span>
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleLogout} title="Log out">
-                  <LogOut className="h-5 w-5 text-gray-500" />
-                </Button>
-              </div>
+
+
               <Button
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
                 <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
                 </Link>
               </Button>

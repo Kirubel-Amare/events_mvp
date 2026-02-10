@@ -31,11 +31,11 @@ export class User {
   @Column({ type: 'varchar', select: false })
   passwordHash!: string;
 
-  @Column({ type: 'varchar' })
-  name!: string;
+  @Column({ type: 'varchar', nullable: true })
+  name: string | null = null;
 
-  @Column({ type: 'varchar', unique: true })
-  username!: string;
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  username: string | null = null;
 
   @Column({
     type: 'enum',
