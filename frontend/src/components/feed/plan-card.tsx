@@ -5,33 +5,29 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle, ModalTrigger } from "@/components/ui/modal"
 
+import { Plan } from "@/types"
+
 interface PlanCardProps {
-    plan: {
-        id: string
-        title: string
-        description: string
-        date: string
-        location: string
-        organizer: string
-        avatar?: string
-    }
+    plan: Plan | any
 }
 
 export function PlanCard({ plan }: PlanCardProps) {
+    const creatorName = (plan as any).organizer || plan.creator?.name || "Unknown"
+    const creatorAvatar = (plan as any).avatar || plan.creator?.personalProfile?.profilePhoto
     return (
         <Card className="h-full flex flex-col hover:border-primary/50 transition-colors">
             <CardHeader className="p-4 pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{plan.title}</CardTitle>
-                    {plan.avatar ? (
-                        <Image src={plan.avatar} alt={plan.organizer} width={32} height={32} className="rounded-full" />
+                    {creatorAvatar ? (
+                        <Image src={creatorAvatar} alt={creatorName} width={32} height={32} className="rounded-full" />
                     ) : (
                         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                             <User className="h-4 w-4" />
                         </div>
                     )}
                 </div>
-                <div className="text-sm text-muted-foreground">by {plan.organizer}</div>
+                <div className="text-sm text-muted-foreground">by {creatorName}</div>
             </CardHeader>
             <CardContent className="p-4 pt-2 flex-1 space-y-3">
                 <p className="text-sm">{plan.description}</p>
