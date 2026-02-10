@@ -4,9 +4,10 @@ import { Event, EventStatus } from '../models/Event';
 import { OrganizerProfile } from '../models/OrganizerProfile';
 import { Report, ReportStatus } from '../models/Report';
 import { Category } from '../models/Category';
-import { User } from '../models/User';
+import { User, UserRole } from '../models/User';
 import { Plan } from '../models/Plan';
 import { AuthRequest } from '../middleware/auth';
+import { OrganizerApplication, ApplicationStatus } from '../models/OrganizerApplication';
 
 const eventRepository = AppDataSource.getRepository(Event);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
@@ -14,6 +15,7 @@ const reportRepository = AppDataSource.getRepository(Report);
 const categoryRepository = AppDataSource.getRepository(Category);
 const userRepository = AppDataSource.getRepository(User);
 const planRepository = AppDataSource.getRepository(Plan);
+const applicationRepository = AppDataSource.getRepository(OrganizerApplication);
 
 export const getPendingEvents = async (req: AuthRequest, res: Response) => {
   try {
@@ -62,37 +64,68 @@ export const toggleEventFeature = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getPendingOrganizers = async (req: AuthRequest, res: Response) => {
+export const getOrganizerApplications = async (req: AuthRequest, res: Response) => {
   try {
-    const organizers = await organizerProfileRepository.find({
-      where: { isVerified: false },
+    const { status } = req.query;
+    const where: any = {};
+    if (status) where.status = status;
+
+    const applications = await applicationRepository.find({
+      where,
       relations: ['user'],
-      order: { createdAt: 'ASC' },
+      order: { createdAt: 'DESC' },
     });
-    res.json(organizers);
+    res.json(applications);
   } catch (error) {
+    console.error('Get organizer applications error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-export const verifyOrganizer = async (req: AuthRequest, res: Response) => {
+export const handleOrganizerApplication = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { isVerified } = req.body;
+    const { status, adminComment } = req.body; // status: 'approved' or 'rejected'
 
-    const organizer = await organizerProfileRepository.findOne({ where: { id } });
-    if (!organizer) return res.status(404).json({ error: 'Organizer not found' });
+    const application = await applicationRepository.findOne({
+      where: { id },
+      relations: ['user']
+    });
 
-    organizer.isVerified = isVerified;
-    if (isVerified) {
-      organizer.verifiedAt = new Date();
-    } else {
-      organizer.verifiedAt = null;
+    if (!application) return res.status(404).json({ error: 'Application not found' });
+
+    application.status = status as ApplicationStatus;
+    application.adminComment = adminComment;
+    await applicationRepository.save(application);
+
+    if (status === ApplicationStatus.APPROVED) {
+      const user = application.user;
+
+      // Update user role
+      user.role = UserRole.ORGANIZER;
+      user.isOrganizer = true;
+      await userRepository.save(user);
+
+      // Create Organizer Profile if it doesn't exist
+      let profile = await organizerProfileRepository.findOne({ where: { userId: user.id } });
+      if (!profile) {
+        profile = new OrganizerProfile();
+        profile.userId = user.id;
+        profile.organizationName = application.organizationName || user.name;
+        profile.isVerified = true;
+        profile.verifiedAt = new Date();
+        await organizerProfileRepository.save(profile);
+      } else {
+        profile.isVerified = true;
+        profile.verifiedAt = new Date();
+        if (application.organizationName) profile.organizationName = application.organizationName;
+        await organizerProfileRepository.save(profile);
+      }
     }
-    await organizerProfileRepository.save(organizer);
 
-    res.json({ message: 'Organizer verification updated', organizer });
+    res.json({ message: `Application ${status}`, application });
   } catch (error) {
+    console.error('Handle organizer application error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -190,9 +223,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const { role } = req.query;
     const where: any = {};
-    if (role === 'organizer') where.isOrganizer = true;
-    if (role === 'admin') where.isAdmin = true;
-    // if role === 'user', maybe show all? or just non-organizers?
+    if (role) where.role = role;
 
     const users = await userRepository.find({
       where,
@@ -214,15 +245,9 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
     const user = await userRepository.findOne({ where: { id } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Prevent removing own admin status if you are the only one?
-    // For MVP, just update.
-
-    if (role === 'admin') user.isAdmin = true;
-    else if (role === 'organizer') user.isOrganizer = true;
-    else {
-      user.isAdmin = false;
-      user.isOrganizer = false;
-    }
+    user.role = role as UserRole;
+    user.isAdmin = role === UserRole.ADMIN;
+    user.isOrganizer = role === UserRole.ORGANIZER;
 
     await userRepository.save(user);
     res.json({ message: 'User role updated', user });

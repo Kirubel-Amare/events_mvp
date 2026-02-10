@@ -21,6 +21,7 @@ export default function RegisterPage() {
     username: "",
     email: "",
     password: "",
+    role: "user" as "user" | "organizer" | "admin",
   })
   const [agreeToTerms, setAgreeToTerms] = useState(false)
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
@@ -43,7 +44,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!agreeToTerms) {
       toast.error("Please agree to the Terms of Service and Privacy Policy")
       return
@@ -118,7 +119,7 @@ export default function RegisterPage() {
       {/* Floating elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-blue-100/30 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-100/30 rounded-full blur-3xl" />
-      
+
       <div className="container relative flex items-center justify-center min-h-screen py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-center w-full max-w-6xl">
           {/* Left Column - Hero */}
@@ -133,13 +134,13 @@ export default function RegisterPage() {
                   <p className="text-gray-600">Discover & Connect</p>
                 </div>
               </div>
-              
+
               <h2 className="text-5xl font-bold text-gray-900 mb-6">
                 Join Our <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600">Community</span>
               </h2>
-              
+
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Create your free account to start discovering amazing events, 
+                Create your free account to start discovering amazing events,
                 connect with like-minded people, and create unforgettable experiences.
               </p>
 
@@ -205,7 +206,7 @@ export default function RegisterPage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="username" className="text-gray-900">Username</Label>
                     <div className="relative">
@@ -248,7 +249,34 @@ export default function RegisterPage() {
                       This will be your public username (3-30 characters)
                     </p>
                   </div>
-                  
+
+                  <div className="space-y-3">
+                    <Label className="text-gray-900">I am registering as a:</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div
+                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${formData.role === 'user' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                        onClick={() => setFormData({ ...formData, role: 'user' })}
+                      >
+                        <User className={`h-5 w-5 mb-1 ${formData.role === 'user' ? 'text-blue-600' : 'text-gray-400'}`} />
+                        <span className={`text-xs font-medium ${formData.role === 'user' ? 'text-blue-700' : 'text-gray-600'}`}>User</span>
+                      </div>
+                      <div
+                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${formData.role === 'organizer' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}`}
+                        onClick={() => setFormData({ ...formData, role: 'organizer' })}
+                      >
+                        <Calendar className={`h-5 w-5 mb-1 ${formData.role === 'organizer' ? 'text-purple-600' : 'text-gray-400'}`} />
+                        <span className={`text-xs font-medium ${formData.role === 'organizer' ? 'text-purple-700' : 'text-gray-600'}`}>Organizer</span>
+                      </div>
+                      <div
+                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${formData.role === 'admin' ? 'border-emerald-600 bg-emerald-50' : 'border-gray-200 hover:border-gray-300'}`}
+                        onClick={() => setFormData({ ...formData, role: 'admin' })}
+                      >
+                        <Shield className={`h-5 w-5 mb-1 ${formData.role === 'admin' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                        <span className={`text-xs font-medium ${formData.role === 'admin' ? 'text-emerald-700' : 'text-gray-600'}`}>Admin</span>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="space-y-3">
                     <Label htmlFor="email" className="text-gray-900">Email Address</Label>
                     <div className="relative">
@@ -266,7 +294,7 @@ export default function RegisterPage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="password" className="text-gray-900">Password</Label>
                     <div className="relative">
@@ -296,35 +324,33 @@ export default function RegisterPage() {
                         )}
                       </button>
                     </div>
-                    
+
                     {/* Password Strength Meter */}
                     {formData.password.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-600">Password strength</span>
-                          <span className={`font-medium ${
-                            passwordScore === 4 ? 'text-emerald-600' :
+                          <span className={`font-medium ${passwordScore === 4 ? 'text-emerald-600' :
                             passwordScore >= 2 ? 'text-amber-600' :
-                            'text-red-600'
-                          }`}>
+                              'text-red-600'
+                            }`}>
                             {passwordScore === 4 ? 'Strong' :
-                             passwordScore >= 2 ? 'Good' :
-                             'Weak'}
+                              passwordScore >= 2 ? 'Good' :
+                                'Weak'}
                           </span>
                         </div>
                         <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full transition-all ${
-                              passwordScore === 4 ? 'bg-emerald-500' :
+                          <div
+                            className={`h-full rounded-full transition-all ${passwordScore === 4 ? 'bg-emerald-500' :
                               passwordScore >= 2 ? 'bg-amber-500' :
-                              'bg-red-500'
-                            }`}
+                                'bg-red-500'
+                              }`}
                             style={{ width: `${passwordScore * 25}%` }}
                           />
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 text-xs text-gray-600">
                         <div className={`h-1.5 w-1.5 rounded-full ${formData.password.length >= 8 ? 'bg-emerald-500' : 'bg-gray-300'}`} />
@@ -344,7 +370,7 @@ export default function RegisterPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                     <input
                       type="checkbox"
@@ -370,9 +396,9 @@ export default function RegisterPage() {
                       </p>
                     </div>
                   </div>
-                  
-                  <Button 
-                    type="submit" 
+
+                  <Button
+                    type="submit"
                     className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
                     disabled={isLoading || !agreeToTerms || passwordScore < 2 || usernameAvailable === false}
                   >
@@ -389,7 +415,7 @@ export default function RegisterPage() {
                     )}
                   </Button>
                 </form>
-                
+
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300"></div>
@@ -400,11 +426,11 @@ export default function RegisterPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
-                    type="button" 
+                  <Button
+                    variant="outline"
+                    type="button"
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
                     onClick={() => handleSocialRegister("Google")}
@@ -412,9 +438,9 @@ export default function RegisterPage() {
                     <Chrome className="mr-2 h-4 w-4" />
                     Google
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    type="button" 
+                  <Button
+                    variant="outline"
+                    type="button"
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
                     onClick={() => handleSocialRegister("GitHub")}
@@ -427,8 +453,8 @@ export default function RegisterPage() {
               <CardFooter className="flex justify-center border-t border-gray-200 pt-6">
                 <p className="text-center text-gray-600">
                   Already have an account?{" "}
-                  <Link 
-                    href="/login" 
+                  <Link
+                    href="/login"
                     className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                   >
                     Sign in

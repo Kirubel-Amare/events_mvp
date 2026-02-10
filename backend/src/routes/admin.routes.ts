@@ -41,23 +41,22 @@ router.put(
 
 // Organizer management
 router.get(
-  '/organizers/pending',
+  '/organizers/applications',
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
+    query('status').optional().isIn(['pending', 'approved', 'rejected']),
   ],
   validateRequest,
-  adminController.getPendingOrganizers
+  adminController.getOrganizerApplications
 );
 
-router.put(
-  '/organizers/:id/verify',
+router.post(
+  '/organizers/applications/:id/handle',
   [
-    body('isVerified').isBoolean(),
-    body('reason').optional().trim(),
+    body('status').isIn(['approved', 'rejected']),
+    body('adminComment').optional().trim(),
   ],
   validateRequest,
-  adminController.verifyOrganizer
+  adminController.handleOrganizerApplication
 );
 
 // Report management

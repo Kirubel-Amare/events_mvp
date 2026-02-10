@@ -4,51 +4,45 @@ import { User } from '../models/User';
 import { OrganizerProfile } from '../models/OrganizerProfile';
 import { Event } from '../models/Event';
 import { AuthRequest } from '../middleware/auth';
+import { OrganizerApplication, ApplicationStatus } from '../models/OrganizerApplication';
 
 const userRepository = AppDataSource.getRepository(User);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
 const eventRepository = AppDataSource.getRepository(Event);
+const applicationRepository = AppDataSource.getRepository(OrganizerApplication);
 
 export const applyToBeOrganizer = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { organizationName, city, description, contactInfo } = req.body;
+    const { reason, organizationName } = req.body;
 
-    const user = await userRepository.findOne({
-      where: { id: userId },
-      relations: ['organizerProfile'],
+    // Check if there's already a pending or approved application
+    const existingApplication = await applicationRepository.findOne({
+      where: [
+        { userId, status: ApplicationStatus.PENDING },
+        { userId, status: ApplicationStatus.APPROVED }
+      ]
     });
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    if (existingApplication) {
+      return res.status(400).json({
+        error: existingApplication.status === ApplicationStatus.APPROVED
+          ? 'You are already an organizer'
+          : 'You already have a pending application'
+      });
     }
 
-    if (user.organizerProfile) {
-      return res.status(400).json({ error: 'User is already an organizer' });
-    }
+    const application = new OrganizerApplication();
+    application.userId = userId;
+    application.reason = reason;
+    application.organizationName = organizationName;
+    application.status = ApplicationStatus.PENDING;
 
-    const organizerProfile = new OrganizerProfile();
-    organizerProfile.organizationName = organizationName;
-    organizerProfile.city = city;
-    organizerProfile.description = description;
-    organizerProfile.contactInfo = contactInfo;
-    organizerProfile.user = user;
-    // Auto-verify for MVP or set to false? Model default is false.
-    // Let's keep it false and require admin verification if that's the flow, 
-    // or auto-verify for MVP to reduce friction.
-    // user.isOrganizer is set to true only when profile exists? 
-    // Actually User.isOrganizer is a boolean column.
-
-    await organizerProfileRepository.save(organizerProfile);
-
-    // Update user status
-    user.isOrganizer = true;
-    user.organizerProfile = organizerProfile; // Fix: link in memory to avoid TypeORM unsetting relation
-    await userRepository.save(user);
+    await applicationRepository.save(application);
 
     return res.status(201).json({
-      message: 'Organizer profile created',
-      profile: organizerProfile
+      message: 'Application submitted successfully. It will be reviewed by an admin.',
+      application
     });
   } catch (error) {
     console.error('Apply to be organizer error:', error);

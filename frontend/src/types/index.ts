@@ -1,9 +1,10 @@
 export interface User {
     id: string;
     email: string;
-    name: string; // Keep for compatibility if transformed, but primarily rely on profiles
+    name: string;
     username: string;
-    isVerified?: boolean; // Added based on usage in dashboard
+    role: 'user' | 'organizer' | 'admin';
+    isVerified?: boolean;
     isOrganizer: boolean;
     isAdmin: boolean;
     organizerProfile?: OrganizerProfile;

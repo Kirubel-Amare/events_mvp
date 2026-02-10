@@ -12,6 +12,7 @@ export interface RegisterData {
   username: string;
   email: string;
   password: string;
+  role?: 'user' | 'organizer' | 'admin';
 }
 
 export interface AuthResponse {

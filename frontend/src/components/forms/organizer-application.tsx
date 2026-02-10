@@ -37,7 +37,10 @@ export function OrganizerApplicationForm() {
     const onSubmit = async (data: OrganizerInput) => {
         setIsLoading(true)
         try {
-            await organizerApi.apply(data)
+            await organizerApi.apply({
+                organizationName: data.organizationName,
+                reason: data.description // Mapping description to reason for API
+            })
             toast.success("Application submitted!")
             router.push("/dashboard") // Redirect to dashboard to see organizer view
         } catch (error: any) {

@@ -2,7 +2,7 @@ import { apiClient } from './client';
 import { Event } from '@/types';
 
 export const organizerApi = {
-    apply: async (data: { organizationName: string; city: string; description: string; contactInfo: string }) => {
+    apply: async (data: { reason: string; organizationName?: string }) => {
         const response = await apiClient.post('/organizer/apply', data);
         return response.data;
     },

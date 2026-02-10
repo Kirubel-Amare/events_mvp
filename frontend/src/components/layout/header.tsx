@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut } from "lucide-react"
+import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut, LayoutDashboard } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/auth-store"
@@ -63,8 +63,7 @@ export default function Header() {
           {[
             { label: "Home", href: "/", active: activeNav === "home" },
             { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
-            { label: "Events", href: "/browse/events", active: activeNav === "events" },
-            { label: "Plans", href: "/plans", active: activeNav === "plans" },
+            { label: "Events", href: "/events", active: activeNav === "events" },
             // { label: "Trending", href: "/trending", active: activeNav === "trending" },
             // { label: "Organizers", href: "/organizer", active: activeNav === "organizer" },
           ].map((item) => (
@@ -138,9 +137,9 @@ export default function Header() {
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 asChild
               >
-                <Link href={user.isOrganizer ? "/events/create" : "/plans/create"}>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  {user.isOrganizer ? "Create Event" : "Create Plan"}
+                <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
                 </Link>
               </Button>
             </>
@@ -199,8 +198,7 @@ export default function Header() {
               {[
                 { label: "Home", href: "/", icon: "🏠" },
                 { label: "Browse", href: "/browse/events", icon: "🔍" },
-                { label: "Events", href: "/browse/events", icon: "🎫" },
-                { label: "Plans", href: "/plans", icon: "📅" },
+                { label: "Events", href: "/events", icon: "🎫" },
                 // { label: "Trending", href: "/trending", icon: "🔥" },
                 // { label: "Organizers", href: "/organizer", icon: "👥" },
                 // { label: "Saved", href: "/saved", icon: "❤️" },
@@ -248,9 +246,9 @@ export default function Header() {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     asChild
                   >
-                    <Link href={user.isOrganizer ? "/events/create" : "/plans/create"}>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      {user.isOrganizer ? "Create Event" : "Create Plan"}
+                    <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard
                     </Link>
                   </Button>
                 </>

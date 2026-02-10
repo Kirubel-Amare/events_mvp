@@ -8,6 +8,8 @@ export interface GetEventsParams {
     category?: string;
     city?: string;
     isFeatured?: boolean;
+    sort?: string;
+    order?: 'ASC' | 'DESC';
 }
 
 export interface CreateEventData {

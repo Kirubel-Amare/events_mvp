@@ -24,7 +24,7 @@ import {
   MessageSquare,
   ArrowRight,
   Search,
-  Users as UsersIcon
+  Users as UsersIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -138,14 +138,9 @@ export default function HomePage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
               <Button size="lg" className="px-8 h-12 text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" asChild>
-                <Link href="/events">
+                <Link href="/browse/events">
                   Explore Events
                   <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-2 transition-transform" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="px-8 h-12 text-base border-gray-300 hover:bg-gray-100" asChild>
-                <Link href="/plans/create">
-                  Create Your Plan
                 </Link>
               </Button>
             </div>
@@ -380,60 +375,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Plans Section (Only for authenticated users) */}
-      {isAuthenticated && plans.length > 0 && (
-        <section className="container py-16 bg-blue-50/50">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">My Community Plans</h2>
-              <p className="text-gray-600">Casual gatherings and meetups</p>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/plans/create">
-                Create Plan
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <Card key={plan.id} className="border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">Plan</Badge>
-                    <span className="text-xs text-gray-500">
-                      {new Date(plan.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <CardTitle className="text-lg mt-2">{plan.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{plan.description}</p>
-                  <div className="space-y-2 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(plan.date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>{plan.location}</span>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  {plan.externalLink && (
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link href={plan.externalLink} target="_blank" rel="noopener noreferrer">
-                        Join Plan
-                      </Link>
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* All Events Grid with Images */}
       <section className="bg-gray-50 py-16">

@@ -33,7 +33,7 @@ export const usersApi = {
     },
 
     // Update profile
-    updateProfile: async (data: { name?: string; bio?: string; city?: string }) => {
+    updateProfile: async (data: { name?: string; bio?: string; city?: string; profilePhoto?: string }) => {
         const response = await apiClient.put('/users/profile', data);
         return response.data;
     }

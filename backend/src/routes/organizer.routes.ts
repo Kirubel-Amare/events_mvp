@@ -11,10 +11,8 @@ router.post(
   '/apply',
   authenticate,
   [
-    body('organizationName').trim().notEmpty(),
-    body('city').trim().notEmpty(),
-    body('description').trim().notEmpty(),
-    body('contactInfo').trim().notEmpty(),
+    body('reason').trim().notEmpty(),
+    body('organizationName').optional().trim(),
   ],
   validateRequest,
   organizerController.applyToBeOrganizer

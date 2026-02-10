@@ -14,6 +14,7 @@ import { eventSchema, type EventInput } from "@/lib/utils/validators"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { eventsApi } from "@/lib/api/events"
 import { Category } from "@/types"
+import { ImageUpload } from "@/components/shared/ImageUpload"
 
 export function EventForm() {
     const router = useRouter()
@@ -37,6 +38,7 @@ export function EventForm() {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors },
     } = useForm<EventInput>({
         resolver: zodResolver(eventSchema),
@@ -149,9 +151,11 @@ export function EventForm() {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="image">Event Image URL</label>
-                {/* Simple text input for MVP instead of file upload */}
-                <Input id="image" placeholder="https://..." {...register("image")} disabled={isLoading} />
+                <label className="text-sm font-medium">Event Image</label>
+                <ImageUpload
+                    onUpload={(url) => setValue("image", url)}
+                    value={watch("image")}
+                />
             </div>
 
             <div className="flex gap-4">

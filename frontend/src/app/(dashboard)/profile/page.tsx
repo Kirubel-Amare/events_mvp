@@ -13,6 +13,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useAuthStore } from "@/store/auth-store"
+import { OrganizerApplicationForm } from "@/components/forms/OrganizerApplicationForm"
+import { ImageUpload } from "@/components/shared/ImageUpload"
+import { usersApi } from "@/lib/api/users"
 
 const profileSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,6 +25,7 @@ const profileSchema = z.object({
     bio: z.string().max(160, "Bio must be less than 160 characters").optional(),
     website: z.string().url("Invalid URL").optional().or(z.literal("")),
     location: z.string().optional(),
+    profilePhoto: z.string().optional(),
 })
 
 type ProfileInput = z.infer<typeof profileSchema>
@@ -28,6 +33,7 @@ type ProfileInput = z.infer<typeof profileSchema>
 export default function ProfilePage() {
     const [isLoading, setIsLoading] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
+    const { user } = useAuthStore()
 
     const {
         register,
@@ -47,8 +53,12 @@ export default function ProfilePage() {
     const onSubmit = async (data: ProfileInput) => {
         setIsLoading(true)
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            console.log(data)
+            await usersApi.updateProfile({
+                name: data.name,
+                bio: data.bio,
+                city: data.location,
+                profilePhoto: data.profilePhoto
+            })
             toast.success("Profile updated successfully!")
         } catch (_error) {
             toast.error("Failed to update profile. Please try again.")
@@ -92,30 +102,25 @@ export default function ProfilePage() {
                     <Card className="border border-gray-200">
                         <CardContent className="p-6">
                             <div className="flex flex-col items-center text-center">
-                                <div className="relative mb-4">
-                                    <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                                        <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" />
-                                        <AvatarFallback className="text-3xl bg-gradient-to-br from-blue-100 to-purple-100 text-gray-700">
-                                            JD
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <Button
-                                        size="icon"
-                                        className="absolute bottom-0 right-0 h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                                        onClick={handleAvatarUpload}
-                                        disabled={isUploading}
-                                    >
-                                        {isUploading ? (
-                                            <LoadingSpinner className="h-4 w-4" />
-                                        ) : (
-                                            <Camera className="h-4 w-4" />
-                                        )}
-                                    </Button>
+                                <div className="mb-4">
+                                    <ImageUpload
+                                        onUpload={async (url) => {
+                                            if (!url) return;
+                                            try {
+                                                await onSubmit({ ...user, profilePhoto: url } as any);
+                                                toast.success("Profile photo updated!");
+                                            } catch (error) {
+                                                toast.error("Failed to update profile photo");
+                                            }
+                                        }}
+                                        value={user?.personalProfile?.profilePhoto || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user?.name}
+                                        className="w-32 h-32 mx-auto"
+                                    />
                                 </div>
-                                
+
                                 <h2 className="text-xl font-bold text-gray-900">John Doe</h2>
                                 <p className="text-gray-600">@johndoe</p>
-                                
+
                                 <div className="mt-4 space-y-2">
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                         <Mail className="h-4 w-4" />
@@ -170,6 +175,11 @@ export default function ProfilePage() {
                             </Button>
                         </CardContent>
                     </Card>
+
+                    {/* Organizer Application */}
+                    {!user?.isOrganizer && (
+                        <OrganizerApplicationForm />
+                    )}
                 </div>
 
                 {/* Right Column - Edit Form */}
@@ -189,9 +199,9 @@ export default function ProfilePage() {
                                             <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="name">
                                                 Full Name
                                             </label>
-                                            <Input 
-                                                id="name" 
-                                                {...register("name")} 
+                                            <Input
+                                                id="name"
+                                                {...register("name")}
                                                 disabled={isLoading}
                                                 className="bg-gray-50 border-gray-200 focus:bg-white"
                                             />
@@ -208,9 +218,9 @@ export default function ProfilePage() {
                                                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                                                     @
                                                 </div>
-                                                <Input 
-                                                    id="username" 
-                                                    {...register("username")} 
+                                                <Input
+                                                    id="username"
+                                                    {...register("username")}
                                                     disabled={isLoading}
                                                     className="pl-7 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
@@ -226,9 +236,9 @@ export default function ProfilePage() {
                                             </label>
                                             <div className="relative">
                                                 <Mail className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="email" 
-                                                    {...register("email")} 
+                                                <Input
+                                                    id="email"
+                                                    {...register("email")}
                                                     disabled={isLoading}
                                                     type="email"
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
@@ -247,9 +257,9 @@ export default function ProfilePage() {
                                             </label>
                                             <div className="relative">
                                                 <MapPin className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="location" 
-                                                    {...register("location")} 
+                                                <Input
+                                                    id="location"
+                                                    {...register("location")}
                                                     disabled={isLoading}
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
@@ -262,10 +272,10 @@ export default function ProfilePage() {
                                             </label>
                                             <div className="relative">
                                                 <Globe className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input 
-                                                    id="website" 
+                                                <Input
+                                                    id="website"
                                                     placeholder="https://yourwebsite.com"
-                                                    {...register("website")} 
+                                                    {...register("website")}
                                                     disabled={isLoading}
                                                     className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                                 />
@@ -299,17 +309,17 @@ export default function ProfilePage() {
                                 </div>
 
                                 <div className="flex gap-3 pt-4 border-t border-gray-200">
-                                    <Button 
-                                        type="submit" 
+                                    <Button
+                                        type="submit"
                                         disabled={isLoading}
                                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                                     >
                                         {isLoading && <LoadingSpinner className="mr-2 h-4 w-4" />}
                                         Save Changes
                                     </Button>
-                                    <Button 
-                                        type="button" 
-                                        variant="outline" 
+                                    <Button
+                                        type="button"
+                                        variant="outline"
                                         disabled={isLoading}
                                         className="border-gray-300 hover:bg-gray-100"
                                     >

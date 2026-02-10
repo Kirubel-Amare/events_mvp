@@ -8,10 +8,10 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { name: string; username: string; email: string; password: string }) => Promise<void>;
+  register: (data: { name: string; username: string; email: string; password: string; role?: 'user' | 'organizer' | 'admin' }) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: AuthResponse['user'] | null) => void;
   setToken: (token: string | null) => void;

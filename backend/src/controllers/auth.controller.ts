@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppDataSource } from '../config/database';
-import { User } from '../models/User';
+import { User, UserRole } from '../models/User';
 import { PersonalProfile } from '../models/PersonalProfile';
 import { Helpers } from '../utils/helpers';
 import { config } from '../config/env';
@@ -12,7 +12,7 @@ const personalProfileRepository = AppDataSource.getRepository(PersonalProfile);
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, username } = req.body;
+    const { email, password, name, username, role } = req.body;
 
     // Check if user already exists
     const existingUser = await userRepository.findOne({ where: { email } });
@@ -20,8 +20,8 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email already in use' });
     }
 
-    // Check if username is taken
-    const existingUsername = await personalProfileRepository.findOne({ where: { username } });
+    // Check if username is taken (check User table now)
+    const existingUsername = await userRepository.findOne({ where: { username } });
     if (existingUsername) {
       return res.status(400).json({ error: 'Username already in use' });
     }
@@ -33,8 +33,15 @@ export const register = async (req: Request, res: Response) => {
     const user = new User();
     user.email = email;
     user.passwordHash = passwordHash;
+    user.name = name;
+    user.username = username;
 
-    // Create personal profile
+    // Set role and helper booleans
+    user.role = (role as UserRole) || UserRole.USER;
+    user.isAdmin = user.role === UserRole.ADMIN;
+    user.isOrganizer = user.role === UserRole.ORGANIZER;
+
+    // Create personal profile (syncing name/username)
     const profile = new PersonalProfile();
     profile.name = name;
     profile.username = username;
@@ -53,6 +60,11 @@ export const register = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
+        username: user.username,
+        role: user.role,
+        isAdmin: user.isAdmin,
+        isOrganizer: user.isOrganizer,
         profile: {
           name: profile.name,
           username: profile.username
@@ -103,6 +115,9 @@ export const login = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
+        username: user.username,
+        role: user.role,
         isOrganizer: user.isOrganizer,
         isAdmin: user.isAdmin,
         profile: user.personalProfile ? {
@@ -138,6 +153,9 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
+        username: user.username,
+        role: user.role,
         isOrganizer: user.isOrganizer,
         isAdmin: user.isAdmin,
         profile: user.personalProfile,

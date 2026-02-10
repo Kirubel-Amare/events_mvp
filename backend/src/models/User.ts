@@ -12,6 +12,13 @@ import { OrganizerProfile } from './OrganizerProfile';
 import { Plan } from './Plan';
 import { Application } from './Application';
 import { Report } from './Report';
+import { OrganizerApplication } from './OrganizerApplication';
+
+export enum UserRole {
+  USER = 'user',
+  ORGANIZER = 'organizer',
+  ADMIN = 'admin',
+}
 
 @Entity('users')
 export class User {
@@ -23,6 +30,19 @@ export class User {
 
   @Column({ type: 'varchar', select: false })
   passwordHash!: string;
+
+  @Column({ type: 'varchar' })
+  name!: string;
+
+  @Column({ type: 'varchar', unique: true })
+  username!: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER
+  })
+  role: UserRole = UserRole.USER;
 
   @Column({ type: 'boolean', default: false })
   isEmailVerified: boolean = false;
@@ -55,6 +75,9 @@ export class User {
 
   @OneToMany(() => Report, (report) => report.reporter)
   reports!: Report[];
+
+  @OneToMany(() => OrganizerApplication, (application) => application.user)
+  organizerApplications!: OrganizerApplication[];
 
   @CreateDateColumn()
   createdAt!: Date;
