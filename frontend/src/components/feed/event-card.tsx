@@ -15,17 +15,20 @@ interface EventCardProps {
         time: string
         location: string
         image: string
+        images?: string[]
         category: string
         organizer: string
     }
 }
 
 export function EventCard({ event }: EventCardProps) {
+    const displayImage = event.image || (event.images && event.images[0]) || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&auto=format&fit=crop"
+
     return (
         <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-200 border-none shadow-md">
             <div className="relative aspect-video w-full overflow-hidden">
                 <Image
-                    src={event.image}
+                    src={displayImage}
                     alt={event.title}
                     fill
                     className="object-cover transition-transform hover:scale-105 duration-500"

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut, LayoutDashboard } from "lucide-react"
+import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut, LayoutDashboard, Building } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/auth-store"
@@ -111,7 +111,7 @@ export default function Header() {
                   3
                 </Badge>
               </Button>
-
+             
 
               <Button
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
@@ -179,7 +179,7 @@ export default function Header() {
                 { label: "Browse", href: "/browse/events", icon: "🔍" },
                 { label: "Events", href: "/events", icon: "🎫" },
                 // { label: "Trending", href: "/trending", icon: "🔥" },
-                // { label: "Organizers", href: "/organizer", icon: "👥" },
+                { label: "Become an Organizer", href: "/organizer/apply", icon: "🏢" },
                 // { label: "Saved", href: "/saved", icon: "❤️" },
                 // { label: "Notifications", href: "/notifications", icon: "🔔" },
               ].map((item) => (

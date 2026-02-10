@@ -9,8 +9,12 @@ export interface Application {
     status: string;
     message?: string;
     appliedAt: string;
+    createdAt: string;
+    type: 'event' | 'plan' | 'organizer';
     event?: any; // Define Event type if imported
     plan?: Plan;
+    reason?: string;
+    organizationName?: string;
 }
 
 export const usersApi = {

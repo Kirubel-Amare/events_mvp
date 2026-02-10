@@ -126,10 +126,10 @@ async function runSeeders() {
     const mockEvents = [
       {
         title: "Summer Music Festival",
-        description: "Join us for a day of live music, food, and fun! Featuring standard local artists and great vibes.",
+        description: "Join us for a day of live music, food, and fun! Featuring local artists and great vibes.",
         date: new Date('2024-07-15T12:00:00'),
         city: "Central Park, NY",
-        images: ["https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?auto=format&fit=crop&q=80&w=1000"],
+        images: ["https://images.unsplash.com/photo-1459749411177-042180ce673c?w=1200&auto=format&fit=crop"],
         categoryName: "Music",
         isFeatured: true,
         price: "25.0",
@@ -141,7 +141,7 @@ async function runSeeders() {
         description: "Network with founders, investors, and developers in the local tech scene.",
         date: new Date('2024-06-20T18:00:00'),
         city: "Innovation Hub",
-        images: ["https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=1000"],
+        images: ["https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=1200&auto=format&fit=crop"],
         categoryName: "Tech",
         isFeatured: false,
         price: "0",
@@ -153,11 +153,191 @@ async function runSeeders() {
         description: "Experience modern art from upcoming artists.",
         date: new Date('2024-06-25T19:00:00'),
         city: "The Gallery",
-        images: ["https://images.unsplash.com/photo-1518998053901-5348d3969104?auto=format&fit=crop&q=80&w=1000"],
+        images: ["https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=1200&auto=format&fit=crop"],
         categoryName: "Art",
         isFeatured: true,
         price: "15.0",
         capacity: 150,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Global Food Expo 2024",
+        description: "Taste dishes from over 50 countries in one location!",
+        date: new Date('2024-08-10T11:00:00'),
+        city: "Addis Ababa",
+        images: ["https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&auto=format&fit=crop"],
+        categoryName: "Food",
+        isFeatured: true,
+        price: "30.0",
+        capacity: 1000,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Yoga Flow in the Park",
+        description: "Refresh your mind and body with a morning yoga session in Nature.",
+        date: new Date('2024-06-15T07:30:00'),
+        city: "Addis Ababa",
+        images: ["https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&auto=format&fit=crop"],
+        categoryName: "Wellness",
+        isFeatured: false,
+        price: "0",
+        capacity: 50,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Entrepreneur Summit",
+        description: "Learn from industry leaders and grow your business network.",
+        date: new Date('2024-09-05T09:00:00'),
+        city: "Addis Ababa",
+        images: ["https://images.unsplash.com/photo-1507679799987-c7377ec48696?w=1200&auto=format&fit=crop"],
+        categoryName: "Business",
+        isFeatured: true,
+        price: "150.0",
+        capacity: 300,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Basketball Championship",
+        description: "Watch local teams compete for the city trophy.",
+        date: new Date('2024-07-20T16:00:00'),
+        city: "Stadium Addis",
+        images: ["https://images.unsplash.com/photo-1504450758481-7338ef752242?w=1200&auto=format&fit=crop"],
+        categoryName: "Sports",
+        isFeatured: false,
+        price: "10.0",
+        capacity: 5000,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Nature Photography Workshop",
+        description: "Master the art of outdoor photography with professional guidance.",
+        date: new Date('2024-08-22T14:00:00'),
+        city: "Unity Park",
+        images: ["https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=1200&auto=format&fit=crop"],
+        categoryName: "Education",
+        isFeatured: false,
+        price: "45.0",
+        capacity: 20,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Charity Gala Night",
+        description: "An evening of elegance supporting local educational initiatives.",
+        date: new Date('2024-10-12T19:00:00'),
+        city: "Grand Hotel",
+        images: ["https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&auto=format&fit=crop"],
+        categoryName: "Social",
+        isFeatured: true,
+        price: "100.0",
+        capacity: 200,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Night Sky Exploration",
+        description: "Observe stars and planets through professional telescopes with experts.",
+        date: new Date('2024-11-05T20:30:00'),
+        city: "Sky Observatory",
+        images: ["https://images.unsplash.com/photo-1532973330544-767eef076840?w=1200&auto=format&fit=crop"],
+        categoryName: "Outdoor",
+        isFeatured: false,
+        price: "20.0",
+        capacity: 40,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Handmade Pottery Class",
+        description: "Learn traditional and modern pottery techniques and create your own pieces.",
+        date: new Date('2024-06-30T10:00:00'),
+        city: "Art Studio",
+        images: ["https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1200&auto=format&fit=crop"],
+        categoryName: "Art",
+        isFeatured: false,
+        price: "35.0",
+        capacity: 12,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Marathon City Run",
+        description: "Join thousands of runners in the annual city marathon.",
+        date: new Date('2024-09-15T06:00:00'),
+        city: "Main City Square",
+        images: ["https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=1200&auto=format&fit=crop"],
+        categoryName: "Sports",
+        isFeatured: true,
+        price: "5.0",
+        capacity: 2000,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Street Food Carnival",
+        description: "The best street food vendors in the country in one place.",
+        date: new Date('2024-08-25T12:00:00'),
+        city: "City Expo Ground",
+        images: ["https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&auto=format&fit=crop"],
+        categoryName: "Food",
+        isFeatured: false,
+        price: "0",
+        capacity: 2000,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Coding Bootcamp Intro",
+        description: "Thinking about a career in tech? Join our free introductory bootcamp.",
+        date: new Date('2024-07-05T18:00:00'),
+        city: "Tech Lab",
+        images: ["https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&auto=format&fit=crop"],
+        categoryName: "Tech",
+        isFeatured: false,
+        price: "0",
+        capacity: 100,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Meditation & Mindfulness",
+        description: "Discover the power of meditation in this guided weekend workshop.",
+        date: new Date('2024-07-12T09:00:00'),
+        city: "Wellness Center",
+        images: ["https://images.unsplash.com/photo-1528319725582-ddc096101511?w=1200&auto=format&fit=crop"],
+        categoryName: "Wellness",
+        isFeatured: true,
+        price: "40.0",
+        capacity: 30,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "The Great Outdoors Expo",
+        description: "Everything you need for hiking, camping, and outdoor adventures.",
+        date: new Date('2024-10-20T10:00:00'),
+        city: "Convention Center",
+        images: ["https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&auto=format&fit=crop"],
+        categoryName: "Outdoor",
+        isFeatured: false,
+        price: "15.0",
+        capacity: 1000,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Networking After Hours",
+        description: "Meet other professionals in a relaxed environment.",
+        date: new Date('2024-06-28T18:30:00'),
+        city: "Rooftop Lounge",
+        images: ["https://images.unsplash.com/photo-1511632765486-a017907362b5?w=1200&auto=format&fit=crop"],
+        categoryName: "Business",
+        isFeatured: false,
+        price: "0",
+        capacity: 150,
+        status: EventStatus.APPROVED
+      },
+      {
+        title: "Board Game Marathon",
+        description: "From classics to the latest strategy games, let's play all day!",
+        date: new Date('2024-12-07T10:00:00'),
+        city: "Community Hall",
+        images: ["https://images.unsplash.com/photo-1610812391720-29354b07816b?w=1200&auto=format&fit=crop"],
+        categoryName: "Social",
+        isFeatured: false,
+        price: "5.0",
+        capacity: 60,
         status: EventStatus.APPROVED
       }
     ];
@@ -193,6 +373,76 @@ async function runSeeders() {
         description: "Let's meet up and code together at a query coffee shop.",
         date: new Date('2024-06-23T10:00:00'),
         location: "Brew Café",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Sunday Brunch Meetup",
+        description: "Looking for foodies to join for a relaxed Sunday brunch.",
+        date: new Date('2024-06-29T11:00:00'),
+        location: "The Breakfast Club",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Movie Night: Sci-Fi Classics",
+        description: "Watching some old school sci-fi movies. Snacks provided!",
+        date: new Date('2024-07-02T19:00:00'),
+        location: "Alex's Place",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Library Study Session",
+        description: "Preparing for the upcoming finals. Let's study together and stay motivated.",
+        date: new Date('2024-06-18T14:00:00'),
+        location: "City Library",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Picket Basketball Game",
+        description: "Looking for 4 more players for a 5v5 friendly match.",
+        date: new Date('2024-06-21T17:30:00'),
+        location: "Community Center Courts",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Weekend Beach Getaway",
+        description: "Planning a trip to the coast. Need carpool buddies!",
+        date: new Date('2024-07-12T08:00:00'),
+        location: "Sunshine Beach",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Live Jazz Night Buddies",
+        description: "Going to the jazz club on Friday. Anyone wants to join?",
+        date: new Date('2024-06-28T21:00:00'),
+        location: "The Blue Note",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Early Morning Run Group",
+        description: "Start your day with a 5k run. All paces welcome.",
+        date: new Date('2024-06-19T06:00:00'),
+        location: "River Side Path",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Language Exchange: Spanish/English",
+        description: "Practice your Spanish or English in an informal setting.",
+        date: new Date('2024-06-25T18:00:00'),
+        location: "Global Cafe",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Potluck Picnic in the Park",
+        description: "Bring a dish and share stories under the sun.",
+        date: new Date('2024-07-07T13:00:00'),
+        location: "Central Park West",
+        status: PlanStatus.ACTIVE
+      },
+      {
+        title: "Dog Park Playdate",
+        description: "Bringing my Golden Retriever to the park. Other dog owners welcome!",
+        date: new Date('2024-06-22T16:00:00'),
+        location: "Bark & Play Park",
         status: PlanStatus.ACTIVE
       }
     ];

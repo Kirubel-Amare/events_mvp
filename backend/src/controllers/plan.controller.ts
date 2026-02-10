@@ -87,7 +87,7 @@ export const createPlan = async (req: AuthRequest, res: Response) => {
     plan.description = description;
     plan.location = location;
     plan.date = new Date(date);
-    plan.externalLink = externalLink;
+    plan.externalLink = externalLink || null;
     plan.creatorId = userId;
     plan.status = PlanStatus.ACTIVE;
 
@@ -123,7 +123,7 @@ export const updatePlan = async (req: AuthRequest, res: Response) => {
     if (description) plan.description = description;
     if (location) plan.location = location;
     if (date) plan.date = new Date(date);
-    if (externalLink !== undefined) plan.externalLink = externalLink;
+    if (externalLink !== undefined) plan.externalLink = externalLink || null;
     if (status) plan.status = status;
 
     await planRepository.save(plan);

@@ -58,6 +58,7 @@ export interface Event {
     updatedAt: string;
     reviews?: number; // Added for frontend mock/future
     attendees?: number; // Added for frontend mock/future
+    attendeesCount?: number; // Added to fix dashboard error
 }
 
 export interface Plan {

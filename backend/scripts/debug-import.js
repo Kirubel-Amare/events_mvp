@@ -1,0 +1,14 @@
+console.log('1. Importing models...');
+require('../src/models/User');
+console.log('User model imported');
+require('../src/models/Plan');
+console.log('Plan model imported');
+require('../src/models/Event');
+console.log('Event model imported');
+require('../src/models/Application');
+console.log('Application model imported');
+console.log('2. Importing AppDataSource...');
+const { AppDataSource } = require('../src/config/database');
+console.log('AppDataSource imported');
+console.log('3. Success');
+process.exit(0);

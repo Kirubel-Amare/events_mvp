@@ -12,7 +12,7 @@ export const MOCK_EVENTS = [
         category: "Music",
         organizer: "City Events",
         featured: true,
-        attendees: 120,
+        attendeesCount: 120,
         reviews: 34,
     },
     {
@@ -26,7 +26,7 @@ export const MOCK_EVENTS = [
         category: "Tech",
         organizer: "TechCommunity",
         featured: false,
-        attendees: 80,
+        attendeesCount: 80,
         reviews: 23,
     },
     {
@@ -40,7 +40,7 @@ export const MOCK_EVENTS = [
         category: "Food",
         organizer: "FoodieGroup",
         featured: false,
-        attendees: 150,
+        attendeesCount: 150,
         reviews: 45,
     },
     {
@@ -54,7 +54,7 @@ export const MOCK_EVENTS = [
         category: "Art",
         organizer: "ArtCollective",
         featured: true,
-        attendees: 90,
+        attendeesCount: 90,
         reviews: 28,
     },
 ]

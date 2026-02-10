@@ -8,15 +8,18 @@ interface FeaturedBannerProps {
         title: string
         description: string
         image: string
+        images?: string[]
     }
 }
 
 export function FeaturedBanner({ event }: FeaturedBannerProps) {
+    const displayImage = event.image || (event.images && event.images[0]) || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&auto=format&fit=crop"
+
     return (
         <div className="relative w-full overflow-hidden rounded-xl bg-black text-white shadow-xl mb-8 group">
             <div className="absolute inset-0 z-0">
                 <img
-                    src={event.image}
+                    src={displayImage}
                     alt={event.title}
                     className="h-full w-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
                 />

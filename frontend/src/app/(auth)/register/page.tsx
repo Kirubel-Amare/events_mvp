@@ -250,32 +250,6 @@ export default function RegisterPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-gray-900">I am registering as a:</Label>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div
-                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${formData.role === 'user' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
-                        onClick={() => setFormData({ ...formData, role: 'user' })}
-                      >
-                        <User className={`h-5 w-5 mb-1 ${formData.role === 'user' ? 'text-blue-600' : 'text-gray-400'}`} />
-                        <span className={`text-xs font-medium ${formData.role === 'user' ? 'text-blue-700' : 'text-gray-600'}`}>User</span>
-                      </div>
-                      <div
-                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${formData.role === 'organizer' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}`}
-                        onClick={() => setFormData({ ...formData, role: 'organizer' })}
-                      >
-                        <Calendar className={`h-5 w-5 mb-1 ${formData.role === 'organizer' ? 'text-purple-600' : 'text-gray-400'}`} />
-                        <span className={`text-xs font-medium ${formData.role === 'organizer' ? 'text-purple-700' : 'text-gray-600'}`}>Organizer</span>
-                      </div>
-                      <div
-                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${formData.role === 'admin' ? 'border-emerald-600 bg-emerald-50' : 'border-gray-200 hover:border-gray-300'}`}
-                        onClick={() => setFormData({ ...formData, role: 'admin' })}
-                      >
-                        <Shield className={`h-5 w-5 mb-1 ${formData.role === 'admin' ? 'text-emerald-600' : 'text-gray-400'}`} />
-                        <span className={`text-xs font-medium ${formData.role === 'admin' ? 'text-emerald-700' : 'text-gray-600'}`}>Admin</span>
-                      </div>
-                    </div>
-                  </div>
 
                   <div className="space-y-3">
                     <Label htmlFor="email" className="text-gray-900">Email Address</Label>

@@ -4,12 +4,14 @@ import { User } from '../models/User';
 import { PersonalProfile } from '../models/PersonalProfile';
 import { Plan } from '../models/Plan';
 import { Application } from '../models/Application';
+import { OrganizerApplication } from '../models/OrganizerApplication';
 import { AuthRequest } from '../middleware/auth';
 
 const userRepository = AppDataSource.getRepository(User);
 const personalProfileRepository = AppDataSource.getRepository(PersonalProfile);
 const planRepository = AppDataSource.getRepository(Plan);
 const applicationRepository = AppDataSource.getRepository(Application);
+const organizerApplicationRepository = AppDataSource.getRepository(OrganizerApplication);
 
 export const getUserProfile = async (req: AuthRequest, res: Response) => {
   try {
@@ -180,13 +182,32 @@ export const getUserApplications = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
 
-    const applications = await applicationRepository.find({
+    const apps = await applicationRepository.find({
       where: { userId },
       relations: ['plan', 'event'],
-      order: { appliedAt: 'DESC' },
     });
 
-    return res.json(applications);
+    const organizerApps = await organizerApplicationRepository.find({
+      where: { userId },
+    });
+
+    const unifiedApps = [
+      ...apps.map(app => ({
+        ...app,
+        type: app.planId ? 'plan' : 'event',
+        createdAt: app.appliedAt,
+      })),
+      ...organizerApps.map(app => ({
+        ...app,
+        type: 'organizer',
+      }))
+    ] as any[];
+
+    unifiedApps.sort((a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return res.json(unifiedApps);
   } catch (error) {
     console.error('Get user applications error:', error);
     return res.status(500).json({ error: 'Internal server error' });

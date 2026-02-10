@@ -136,7 +136,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
     event.date = new Date(date);
     event.price = price;
     event.capacity = capacity;
-    event.externalLink = externalLink;
+    event.externalLink = externalLink || null;
     event.categoryId = categoryId;
     event.organizer = organizerProfile;
     // Auto-approve for MVP
@@ -177,7 +177,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
     if (date) event.date = new Date(date);
     if (price !== undefined) event.price = price;
     if (capacity !== undefined) event.capacity = capacity;
-    if (externalLink !== undefined) event.externalLink = externalLink;
+    if (externalLink !== undefined) event.externalLink = externalLink || null;
     if (categoryId !== undefined) event.categoryId = categoryId;
 
     await eventRepository.save(event);

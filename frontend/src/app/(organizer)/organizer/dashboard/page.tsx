@@ -41,9 +41,9 @@ export default function OrganizerDashboardPage() {
     ]
 
     const upcomingEvents = [
-        { id: 1, title: "Summer Music Fest", date: "Jun 15", attendees: "850/1000", status: "Active" },
-        { id: 2, title: "Tech Conference", date: "Jun 20", attendees: "320/500", status: "Active" },
-        { id: 3, title: "Yoga Retreat", date: "Jun 25", attendees: "45/50", status: "Almost Full" },
+        { id: 1, title: "Summer Music Fest", date: "Jun 15", attendeesCount: "850/1000", status: "Active" },
+        { id: 2, title: "Tech Conference", date: "Jun 20", attendeesCount: "320/500", status: "Active" },
+        { id: 3, title: "Yoga Retreat", date: "Jun 25", attendeesCount: "45/50", status: "Almost Full" },
     ]
 
     const performance = [
@@ -68,7 +68,7 @@ export default function OrganizerDashboardPage() {
                         Manage your events, track performance, and grow your audience
                     </p>
                 </div>
-                <Button 
+                <Button
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
                     asChild
                 >
@@ -135,15 +135,15 @@ export default function OrganizerDashboardPage() {
                                                     <span>•</span>
                                                     <span className="flex items-center gap-1">
                                                         <Users className="h-3 w-3" />
-                                                        {event.attendees}
+                                                        {event.attendeesCount}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
                                         <Badge className={
                                             event.status === 'Active' ? 'bg-green-100 text-green-700' :
-                                            event.status === 'Almost Full' ? 'bg-amber-100 text-amber-700' :
-                                            'bg-blue-100 text-blue-700'
+                                                event.status === 'Almost Full' ? 'bg-amber-100 text-amber-700' :
+                                                    'bg-blue-100 text-blue-700'
                                         }>
                                             {event.status}
                                         </Badge>
@@ -180,7 +180,7 @@ export default function OrganizerDashboardPage() {
                                         </div>
                                         <div className="text-2xl font-bold text-gray-900">{item.value}</div>
                                         <div className="h-2 bg-gray-200 rounded-full mt-3 overflow-hidden">
-                                            <div 
+                                            <div
                                                 className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
                                                 style={{ width: `${70 + index * 10}%` }}
                                             />
@@ -238,14 +238,14 @@ export default function OrganizerDashboardPage() {
                         <CardContent className="space-y-4">
                             <div className="p-3 bg-blue-50 rounded-lg">
                                 <div className="text-sm font-medium text-blue-900 mb-1">Tip of the Day</div>
-                        <div className="text-sm text-blue-700">
-                            Posting events 2-3 weeks in advance increases attendance by 40%
+                                <div className="text-sm text-blue-700">
+                                    Posting events 2-3 weeks in advance increases attendance by 40%
                                 </div>
                             </div>
                             <div className="p-3 bg-purple-50 rounded-lg">
                                 <div className="text-sm font-medium text-purple-900 mb-1">Best Time to Post</div>
-                        <div className="text-sm text-purple-700">
-                            Tuesdays & Thursdays at 10 AM get 25% more views
+                                <div className="text-sm text-purple-700">
+                                    Tuesdays & Thursdays at 10 AM get 25% more views
                                 </div>
                             </div>
                         </CardContent>

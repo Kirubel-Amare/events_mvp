@@ -33,7 +33,7 @@ router.post(
     body('description').trim().notEmpty(),
     body('location').trim().notEmpty(),
     body('date').isISO8601(),
-    body('externalLink').optional().isURL(),
+    body('externalLink').optional({ checkFalsy: true }).isURL(),
   ],
   validateRequest,
   planController.createPlan
@@ -48,7 +48,7 @@ router.put(
     body('description').optional().trim().notEmpty(),
     body('location').optional().trim().notEmpty(),
     body('date').optional().isISO8601(),
-    body('externalLink').optional().isURL(),
+    body('externalLink').optional({ checkFalsy: true }).isURL(),
     body('status').optional().isIn(['active', 'completed', 'cancelled']),
   ],
   validateRequest,

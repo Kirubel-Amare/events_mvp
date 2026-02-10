@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, MouseEvent } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -25,6 +25,7 @@ import {
   ArrowRight,
   Search,
   Users as UsersIcon,
+  Crown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -52,12 +53,15 @@ const categories = [
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore()
+  const router = useRouter()
   const [activeCategory, setActiveCategory] = useState("all")
   const [featuredEvents, setFeaturedEvents] = useState<Event[]>([])
   const [allEvents, setAllEvents] = useState<Event[]>([])
   const [plans, setPlans] = useState<Plan[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [likedEvents, setLikedEvents] = useState<string[]>([]) // Changed to string UUIDs
+  const [likedEvents, setLikedEvents] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchLocation, setSearchLocation] = useState("")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,6 +97,28 @@ export default function HomePage() {
     setLikedEvents(prev =>
       prev.includes(id) ? prev.filter(eventId => eventId !== id) : [...prev, id]
     )
+  }
+
+  const handleSearch = () => {
+    if (searchQuery.trim() || searchLocation.trim()) {
+      const params = new URLSearchParams()
+      if (searchQuery) params.set('q', searchQuery)
+      if (searchLocation) params.set('location', searchLocation)
+      router.push(`/browse/events?${params.toString()}`)
+    }
+  }
+
+  const handleStartOrganizing = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (isAuthenticated) {
+      if (user?.role === "organizer") {
+        router.push("/organizer/dashboard")
+      } else {
+        router.push("/organizer/dashboard")
+      }
+    } else {
+      router.push("/login?redirect=/become-organizer")
+    }
   }
 
   if (isLoading) {
@@ -137,12 +163,16 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <Button size="lg" className="px-8 h-12 text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" asChild>
-                <Link href="/browse/events">
-                  Explore Events
-                  <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-2 transition-transform" />
-                </Link>
-              </Button>
+             <Button
+                  size="lg"
+                  className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+                  asChild
+                >
+                  <Link href="/browse/events" className="flex items-center justify-center">
+                    <span className="mr-3">Get Started Free</span>
+                    <ArrowRight className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform" />
+                  </Link>
+                </Button>
             </div>
 
             {/* Search Bar */}
@@ -154,6 +184,9 @@ export default function HomePage() {
                     <Input
                       placeholder="What type of event are you looking for?"
                       className="pl-12 h-12 bg-gray-50 border-gray-200"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     />
                   </div>
                 </div>
@@ -163,10 +196,17 @@ export default function HomePage() {
                     <Input
                       placeholder="City or location"
                       className="pl-12 h-12 bg-gray-50 border-gray-200"
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     />
                   </div>
                 </div>
-                <Button size="lg" className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button 
+                  size="lg" 
+                  className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  onClick={handleSearch}
+                >
                   <Search className="mr-2 h-4 w-4" />
                   Find Events
                 </Button>
@@ -375,7 +415,6 @@ export default function HomePage() {
         </section>
       )}
 
-
       {/* All Events Grid with Images */}
       <section className="bg-gray-50 py-16">
         <div className="container">
@@ -532,20 +571,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section - Modern Gradient with Floating Elements */}
+      {/* CTA Section */}
       <section className="container py-16 md:py-20">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-gray-200">
-          {/* Subtle floating elements */}
           <div className="absolute top-0 left-0 w-64 h-64 bg-blue-100/30 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-100/30 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-cyan-100/40 rounded-full blur-2xl animate-pulse" />
-
-          {/* Subtle grid pattern overlay */}
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
 
           <div className="relative z-10 p-8 md:p-12 lg:p-16 text-center">
             <div className="max-w-2xl mx-auto">
-              {/* Animated icon */}
               <div className="relative inline-block mb-6">
                 <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping" />
                 <div className="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
@@ -568,7 +601,7 @@ export default function HomePage() {
                   className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
                   asChild
                 >
-                  <Link href="/signup" className="flex items-center justify-center">
+                  <Link href="/register" className="flex items-center justify-center">
                     <span className="mr-3">Get Started Free</span>
                     <ArrowRight className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform" />
                   </Link>
@@ -576,14 +609,11 @@ export default function HomePage() {
 
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="px-8 md:px-10 h-12 md:h-14 text-base font-medium text-gray-700 border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 group"
-                  asChild
+                 className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+                  onClick={handleStartOrganizing}
                 >
-                  <Link href="/organizer" className="flex items-center justify-center">
-                    <span className="mr-3">Start Organizing</span>
-                    <UsersIcon className="h-4 w-4 md:h-5 md:w-5 group-hover:scale-110 transition-transform" />
-                  </Link>
+                  <span className="mr-3">Start Organizing</span>
+                  <Crown className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               </div>
 
