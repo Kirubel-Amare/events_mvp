@@ -110,6 +110,11 @@ export const login = async (req: Request, res: Response) => {
       expiresIn: config.jwt.expiresIn as any,
     });
 
+    // Calculate effective role for consistency
+    let effectiveRole = user.role;
+    if (user.isAdmin) effectiveRole = UserRole.ADMIN;
+    else if (user.isOrganizer) effectiveRole = UserRole.ORGANIZER;
+
     return res.json({
       message: 'Login successful',
       user: {
@@ -117,7 +122,7 @@ export const login = async (req: Request, res: Response) => {
         email: user.email,
         name: user.name,
         username: user.username,
-        role: user.role,
+        role: effectiveRole,
         isOrganizer: user.isOrganizer,
         isAdmin: user.isAdmin,
         profile: user.personalProfile ? {

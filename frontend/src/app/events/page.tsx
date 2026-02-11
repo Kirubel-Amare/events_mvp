@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import Image from "next/image"
+import { SafeImage } from "@/components/shared/safe-image"
 
 export default function EventsPage() {
     const [featuredEvents, setFeaturedEvents] = useState<Event[]>([])
@@ -70,7 +70,7 @@ export default function EventsPage() {
                         {featuredEvents.map((event) => (
                             <Card key={event.id} className="group overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all">
                                 <div className="relative h-56 overflow-hidden">
-                                    <Image
+                                    <SafeImage
                                         src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60"}
                                         alt={event.title}
                                         fill
@@ -131,7 +131,7 @@ export default function EventsPage() {
                     {upcomingEvents.map((event) => (
                         <Card key={event.id} className="group hover:shadow-lg transition-shadow">
                             <div className="relative h-40 overflow-hidden">
-                                <Image
+                                <SafeImage
                                     src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60"}
                                     alt={event.title}
                                     fill

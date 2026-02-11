@@ -2,7 +2,7 @@
 
 import { useEffect, useState, MouseEvent } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
+import { SafeImage } from "@/components/shared/safe-image"
 import Link from "next/link"
 import { useAuthStore } from "@/store/auth-store"
 import { eventsApi } from "@/lib/api/events"
@@ -135,15 +135,18 @@ export default function HomePage() {
       <section className="relative py-20 md:py-28 overflow-hidden">
         {/* Background Image with overlay */}
         <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+          <SafeImage
+            src="https://images.unsplash.com/photo-1531058020387-3be344556be6?w=1920&auto=format&fit=crop&q=90"
             alt="People at an event"
             fill
-            className="object-cover opacity-20"
+            sizes="100vw"
+            className="object-cover opacity-100"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-white/30 to-purple-600/10" />
+
+          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/20 to-black/70" />
         </div>
+
 
         <div className="container relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -157,22 +160,22 @@ export default function HomePage() {
               <span className="block">Create <span className="text-gradient bg-gradient-to-r from-purple-600 to-pink-600">Connections</span></span>
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-white  mb-10 max-w-2xl mx-auto leading-relaxed">
               Find amazing events, organize social gatherings, and connect with people who share your passions.
               Join over <span className="font-semibold text-gray-900">10,000+</span> community members.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-             <Button
-                  size="lg"
-                  className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
-                  asChild
-                >
-                  <Link href="/browse/events" className="flex items-center justify-center">
-                    <span className="mr-3">Get Started Free</span>
-                    <ArrowRight className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform" />
-                  </Link>
-                </Button>
+              <Button
+                size="lg"
+                className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+                asChild
+              >
+                <Link href="/browse/events" className="flex items-center justify-center">
+                  <span className="mr-3">Get Started Free</span>
+                  <ArrowRight className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform" />
+                </Link>
+              </Button>
             </div>
 
             {/* Search Bar */}
@@ -202,8 +205,8 @@ export default function HomePage() {
                     />
                   </div>
                 </div>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                   onClick={handleSearch}
                 >
@@ -236,7 +239,7 @@ export default function HomePage() {
                 className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group"
               >
                 <div className="relative h-40 overflow-hidden">
-                  <Image
+                  <SafeImage
                     src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
                     alt={event.title}
                     fill
@@ -288,7 +291,7 @@ export default function HomePage() {
                 }`}
             >
               <div className="relative h-32">
-                <Image
+                <SafeImage
                   src={category.image}
                   alt={category.name}
                   fill
@@ -326,7 +329,7 @@ export default function HomePage() {
             {featuredEvents.map((event) => (
               <Card key={event.id} className="group overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
                 <div className="relative h-48 overflow-hidden">
-                  <Image
+                  <SafeImage
                     src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
                     alt={event.title}
                     fill
@@ -429,7 +432,7 @@ export default function HomePage() {
             {allEvents.map((event) => (
               <Card key={event.id} className="group overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="relative h-40 overflow-hidden">
-                  <Image
+                  <SafeImage
                     src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
                     alt={event.title}
                     fill
@@ -511,7 +514,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="relative overflow-hidden bg-white border border-gray-200 rounded-xl group">
             <div className="absolute inset-0 opacity-10">
-              <Image
+              <SafeImage
                 src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Community"
                 fill
@@ -531,7 +534,7 @@ export default function HomePage() {
 
           <div className="relative overflow-hidden bg-white border border-gray-200 rounded-xl group">
             <div className="absolute inset-0 opacity-10">
-              <Image
+              <SafeImage
                 src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Diverse Events"
                 fill
@@ -551,7 +554,7 @@ export default function HomePage() {
 
           <div className="relative overflow-hidden bg-white border border-gray-200 rounded-xl group">
             <div className="absolute inset-0 opacity-10">
-              <Image
+              <SafeImage
                 src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Easy Planning"
                 fill
@@ -609,7 +612,7 @@ export default function HomePage() {
 
                 <Button
                   size="lg"
-                 className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+                  className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
                   onClick={handleStartOrganizing}
                 >
                   <span className="mr-3">Start Organizing</span>

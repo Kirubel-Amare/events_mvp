@@ -1,7 +1,7 @@
 import { AppDataSource } from '../../config/database';
 import { initializeDatabase } from '../connection';
 import { Category } from '../../models/Category';
-import { User } from '../../models/User';
+import { User, UserRole } from '../../models/User';
 import { PersonalProfile } from '../../models/PersonalProfile';
 import { OrganizerProfile } from '../../models/OrganizerProfile';
 import { Event, EventStatus } from '../../models/Event';
@@ -53,6 +53,7 @@ async function runSeeders() {
         email: 'admin@eventhub.com',
         passwordHash,
         isAdmin: true,
+        role: UserRole.ADMIN,
         isEmailVerified: true
       });
       await userRepository.save(admin);
@@ -64,6 +65,10 @@ async function runSeeders() {
         user: admin
       });
       await personalProfileRepository.save(profile);
+    } else if (admin.role !== UserRole.ADMIN) {
+      admin.role = UserRole.ADMIN;
+      admin.isAdmin = true;
+      await userRepository.save(admin);
     }
 
     // Organizer
@@ -73,6 +78,7 @@ async function runSeeders() {
         email: 'organizer@eventhub.com',
         passwordHash,
         isOrganizer: true,
+        role: UserRole.ORGANIZER,
         isEmailVerified: true
       });
       await userRepository.save(organizerUser);
@@ -97,6 +103,10 @@ async function runSeeders() {
         user: organizerUser
       });
       await organizerProfileRepository.save(oProfile);
+    } else if (organizerUser.role !== UserRole.ORGANIZER) {
+      organizerUser.role = UserRole.ORGANIZER;
+      organizerUser.isOrganizer = true;
+      await userRepository.save(organizerUser);
     }
     const organizerProfile = await organizerProfileRepository.findOneBy({ userId: organizerUser.id });
 

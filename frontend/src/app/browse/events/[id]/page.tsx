@@ -13,7 +13,7 @@ import { Event } from "@/types"
 import { format } from "date-fns"
 import { toast } from "react-hot-toast"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
-import Image from "next/image"
+import { SafeImage } from "@/components/shared/safe-image"
 
 export default function EventDetailsPage() {
     const params = useParams()
@@ -116,7 +116,7 @@ export default function EventDetailsPage() {
             <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden">
                 <div className="absolute inset-0">
                     {event.images && event.images.length > 0 ? (
-                        <Image
+                        <SafeImage
                             src={event.images[0]}
                             alt={event.title}
                             fill
@@ -333,7 +333,7 @@ export default function EventDetailsPage() {
                                             <div className="flex items-center gap-3">
                                                 <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center overflow-hidden relative">
                                                     {event.organizer.profilePhoto ? (
-                                                        <Image src={event.organizer.profilePhoto} alt={event.organizer.organizationName} fill className="object-cover" />
+                                                        <SafeImage src={event.organizer.profilePhoto} alt={event.organizer.organizationName} fill className="object-cover" />
                                                     ) : (
                                                         <span className="text-white font-bold">{event.organizer.organizationName[0]}</span>
                                                     )}

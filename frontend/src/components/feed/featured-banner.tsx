@@ -1,5 +1,5 @@
 import Link from "next/link"
-import Image from "next/image"
+import { SafeImage } from "@/components/shared/safe-image"
 import { Button } from "@/components/ui/button"
 
 interface FeaturedBannerProps {
@@ -18,9 +18,10 @@ export function FeaturedBanner({ event }: FeaturedBannerProps) {
     return (
         <div className="relative w-full overflow-hidden rounded-xl bg-black text-white shadow-xl mb-8 group">
             <div className="absolute inset-0 z-0">
-                <img
+                <SafeImage
                     src={displayImage}
                     alt={event.title}
+                    fill
                     className="h-full w-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />

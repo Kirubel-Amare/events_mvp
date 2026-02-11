@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast"
 import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { apiClient } from "@/lib/api/client"
-import Image from "next/image"
+import { SafeImage } from "@/components/shared/safe-image"
 
 interface ImageUploadProps {
     onUpload: (url: string) => void
@@ -69,7 +69,7 @@ export function ImageUpload({ onUpload, onDelete, value, label, className }: Ima
             <div className="relative group">
                 {value ? (
                     <div className="relative h-40 w-full rounded-lg overflow-hidden border-2 border-gray-100">
-                        <Image
+                        <SafeImage
                             src={value}
                             alt="Upload preview"
                             fill

@@ -1,5 +1,5 @@
-import { Calendar, MapPin, User } from "lucide-react"
-import Image from "next/image"
+import { Calendar, MapPin, User as UserIcon } from "lucide-react"
+import { SafeImage } from "@/components/shared/safe-image"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,10 +20,10 @@ export function PlanCard({ plan }: PlanCardProps) {
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{plan.title}</CardTitle>
                     {creatorAvatar ? (
-                        <Image src={creatorAvatar} alt={creatorName} width={32} height={32} className="rounded-full" />
+                        <SafeImage src={creatorAvatar} alt={creatorName} width={32} height={32} className="rounded-full" />
                     ) : (
                         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                            <User className="h-4 w-4" />
+                            <UserIcon className="h-4 w-4" />
                         </div>
                     )}
                 </div>

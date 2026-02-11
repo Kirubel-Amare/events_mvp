@@ -3,7 +3,7 @@ import { Inter } from "next/font/google"
 import * as React from "react"
 import "./globals.css"
 import Header from "@/components/layout/header"
-import Footer from "@/components/layout/footer"
+import ConditionalFooter from "@/components/layout/conditional-footer"
 import { Toaster } from "react-hot-toast"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -26,7 +26,7 @@ export default function RootLayout({
           <main className="flex-1 flex flex-col">
             {children}
           </main>
-          <Footer />
+          <ConditionalFooter />
         </div>
         <Toaster position="top-right" />
       </body>

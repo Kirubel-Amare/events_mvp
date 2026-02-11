@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import Image from "next/image"
 import { FeedContainer } from "@/components/feed/feed-container"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"

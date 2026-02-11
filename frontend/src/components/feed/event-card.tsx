@@ -1,5 +1,5 @@
 import Link from "next/link"
-import Image from "next/image"
+import { SafeImage } from "@/components/shared/safe-image"
 import { Calendar, MapPin } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -22,7 +22,7 @@ export function EventCard({ event }: EventCardProps) {
     return (
         <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-200 border-none shadow-md">
             <div className="relative aspect-video w-full overflow-hidden">
-                <Image
+                <SafeImage
                     src={displayImage}
                     alt={event.title}
                     fill

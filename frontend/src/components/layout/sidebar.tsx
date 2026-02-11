@@ -1,155 +1,258 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { NAV_LINKS } from "./navigation"
 import { Button } from "@/components/ui/button"
-import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut, LayoutDashboard, ChevronRight, LogIn } from "lucide-react"
+import {
+    ChevronLeft,
+    ChevronRight,
+    LogOut,
+    Shield,
+    LogIn,
+    LayoutDashboard,
+    Sparkles,
+    Menu,
+    X
+} from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-    role?: "user" | "organizer"
+    role?: "user" | "organizer" | "admin"
 }
 
 export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
     const pathname = usePathname()
     const router = useRouter()
     const { user, logout, isAuthenticated } = useAuthStore()
-    const links = role === "organizer" ? NAV_LINKS.organizer : NAV_LINKS.user
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-    const handleLogout = () => {
-        logout()
-        router.push("/login")
-        toast.success("Logged out successfully")
+    // Select links based on role
+    const links = NAV_LINKS[role as keyof typeof NAV_LINKS] || NAV_LINKS.user
+
+    const handleLogout = async () => {
+        try {
+            logout()
+            router.push("/login")
+            toast.success("Logged out successfully")
+        } catch (error) {
+            toast.error("Logout failed")
+        }
     }
 
-    return (
-        <div className={cn("pb-12 w-64 border-r border-border bg-background min-h-screen hidden md:block flex flex-col", className)} {...props}>
-            <div className="flex-1 space-y-6 py-6 overflow-y-auto">
-                {/* User Profile Section - Only show when authenticated */}
-                {isAuthenticated ? (
-                    <div className="px-6">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">
-                                    {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
-                                </span>
-                            </div>
-                            <div className="overflow-hidden">
-                                <div className="font-semibold truncate">{user?.name || "User"}</div>
-                                <div className="text-xs text-muted-foreground truncate">
-                                    {user?.role === "organizer" ? "Organizer" : "Member"}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    // Sign in prompt when not authenticated
-                    <div className="px-6">
-                        <div className="rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 p-4 mb-6">
-                            <h3 className="font-semibold text-sm mb-2">Join EventHub</h3>
-                            <p className="text-xs text-muted-foreground mb-3">
-                                Sign in to access your events and create plans
-                            </p>
-                            <Button size="sm" className="w-full gap-2" asChild>
-                                <Link href="/auth/signin">
-                                    <LogIn className="h-3 w-3" />
-                                    Sign In
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Main Navigation - Only show when authenticated */}
-                {isAuthenticated && (
-                    <div className="space-y-4">
-                        <div className="px-6">
-                            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                                {role === "organizer" ? "Organizer Tools" : "My Dashboard"}
-                            </h2>
-                            <div className="space-y-1">
-                                {links.map((link) => {
-                                    const isActive = pathname === link.href ||
-                                        (link.href !== "/" && pathname?.startsWith(link.href))
-                                    return (
-                                        <Link
-                                            key={link.href}
-                                            href={link.href}
-                                            className={cn(
-                                                "flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group",
-                                                isActive
-                                                    ? "bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary border-l-4 border-primary"
-                                                    : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                                            )}
-                                        >
-                                            <div className="flex items-center">
-                                                <link.icon className={cn(
-                                                    "mr-3 h-4 w-4 transition-colors",
-                                                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                                                )} />
-                                                <span className="text-sm font-medium">{link.name}</span>
-                                            </div>
-                                            {isActive && (
-                                                <ChevronRight className="h-3 w-3 text-primary" />
-                                            )}
-                                        </Link>
-                                    )
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Quick Links Section */}
-                        <div className="px-6">
-                            <div className="space-y-2">
-                                {role === "user" && isAuthenticated && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full justify-start border-border hover:bg-muted hover:border-primary/50 text-foreground group"
-                                        asChild
-                                    >
-                                        <Link href="/dashboard/become-organizer">
-                                            <Sparkles className="mr-2 h-3 w-3 text-primary group-hover:animate-pulse" />
-                                            Become Organizer
-                                        </Link>
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
+    const Logo = () => (
+        <Link href="/" className="flex items-center gap-2">
+            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Shield className="h-5 w-5 text-white" />
             </div>
+            {isSidebarOpen && (
+                <span className="font-bold text-xl tracking-tight">
+                    Event<span className="text-blue-600">Hub</span>
+                    {role === "admin" && <span className="text-xs ml-1 text-gray-400">Admin</span>}
+                </span>
+            )}
+        </Link>
+    )
 
-            {/* Bottom Section - Authentication Button */}
-            <div className="px-6 py-4 border-t border-border mt-auto">
-                {isAuthenticated ? (
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside
+                className={cn(
+                    "hidden md:flex flex-col bg-white border-r transition-all duration-300 h-screen sticky top-0",
+                    isSidebarOpen ? "w-64" : "w-20",
+                    className
+                )}
+                {...props}
+            >
+                <div className="p-6 flex items-center justify-between h-16">
+                    <Logo />
                     <Button
                         variant="ghost"
-                        size="sm"
-                        className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors group"
-                        onClick={handleLogout}
+                        size="icon"
+                        className="h-8 w-8 ml-auto text-gray-400 hover:text-gray-600"
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     >
-                        <LogOut className="mr-3 h-4 w-4 group-hover:animate-pulse" />
-                        Logout
+                        {isSidebarOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     </Button>
-                ) : (
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="w-full justify-start bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all"
-                        asChild
-                    >
-                        <Link href="/auth/signin">
-                            <LogIn className="mr-3 h-4 w-4" />
-                            Sign In / Sign Up
-                        </Link>
-                    </Button>
-                )}
+                </div>
+
+                <ScrollArea className="flex-1 px-4">
+                    <nav className="space-y-2 py-6">
+                        {links.map((link) => {
+                            const isActive = pathname === link.href ||
+                                (link.href !== "/" && pathname?.startsWith(link.href))
+
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={cn(
+                                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative",
+                                        isActive
+                                            ? "bg-blue-50 text-blue-600 font-medium"
+                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    )}
+                                >
+                                    <link.icon className={cn(
+                                        "h-5 w-5 flex-shrink-0 transition-colors",
+                                        isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
+                                    )} />
+                                    {isSidebarOpen && <span className="text-sm">{link.name}</span>}
+                                    {!isSidebarOpen && isActive && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
+                                    )}
+                                </Link>
+                            )
+                        })}
+                    </nav>
+                </ScrollArea>
+
+                <div className="p-4 border-t mt-auto">
+                    {isAuthenticated ? (
+                        <>
+                            {isSidebarOpen && (
+                                <div className="flex items-center gap-3 mb-4 px-2">
+                                    <Avatar className="h-10 w-10 border shadow-sm">
+                                        <AvatarImage src={user?.personalProfile?.profilePhoto || ""} />
+                                        <AvatarFallback className="bg-blue-50 text-blue-600 font-bold">
+                                            {user?.name?.[0]?.toUpperCase() || "U"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 overflow-hidden">
+                                        <p className="text-sm font-medium truncate text-gray-900">{user?.name}</p>
+                                        <p className="text-xs text-gray-500 truncate capitalize">{role}</p>
+                                    </div>
+                                </div>
+                            )}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                    "w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors group",
+                                    !isSidebarOpen && "px-0 justify-center"
+                                )}
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="h-5 w-5" />
+                                {isSidebarOpen && <span className="ml-3 font-medium">Logout</span>}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            variant="default"
+                            size="sm"
+                            className={cn(
+                                "w-full bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md",
+                                !isSidebarOpen && "px-0 justify-center"
+                            )}
+                            asChild
+                        >
+                            <Link href="/login" className="flex items-center gap-2">
+                                <LogIn className="h-5 w-5" />
+                                {isSidebarOpen && <span className="font-medium">Sign In</span>}
+                            </Link>
+                        </Button>
+                    )}
+                </div>
+            </aside>
+
+            {/* Mobile Navigation Header */}
+            <div className="md:hidden flex items-center justify-between p-4 border-b bg-white sticky top-0 z-30">
+                <Logo />
+                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
+                    <Menu className="h-6 w-6" />
+                </Button>
             </div>
-        </div>
+
+            {/* Mobile Sidebar Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
+            {/* Mobile Sidebar */}
+            <aside
+                className={cn(
+                    "fixed top-0 left-0 bottom-0 w-72 bg-white z-50 transition-transform md:hidden shadow-2xl flex flex-col",
+                    isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+                )}
+            >
+                <div className="p-6 flex items-center justify-between border-b">
+                    <Logo />
+                    <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                        <X className="h-6 w-6" />
+                    </Button>
+                </div>
+
+                <ScrollArea className="flex-1 px-4">
+                    <nav className="p-4 space-y-2">
+                        {links.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={cn(
+                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
+                                    pathname === link.href
+                                        ? "bg-blue-50 text-blue-600 font-semibold"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                )}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <link.icon className="h-5 w-5" />
+                                <span>{link.name}</span>
+                            </Link>
+                        ))}
+                    </nav>
+                </ScrollArea>
+
+                <div className="p-6 border-t bg-gray-50/50">
+                    {isAuthenticated ? (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 px-2 mb-4">
+                                <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                                    <AvatarImage src={user?.personalProfile?.profilePhoto || ""} />
+                                    <AvatarFallback className="bg-blue-600 text-white font-bold text-lg">
+                                        {user?.name?.[0]?.toUpperCase() || "U"}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-bold text-gray-900">{user?.name}</p>
+                                    <p className="text-sm text-gray-500 capitalize">{role}</p>
+                                </div>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl py-6"
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="h-5 w-5 mr-3" />
+                                Logout
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button
+                            variant="default"
+                            className="w-full bg-blue-600 hover:bg-blue-700 py-6 rounded-xl shadow-lg font-bold"
+                            asChild
+                        >
+                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                Sign In to Explore
+                            </Link>
+                        </Button>
+                    )}
+                </div>
+            </aside>
+        </>
     )
 }
