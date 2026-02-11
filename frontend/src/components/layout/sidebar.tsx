@@ -96,17 +96,19 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                                     key={link.href}
                                     href={link.href}
                                     className={cn(
-                                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative",
+                                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
                                         isActive
                                             ? "bg-blue-50 text-blue-600 font-medium"
                                             : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                     )}
                                 >
-                                    <link.icon className={cn(
-                                        "h-5 w-5 flex-shrink-0 transition-colors",
-                                        isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
-                                    )} />
-                                    {isSidebarOpen && <span className="text-sm">{link.name}</span>}
+                                    <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+                                        <link.icon className={cn(
+                                            "h-full w-full transition-colors",
+                                            isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
+                                        )} />
+                                    </div>
+                                    {isSidebarOpen && <span className="text-sm leading-none">{link.name}</span>}
                                     {!isSidebarOpen && isActive && (
                                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
                                     )}
@@ -142,8 +144,8 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                                 )}
                                 onClick={handleLogout}
                             >
-                                <LogOut className="h-5 w-5" />
-                                {isSidebarOpen && <span className="ml-3 font-medium">Logout</span>}
+                                <LogOut className="h-5 w-5 flex-shrink-0" />
+                                {isSidebarOpen && <span className="ml-3 font-medium leading-none">Logout</span>}
                             </Button>
                         </>
                     ) : (
@@ -151,14 +153,14 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                             variant="default"
                             size="sm"
                             className={cn(
-                                "w-full bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md",
-                                !isSidebarOpen && "px-0 justify-center"
+                                "w-full bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md flex items-center justify-center gap-2",
+                                !isSidebarOpen && "px-0"
                             )}
                             asChild
                         >
-                            <Link href="/login" className="flex items-center gap-2">
-                                <LogIn className="h-5 w-5" />
-                                {isSidebarOpen && <span className="font-medium">Sign In</span>}
+                            <Link href="/login">
+                                <LogIn className="h-5 w-5 flex-shrink-0" />
+                                {isSidebarOpen && <span className="font-medium leading-none">Sign In</span>}
                             </Link>
                         </Button>
                     )}
@@ -209,8 +211,10 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                                 )}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
-                                <link.icon className="h-5 w-5" />
-                                <span>{link.name}</span>
+                                <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+                                    <link.icon className="h-full w-full" />
+                                </div>
+                                <span className="leading-none">{link.name}</span>
                             </Link>
                         ))}
                     </nav>
@@ -227,27 +231,28 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="font-bold text-gray-900">{user?.name}</p>
-                                    <p className="text-sm text-gray-500 capitalize">{role}</p>
+                                    <p className="font-bold text-gray-900 leading-none mb-1">{user?.name}</p>
+                                    <p className="text-sm text-gray-500 capitalize leading-none">{role}</p>
                                 </div>
                             </div>
                             <Button
                                 variant="ghost"
-                                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl py-6"
+                                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl py-6 flex items-center gap-3"
                                 onClick={handleLogout}
                             >
-                                <LogOut className="h-5 w-5 mr-3" />
-                                Logout
+                                <LogOut className="h-5 w-5 flex-shrink-0" />
+                                <span className="font-medium leading-none">Logout</span>
                             </Button>
                         </div>
                     ) : (
                         <Button
                             variant="default"
-                            className="w-full bg-blue-600 hover:bg-blue-700 py-6 rounded-xl shadow-lg font-bold"
+                            className="w-full bg-blue-600 hover:bg-blue-700 py-6 rounded-xl shadow-lg font-bold flex items-center justify-center gap-3"
                             asChild
                         >
                             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                Sign In to Explore
+                                <LogIn className="h-5 w-5 flex-shrink-0" />
+                                <span className="leading-none">Sign In to Explore</span>
                             </Link>
                         </Button>
                     )}

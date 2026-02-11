@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const currentRouteName = NAV_LINKS.admin.find(item => item.href === pathname)?.name || "Dashboard"
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 flex overflow-hidden">
             <Sidebar role="admin" />
 
             {/* Main Content Area */}
@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </div>
                 </header>
 
-                <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-50/50">
+                <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-50/50 pb-24">
                     <div className="max-w-[1600px] mx-auto">
                         {children}
                     </div>

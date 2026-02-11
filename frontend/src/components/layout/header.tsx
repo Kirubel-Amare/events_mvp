@@ -7,14 +7,23 @@ import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut,
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/auth-store"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 export default function Header() {
+  const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { isAuthenticated, user, logout } = useAuthStore()
   const [activeNav, setActiveNav] = useState("home")
   const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
+
+  // Define paths where the header should NOT be shown
+  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile"]
+  const isExcluded = excludedPaths.some(path => pathname?.startsWith(path))
+
+  if (isExcluded) {
+    return null
+  }
 
   const handleLogout = () => {
     logout()
@@ -111,7 +120,7 @@ export default function Header() {
                   3
                 </Badge>
               </Button>
-             
+
 
               <Button
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
