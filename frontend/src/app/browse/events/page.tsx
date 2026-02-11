@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { FeedContainer } from "@/components/feed/feed-container"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -39,6 +39,21 @@ import { toast } from "react-hot-toast"
 import Link from "next/link"
 
 export default function BrowseEventsPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-20 min-h-screen bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="mt-4 text-sm text-muted-foreground animate-pulse">
+                    Preparing browse view...
+                </p>
+            </div>
+        }>
+            <BrowseEventsContent />
+        </Suspense>
+    )
+}
+
+function BrowseEventsContent() {
     const searchParams = useSearchParams()
     const [isLoading, setIsLoading] = useState(true)
     const [events, setEvents] = useState<Event[]>([])

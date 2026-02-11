@@ -125,6 +125,7 @@ export default function ProfilePage() {
                                         }}
                                         value={user?.personalProfile?.profilePhoto || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user?.name}
                                         className="w-32 h-32 mx-auto"
+                                        rounded="rounded-full"
                                     />
                                 </div>
 

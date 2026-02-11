@@ -6,6 +6,7 @@ import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { apiClient } from "@/lib/api/client"
 import { SafeImage } from "@/components/shared/safe-image"
+import { cn } from "@/lib/utils"
 
 interface ImageUploadProps {
     onUpload: (url: string) => void
@@ -13,9 +14,10 @@ interface ImageUploadProps {
     value?: string
     label?: string
     className?: string
+    rounded?: string
 }
 
-export function ImageUpload({ onUpload, onDelete, value, label, className }: ImageUploadProps) {
+export function ImageUpload({ onUpload, onDelete, value, label, className, rounded = "rounded-lg" }: ImageUploadProps) {
     const [isUploading, setIsUploading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -68,7 +70,7 @@ export function ImageUpload({ onUpload, onDelete, value, label, className }: Ima
 
             <div className="relative group">
                 {value ? (
-                    <div className="relative h-40 w-full rounded-lg overflow-hidden border-2 border-gray-100">
+                    <div className={cn("relative h-40 w-full overflow-hidden border-2 border-gray-100", rounded)}>
                         <SafeImage
                             src={value}
                             alt="Upload preview"

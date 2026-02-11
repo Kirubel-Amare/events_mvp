@@ -222,6 +222,21 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                     </nav>
                 </ScrollArea>
 
+                {role === "user" && !user?.isOrganizer && (
+                    <div className="px-6 py-4">
+                        <Button
+                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-6 rounded-xl shadow-lg font-bold flex items-center justify-center gap-3"
+                            asChild
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            <Link href="/dashboard/become-organizer">
+                                <Sparkles className="h-5 w-5" />
+                                <span>Start Organizer Application</span>
+                            </Link>
+                        </Button>
+                    </div>
+                )}
+
                 <div className="p-6 border-t bg-gray-50/50">
                     {isAuthenticated ? (
                         <div className="space-y-4">
