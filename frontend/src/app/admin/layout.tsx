@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sidebar } from "@/components/layout/sidebar"
 import toast from "react-hot-toast"
 import { NAV_LINKS } from "@/components/layout/navigation"
+import { useUIStore } from "@/store/ui-store"
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -22,6 +23,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const router = useRouter()
     const pathname = usePathname()
     const { user, isAuthenticated } = useAuthStore()
+    const { isSidebarOpen } = useUIStore()
     const [isMounted, setIsMounted] = useState(false)
 
     useEffect(() => {
@@ -52,7 +54,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Sidebar role="admin" />
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col min-w-0 h-screen">
+            <main
+                className={`flex-1 flex flex-col min-w-0 h-screen transition-all duration-300 ${isSidebarOpen ? "md:ml-64" : "md:ml-20"
+                    }`}
+            >
                 <header className="h-16 bg-white border-b flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 shrink-0">
                     <div className="flex-1 px-4 hidden md:block">
                         <div className="flex items-center gap-2 text-sm text-gray-500 mb-0.5">

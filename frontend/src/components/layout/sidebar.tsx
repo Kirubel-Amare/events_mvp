@@ -23,6 +23,8 @@ import toast from "react-hot-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { useUIStore } from "@/store/ui-store"
+
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     role?: "user" | "organizer" | "admin"
@@ -32,7 +34,7 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
     const pathname = usePathname()
     const router = useRouter()
     const { user, logout, isAuthenticated } = useAuthStore()
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const { isSidebarOpen, toggleSidebar } = useUIStore()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     // Select links based on role
@@ -67,7 +69,7 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
             {/* Desktop Sidebar */}
             <aside
                 className={cn(
-                    "hidden md:flex flex-col bg-white border-r transition-all duration-300 h-screen sticky top-0",
+                    "hidden md:flex flex-col bg-white border-r transition-all duration-300 h-screen fixed left-0 top-0 z-40",
                     isSidebarOpen ? "w-64" : "w-20",
                     className
                 )}
@@ -79,7 +81,7 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 ml-auto text-gray-400 hover:text-gray-600"
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        onClick={toggleSidebar}
                     >
                         {isSidebarOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     </Button>

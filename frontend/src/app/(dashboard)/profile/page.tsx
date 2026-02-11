@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "react-hot-toast"
 import { z } from "zod"
 import { User, Globe, Link as LinkIcon, Mail, Calendar, MapPin, Sparkles, Camera } from "lucide-react"
@@ -33,32 +33,42 @@ type ProfileInput = z.infer<typeof profileSchema>
 export default function ProfilePage() {
     const [isLoading, setIsLoading] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
-    const { user } = useAuthStore()
-
+    const { setUser, user } = useAuthStore()
     const {
         register,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm<ProfileInput>({
         resolver: zodResolver(profileSchema),
-        defaultValues: {
-            name: "John Doe",
-            username: "johndoe",
-            email: "john@example.com",
-            bio: "Event enthusiast, hiker, and tech lover. Always looking for new adventures and connections.",
-            location: "New York, NY",
-        }
     })
+
+    useEffect(() => {
+        if (user) {
+            reset({
+                name: user.name || "",
+                username: user.personalProfile?.username || user.username || "",
+                email: user.email || "",
+                bio: user.personalProfile?.bio || "",
+                website: "",
+                location: user.personalProfile?.city || "",
+                profilePhoto: user.personalProfile?.profilePhoto || ""
+            })
+        }
+    }, [user, reset])
 
     const onSubmit = async (data: ProfileInput) => {
         setIsLoading(true)
         try {
-            await usersApi.updateProfile({
+            const response = await usersApi.updateProfile({
                 name: data.name,
                 bio: data.bio,
                 city: data.location,
                 profilePhoto: data.profilePhoto
             })
+            if (response.profile) {
+                setUser({ ...user, ...response.profile, personalProfile: response.profile } as any);
+            }
             toast.success("Profile updated successfully!")
         } catch (_error) {
             toast.error("Failed to update profile. Please try again.")
@@ -118,21 +128,21 @@ export default function ProfilePage() {
                                     />
                                 </div>
 
-                                <h2 className="text-xl font-bold text-gray-900">John Doe</h2>
-                                <p className="text-gray-600">@johndoe</p>
+                                <h2 className="text-xl font-bold text-gray-900">{user?.name || "User"}</h2>
+                                <p className="text-gray-600">@{user?.personalProfile?.username || user?.username || "username"}</p>
 
                                 <div className="mt-4 space-y-2">
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                         <Mail className="h-4 w-4" />
-                                        john@example.com
+                                        {user?.email}
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                         <MapPin className="h-4 w-4" />
-                                        New York, NY
+                                        {user?.personalProfile?.city || "No location set"}
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                         <Calendar className="h-4 w-4" />
-                                        Joined Jan 2024
+                                        Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Unknown'}
                                     </div>
                                 </div>
 

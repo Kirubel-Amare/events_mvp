@@ -16,6 +16,8 @@ export interface User {
         bio: string;
         city: string;
     };
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface OrganizerProfile {
