@@ -101,7 +101,7 @@ export default function DashboardPage() {
             value: totalEventsJoined.toString(),
             change: "+12%",
             icon: Calendar,
-            color: "from-blue-500 to-cyan-500",
+            color: "from-primary/80 to-primary",
             trend: "up"
         },
         {
@@ -109,7 +109,7 @@ export default function DashboardPage() {
             value: upcomingCount.toString(),
             change: upcomingCount > 0 ? `${upcomingCount} active` : "None scheduled",
             icon: Clock,
-            color: "from-emerald-500 to-green-500",
+            color: "from-blue-500/80 to-blue-600",
             trend: "neutral"
         },
         {
@@ -117,7 +117,7 @@ export default function DashboardPage() {
             value: user.isVerified ? "Verified" : "Standard",
             change: user.isVerified ? "✓ Premium" : "Upgrade available",
             icon: Award,
-            color: "from-purple-500 to-violet-500",
+            color: "from-purple-500/80 to-purple-600",
             trend: user.isVerified ? "verified" : "standard"
         },
         ...(user.isOrganizer ? [
@@ -126,7 +126,7 @@ export default function DashboardPage() {
                 value: organizerEventsCount.toString(),
                 change: "+5 this month",
                 icon: Sparkles,
-                color: "from-orange-500 to-amber-500",
+                color: "from-amber-500/80 to-amber-600",
                 trend: "up"
             },
         ] : []),
@@ -135,21 +135,21 @@ export default function DashboardPage() {
             value: `${completionRate}%`,
             change: completionRate > 80 ? "Excellent" : "Good",
             icon: Target,
-            color: "from-pink-500 to-rose-500",
+            color: "from-emerald-500/80 to-emerald-600",
             trend: completionRate > 80 ? "excellent" : "good"
         }
     ]
 
     const quickActions = user.isOrganizer ? [
-        { icon: Plus, label: "Create Event", href: "/events/create", color: "bg-gradient-to-r from-blue-600 to-purple-600" },
-        { icon: BarChart, label: "Analytics", href: "/organizer/analytics", color: "bg-gradient-to-r from-emerald-600 to-green-600" },
-        { icon: Users, label: "Audience", href: "/organizer/audience", color: "bg-gradient-to-r from-orange-600 to-amber-600" },
-        { icon: Settings, label: "Settings", href: "/organizer/settings", color: "bg-gradient-to-r from-gray-600 to-slate-600" },
+        { icon: Plus, label: "Create Event", href: "/events/create", color: "bg-primary/10 text-primary border-primary/20" },
+        { icon: BarChart, label: "Analytics", href: "/organizer/analytics", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+        { icon: Users, label: "Audience", href: "/organizer/audience", color: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
+        { icon: Settings, label: "Settings", href: "/organizer/settings", color: "bg-slate-500/10 text-slate-600 border-slate-500/20" },
     ] : [
-        { icon: Plus, label: "Create Plan", href: "/plans/create", color: "bg-gradient-to-r from-blue-600 to-purple-600" },
-        { icon: Sparkles, label: "Explore Events", href: "/browse/events", color: "bg-gradient-to-r from-emerald-600 to-green-600" },
-        { icon: Heart, label: "Saved Events", href: "/saved", color: "bg-gradient-to-r from-pink-600 to-rose-600" },
-        { icon: Bell, label: "Notifications", href: "/notifications", color: "bg-gradient-to-r from-orange-600 to-amber-600" },
+        { icon: Plus, label: "Create Plan", href: "/plans/create", color: "bg-primary/10 text-primary border-primary/20" },
+        { icon: Sparkles, label: "Explore Events", href: "/browse/events", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+        { icon: Heart, label: "Saved Events", href: "/saved", color: "bg-rose-500/10 text-rose-600 border-rose-500/20" },
+        { icon: Bell, label: "Notifications", href: "/notifications", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
     ]
 
     return (
@@ -449,14 +449,14 @@ export default function DashboardPage() {
                                 <Button
                                     key={index}
                                     variant="outline"
-                                    className={`h-auto flex-col items-center justify-center gap-3 p-4 border-2 hover:scale-105 transition-all hover-lift ${action.color.replace('bg-gradient-to-r', 'border-gradient-to-r')}`}
+                                    className="h-auto flex items-center justify-start gap-2 p-2.5 hover:bg-accent hover:text-accent-foreground transition-all duration-300"
                                     asChild
                                 >
-                                    <Link href={action.href}>
-                                        <div className={`rounded-lg ${action.color} p-2`}>
-                                            <action.icon className="h-5 w-5 text-white" />
+                                    <Link href={action.href} className="w-full flex items-center gap-2.5">
+                                        <div className={`rounded-lg p-2 flex-shrink-0 border ${action.color}`}>
+                                            <action.icon className="h-4 w-4" />
                                         </div>
-                                        <span className="text-sm font-medium">{action.label}</span>
+                                        <span className="text-sm font-medium truncate">{action.label}</span>
                                     </Link>
                                 </Button>
                             ))}
