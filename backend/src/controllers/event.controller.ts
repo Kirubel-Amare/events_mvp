@@ -143,7 +143,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
 
     if (eventsThisWeek >= user.weeklyEventQuota) {
       return res.status(403).json({
-        error: `Weekly event creation limit reached (${user.weeklyEventQuota}). Contact admin to increase your quota.`,
+        error: `Weekly event creation limit reached (${user.weeklyEventQuota}). Please apply for a quota increase in your dashboard.`,
       });
     }
 

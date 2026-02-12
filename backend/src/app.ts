@@ -18,6 +18,7 @@ import feedRoutes from './routes/feed.routes';
 import adminRoutes from './routes/admin.routes';
 import uploadRoutes from './routes/upload.routes';
 import notificationRoutes from './routes/notification.routes';
+import quotaRoutes from './routes/quota.routes';
 
 class App {
   public app: express.Application;
@@ -71,6 +72,7 @@ class App {
     this.app.use(`/api/${config.apiVersion}/admin`, adminRoutes);
     this.app.use(`/api/${config.apiVersion}/upload`, uploadRoutes);
     this.app.use(`/api/${config.apiVersion}/notifications`, notificationRoutes);
+    this.app.use(`/api/${config.apiVersion}/quotas`, quotaRoutes);
   }
 
   private initializeErrorHandling(): void {

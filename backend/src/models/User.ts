@@ -14,6 +14,7 @@ import { Application } from './Application';
 import { Report } from './Report';
 import { OrganizerApplication } from './OrganizerApplication';
 import { Notification } from './Notification';
+import { QuotaRequest } from './QuotaRequest';
 
 export enum UserRole {
   USER = 'user',
@@ -94,6 +95,9 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications!: Notification[];
+
+  @OneToMany(() => QuotaRequest, (request) => request.user)
+  quotaRequests!: QuotaRequest[];
 
   @CreateDateColumn()
   createdAt!: Date;

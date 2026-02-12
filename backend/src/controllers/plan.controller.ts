@@ -98,7 +98,7 @@ export const createPlan = async (req: AuthRequest, res: Response) => {
 
     if (plansThisWeek >= user.weeklyPlanQuota) {
       return res.status(403).json({
-        error: `Weekly plan creation limit reached (${user.weeklyPlanQuota}). Contact admin to increase your quota.`,
+        error: `Weekly plan creation limit reached (${user.weeklyPlanQuota}). Please apply for a quota increase in your dashboard.`,
       });
     }
 
