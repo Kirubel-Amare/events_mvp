@@ -309,17 +309,31 @@ export const getEventApplications = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    if (event.organizer.userId !== userId) {
-      return res.status(403).json({ error: 'Not authorized' });
-    }
+    const isOrganizer = event.organizer.userId === userId;
+    const isAdmin = req.user?.isAdmin;
 
+    // Fetch applications
     const applications = await applicationRepository.find({
       where: { eventId: id },
       relations: ['user', 'user.personalProfile'],
       order: { appliedAt: 'DESC' },
     });
 
-    return res.json(applications);
+    // If organizer or admin, return all data
+    if (isOrganizer || isAdmin) {
+      return res.json(applications);
+    }
+
+    // Otherwise, only return approved applications and hide private messages
+    const publicApplications = applications
+      .filter(app => app.status === 'approved' || app.userId === userId) // Show their own and approved ones
+      .map(app => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { message, ...safeApp } = app;
+        return safeApp;
+      });
+
+    return res.json(publicApplications);
   } catch (error) {
     console.error('Get event applications error:', error);
     return res.status(500).json({ error: 'Internal server error' });
