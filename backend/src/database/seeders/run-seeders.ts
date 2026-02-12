@@ -6,6 +6,7 @@ import { PersonalProfile } from '../../models/PersonalProfile';
 import { OrganizerProfile } from '../../models/OrganizerProfile';
 import { Event, EventStatus } from '../../models/Event';
 import { Plan, PlanStatus } from '../../models/Plan';
+import { Notification, NotificationType } from '../../models/Notification';
 import { Helpers } from '../../utils/helpers';
 
 async function runSeeders() {
@@ -470,6 +471,88 @@ async function runSeeders() {
       }
     }
     console.log('Plans seeded');
+
+    // 5. Seed Notifications
+    const notificationRepository = AppDataSource.getRepository(Notification);
+
+    // Notifications for Regular User
+    if (regularUser) {
+      const userNotifications = [
+        {
+          title: "Welcome to EventHub!",
+          message: "Thanks for joining our community. Start by exploring upcoming events.",
+          type: NotificationType.INFO,
+          isRead: true,
+          userId: regularUser.id
+        },
+        {
+          title: "Profile Incomplete",
+          message: "Please complete your profile to get better event recommendations.",
+          type: NotificationType.WARNING,
+          isRead: false,
+          link: "/profile",
+          userId: regularUser.id
+        },
+        {
+          title: "New Event in your city",
+          message: "A new tech meetup has been scheduled in Addis Ababa.",
+          type: NotificationType.INFO,
+          isRead: false,
+          link: "/browse/events",
+          userId: regularUser.id
+        }
+      ];
+
+      for (const notifData of userNotifications) {
+        // Simple check to avoid duplicates for now, based on title and user
+        const exists = await notificationRepository.findOne({
+          where: { title: notifData.title, userId: regularUser.id }
+        });
+
+        if (!exists) {
+          const notification = notificationRepository.create({
+            ...notifData,
+            user: regularUser
+          });
+          await notificationRepository.save(notification);
+        }
+      }
+    }
+
+    // Notifications for Organizer
+    if (organizerUser) {
+      const orgNotifications = [
+        {
+          title: "Event Approved",
+          message: "Your 'Summer Music Festival' event has been approved and is now live.",
+          type: NotificationType.SUCCESS,
+          isRead: false,
+          userId: organizerUser.id
+        },
+        {
+          title: "New Application",
+          message: "You have a new attendee application for 'Tech Startup Mixer'.",
+          type: NotificationType.INFO,
+          isRead: false,
+          userId: organizerUser.id
+        }
+      ];
+
+      for (const notifData of orgNotifications) {
+        const exists = await notificationRepository.findOne({
+          where: { title: notifData.title, userId: organizerUser.id }
+        });
+
+        if (!exists) {
+          const notification = notificationRepository.create({
+            ...notifData,
+            user: organizerUser
+          });
+          await notificationRepository.save(notification);
+        }
+      }
+    }
+    console.log('Notifications seeded');
 
     console.log('Seeders completed successfully');
     process.exit(0);

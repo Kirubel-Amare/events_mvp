@@ -17,6 +17,7 @@ import organizerRoutes from './routes/organizer.routes';
 import feedRoutes from './routes/feed.routes';
 import adminRoutes from './routes/admin.routes';
 import uploadRoutes from './routes/upload.routes';
+import notificationRoutes from './routes/notification.routes';
 
 class App {
   public app: express.Application;
@@ -69,6 +70,7 @@ class App {
     this.app.use(`/api/${config.apiVersion}/feed`, feedRoutes);
     this.app.use(`/api/${config.apiVersion}/admin`, adminRoutes);
     this.app.use(`/api/${config.apiVersion}/upload`, uploadRoutes);
+    this.app.use(`/api/${config.apiVersion}/notifications`, notificationRoutes);
   }
 
   private initializeErrorHandling(): void {

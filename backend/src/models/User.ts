@@ -13,6 +13,7 @@ import { Plan } from './Plan';
 import { Application } from './Application';
 import { Report } from './Report';
 import { OrganizerApplication } from './OrganizerApplication';
+import { Notification } from './Notification';
 
 export enum UserRole {
   USER = 'user',
@@ -78,6 +79,9 @@ export class User {
 
   @OneToMany(() => OrganizerApplication, (application) => application.user)
   organizerApplications!: OrganizerApplication[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications!: Notification[];
 
   @CreateDateColumn()
   createdAt!: Date;
