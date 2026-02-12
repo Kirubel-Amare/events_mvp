@@ -19,6 +19,7 @@ export const planSchema = z.object({
     date: z.string().refine((date) => new Date(date) > new Date(), {
         message: "Date must be in the future",
     }),
+    image: z.string().optional(),
     externalLink: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 })
 

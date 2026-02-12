@@ -15,11 +15,13 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { eventsApi } from "@/lib/api/events"
 import { Category } from "@/types"
 import { ImageUpload } from "@/components/shared/ImageUpload"
+import { useAuthStore } from "@/store/auth-store"
 
 export function EventForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [categories, setCategories] = useState<Category[]>([])
+    const { user } = useAuthStore()
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -55,7 +57,8 @@ export function EventForm() {
                 description: data.description,
                 date: new Date(data.date).toISOString(),
                 city: data.city,
-                images: data.image ? [data.image] : [],
+                mainImage: data.image || null,
+                images: [], // Multiple images logic can be added later
                 price: data.price,
                 capacity: data.capacity ? parseInt(data.capacity) : undefined,
                 externalLink: data.externalLink,
@@ -76,6 +79,16 @@ export function EventForm() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+            {user && (
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+                    <p className="text-sm text-blue-700 font-medium">
+                        Your weekly event creation quota: <span className="font-bold">{user.weeklyEventQuota}</span>
+                    </p>
+                    <p className="text-xs text-blue-500 mt-1">
+                        Quotas are reset every 7 days. Contact admin to increase your limit.
+                    </p>
+                </div>
+            )}
             <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="title">Event Title</label>
                 <Input id="title" placeholder="e.g. Summer Music Festival" {...register("title")} disabled={isLoading} />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image, { ImageProps } from "next/image"
+import { useMemo } from "react"
 
 interface SafeImageProps extends Omit<ImageProps, "src" | "onError"> {
     src: string | null | undefined
@@ -16,13 +17,22 @@ export function SafeImage({
     alt,
     ...props
 }: SafeImageProps) {
-    const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc)
+    const finalSrc = useMemo(() => {
+        if (!src) return fallbackSrc;
+        if (src.startsWith('/uploads/')) {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+            return `${baseUrl}${src}`;
+        }
+        return src;
+    }, [src, fallbackSrc]);
+
+    const [imgSrc, setImgSrc] = useState<string>(finalSrc)
     const [hasError, setHasError] = useState(false)
 
     useEffect(() => {
-        setImgSrc(src || fallbackSrc)
+        setImgSrc(finalSrc)
         setHasError(false)
-    }, [src, fallbackSrc])
+    }, [finalSrc])
 
     const handleError = () => {
         if (!hasError) {

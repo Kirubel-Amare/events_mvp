@@ -14,7 +14,8 @@ import {
     XCircle,
     Loader2,
     Edit,
-    Trash2
+    Trash2,
+    Activity
 } from "lucide-react"
 import {
     Card,
@@ -77,6 +78,16 @@ export default function UserManagementPage() {
             fetchUsers()
         } catch (error) {
             toast.error("Failed to update user role")
+        }
+    }
+
+    const handleQuotaUpdate = async (userId: string, eventQuota: number, planQuota: number) => {
+        try {
+            await adminApi.updateUserQuota(userId, { weeklyEventQuota: eventQuota, weeklyPlanQuota: planQuota })
+            toast.success("User quotas updated successfully")
+            fetchUsers()
+        } catch (error) {
+            toast.error("Failed to update user quotas")
         }
     }
 
@@ -160,6 +171,7 @@ export default function UserManagementPage() {
                                 <TableRow>
                                     <TableHead className="w-[300px]">User</TableHead>
                                     <TableHead>Role</TableHead>
+                                    <TableHead>Quotas (E/P)</TableHead>
                                     <TableHead>Email Status</TableHead>
                                     <TableHead>Joined Date</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -171,13 +183,13 @@ export default function UserManagementPage() {
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-9 w-9 border border-gray-100">
-                                                    <AvatarImage src={user.personalProfile?.profilePhoto || ""} />
+                                                    <AvatarImage src={user.profilePicture || user.personalProfile?.profilePhoto || ""} />
                                                     <AvatarFallback className="bg-blue-50 text-blue-600 font-medium">
-                                                        {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                                                        {user.fullname?.charAt(0) || user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium text-gray-900 text-sm">{user.name || "N/A"}</span>
+                                                    <span className="font-medium text-gray-900 text-sm">{user.fullname || user.name || "N/A"}</span>
                                                     <span className="text-xs text-gray-500">@{user.username || "username"}</span>
                                                 </div>
                                             </div>
@@ -186,7 +198,14 @@ export default function UserManagementPage() {
                                             {getRoleBadge(user.role || "user")}
                                         </TableCell>
                                         <TableCell>
-                                            {user.isVerified ? (
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="outline" className="font-mono">{user.weeklyEventQuota}</Badge>
+                                                <span className="text-gray-400 text-xs">/</span>
+                                                <Badge variant="outline" className="font-mono">{user.weeklyPlanQuota}</Badge>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {(user as any).isVerified ? (
                                                 <div className="flex items-center text-emerald-600 text-xs font-medium">
                                                     <CheckCircle2 className="h-3 w-3 mr-1" /> Verified
                                                 </div>
@@ -214,8 +233,17 @@ export default function UserManagementPage() {
                                                     <DropdownMenuItem className="cursor-pointer">
                                                         <Edit className="h-4 w-4 mr-2" /> View Details
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="cursor-pointer">
-                                                        <Mail className="h-4 w-4 mr-2" /> Message User
+                                                    <DropdownMenuItem
+                                                        className="cursor-pointer"
+                                                        onClick={() => {
+                                                            const eq = prompt("Enter new weekly EVENT quota:", user.weeklyEventQuota.toString());
+                                                            const pq = prompt("Enter new weekly PLAN quota:", user.weeklyPlanQuota.toString());
+                                                            if (eq !== null && pq !== null) {
+                                                                handleQuotaUpdate(user.id, parseInt(eq), parseInt(pq));
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Activity className="h-4 w-4 mr-2" /> Update Quotas
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuLabel className="text-xs text-gray-500">Change Role</DropdownMenuLabel>

@@ -11,10 +11,12 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { notificationsApi, Notification } from "@/lib/api/notifications"
+import { useAuthStore } from "@/store/auth-store"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
 export default function NotificationsPage() {
+    const { user } = useAuthStore()
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [unreadCount, setUnreadCount] = useState(0)
@@ -87,9 +89,15 @@ export default function NotificationsPage() {
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Notifications</h2>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        {user?.role === 'admin' ? 'System Alerts' :
+                            user?.role === 'organizer' ? 'Organizer Notifications' :
+                                'Your Notifications'}
+                    </h2>
                     <p className="text-muted-foreground">
-                        Manage your alerts and updates.
+                        {user?.role === 'admin' ? 'Global system updates and moderation alerts.' :
+                            user?.role === 'organizer' ? 'Manage your event activities and attendee updates.' :
+                                'Stay updated with your latest interests and plans.'}
                     </p>
                 </div>
                 {unreadCount > 0 && (

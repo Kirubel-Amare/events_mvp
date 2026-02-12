@@ -1,22 +1,69 @@
-import Link from "next/link"
-import { PlusCircle, Calendar, Users, TrendingUp, Filter, SortAsc, MoreVertical } from "lucide-react"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useAuthStore } from "@/store/auth-store"
+import { organizerApi } from "@/lib/api/organizer"
+import { Skeleton } from "@/components/ui/skeleton"
+import toast from "react-hot-toast"
+import { Event } from "@/types"
 import { Button } from "@/components/ui/button"
-import { EventCard } from "@/components/feed/event-card"
-import { MOCK_EVENTS } from "@/lib/data"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
+import { Calendar, Filter, PlusCircle, SortAsc, TrendingUp, Users } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { EventCard } from "@/components/feed/event-card"
 
 export default function OrganizerEventsPage() {
-    // Filter for 'my' events
-    const myEvents = MOCK_EVENTS.slice(0, 2)
-    const pastEvents = MOCK_EVENTS.slice(2, 4)
-    
-    const stats = [
-        { label: "Total Events", value: "12", change: "+2", icon: Calendar, color: "blue" },
-        { label: "Total Attendees", value: "2,350", change: "+180", icon: Users, color: "purple" },
-        { label: "Avg. Attendance", value: "82%", change: "+5%", icon: TrendingUp, color: "emerald" },
+    const { user } = useAuthStore()
+    const [myEvents, setMyEvents] = useState<Event[]>([])
+    const [stats, setStats] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            if (!user?.id) return
+            try {
+                const [eventsData, statsData] = await Promise.all([
+                    organizerApi.getOrganizerEvents(user.id),
+                    organizerApi.getStats(user.id)
+                ])
+                setMyEvents(eventsData)
+                setStats(statsData)
+            } catch (error) {
+                console.error("Failed to fetch organizer events:", error)
+                toast.error("Failed to load your events.")
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchEvents()
+    }, [user])
+
+    const activeEvents = myEvents.filter(e => new Date(e.date) >= new Date())
+    const pastEvents = myEvents.filter(e => new Date(e.date) < new Date())
+
+    const statOverview = [
+        { label: "Total Events", value: stats?.totalEvents || 0, change: "+0", icon: Calendar, color: "blue" },
+        { label: "Total Attendees", value: stats?.totalAttendees || 0, change: "+0", icon: Users, color: "purple" },
+        { label: "Avg. Attendance", value: stats?.rating ? `${stats.rating}/5` : "N/A", change: "Rating", icon: TrendingUp, color: "emerald" },
     ]
+
+    if (isLoading) {
+        return (
+            <div className="space-y-8 p-6">
+                <div className="flex justify-between items-center">
+                    <Skeleton className="h-10 w-48" />
+                    <Skeleton className="h-10 w-32" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                </div>
+                <Skeleton className="h-64 w-full" />
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-8">
@@ -28,7 +75,7 @@ export default function OrganizerEventsPage() {
                         Manage and track all your published events
                     </p>
                 </div>
-                <Button 
+                <Button
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
                     asChild
                 >
@@ -41,21 +88,19 @@ export default function OrganizerEventsPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {stats.map((stat, index) => (
+                {statOverview.map((stat, index) => (
                     <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                                    stat.color === 'blue' ? 'bg-blue-100' : 
+                                <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${stat.color === 'blue' ? 'bg-blue-100' :
                                     stat.color === 'purple' ? 'bg-purple-100' : 'bg-emerald-100'
-                                }`}>
-                                    <stat.icon className={`h-5 w-5 ${
-                                        stat.color === 'blue' ? 'text-blue-600' : 
+                                    }`}>
+                                    <stat.icon className={`h-5 w-5 ${stat.color === 'blue' ? 'text-blue-600' :
                                         stat.color === 'purple' ? 'text-purple-600' : 'text-emerald-600'
-                                    }`} />
+                                        }`} />
                                 </div>
                                 <Badge className={
-                                    stat.change.startsWith('+') 
+                                    stat.change.startsWith('+') || stat.change === 'Rating'
                                         ? 'bg-green-100 text-green-700 hover:bg-green-100 border-0'
                                         : 'bg-red-100 text-red-700 hover:bg-red-100 border-0'
                                 }>
@@ -80,24 +125,10 @@ export default function OrganizerEventsPage() {
                         <SortAsc className="mr-2 h-3 w-3" />
                         Sort By
                     </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="border-gray-300 hover:bg-gray-100">
-                                <MoreVertical className="h-3 w-3" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Export Events</DropdownMenuItem>
-                            <DropdownMenuItem>Bulk Actions</DropdownMenuItem>
-                            <DropdownMenuItem>View Analytics</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Badge variant="outline" className="border-gray-300">All Events</Badge>
                     <Badge variant="outline" className="border-gray-300">Upcoming</Badge>
-                    <Badge variant="outline" className="border-gray-300">Past</Badge>
-                    <Badge variant="outline" className="border-gray-300">Draft</Badge>
                 </div>
             </div>
 
@@ -109,13 +140,13 @@ export default function OrganizerEventsPage() {
                         <p className="text-gray-600">Currently published and upcoming events</p>
                     </div>
                     <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
-                        {myEvents.length} Events
+                        {activeEvents.length} Events
                     </Badge>
                 </div>
 
-                {myEvents.length > 0 ? (
+                {activeEvents.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {myEvents.map((event) => (
+                        {activeEvents.map((event) => (
                             <EventCard key={event.id} event={event} />
                         ))}
                     </div>
@@ -129,7 +160,7 @@ export default function OrganizerEventsPage() {
                             <p className="text-gray-600 mb-6 max-w-sm mx-auto">
                                 You haven't created any events yet. Start sharing your experiences with the community!
                             </p>
-                            <Button 
+                            <Button
                                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                                 asChild
                             >
@@ -151,11 +182,6 @@ export default function OrganizerEventsPage() {
                             <h2 className="text-2xl font-bold text-gray-900">Past Events</h2>
                             <p className="text-gray-600">Events that have already taken place</p>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" asChild>
-                            <Link href="/organizer/events/past">
-                                View All Past Events
-                            </Link>
-                        </Button>
                     </div>
 
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -165,34 +191,6 @@ export default function OrganizerEventsPage() {
                     </div>
                 </div>
             )}
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="border border-gray-200">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-lg font-bold text-blue-600">4.8</div>
-                        <div className="text-sm text-gray-600">Avg. Rating</div>
-                    </CardContent>
-                </Card>
-                <Card className="border border-gray-200">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-lg font-bold text-purple-600">92%</div>
-                        <div className="text-sm text-gray-600">Attendance Rate</div>
-                    </CardContent>
-                </Card>
-                <Card className="border border-gray-200">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-lg font-bold text-emerald-600">85%</div>
-                        <div className="text-sm text-gray-600">Repeat Attendees</div>
-                    </CardContent>
-                </Card>
-                <Card className="border border-gray-200">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-lg font-bold text-amber-600">24h</div>
-                        <div className="text-sm text-gray-600">Avg. Response Time</div>
-                    </CardContent>
-                </Card>
-            </div>
 
             {/* Tips */}
             <Card className="border-0 bg-gradient-to-br from-blue-50 to-purple-50">
@@ -204,11 +202,6 @@ export default function OrganizerEventsPage() {
                                 Events with photos get 3x more views. Make sure to upload high-quality images!
                             </p>
                         </div>
-                        <Button variant="outline" className="border-gray-300 hover:bg-white/50" asChild>
-                            <Link href="/organizer/tips">
-                                View More Tips
-                            </Link>
-                        </Button>
                     </div>
                 </CardContent>
             </Card>

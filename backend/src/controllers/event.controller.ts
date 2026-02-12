@@ -16,7 +16,7 @@ export const getAllEvents = async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    const { city, category, dateFrom, dateTo, search } = req.query;
+    const { city, category, dateFrom, dateTo, search, sort, order } = req.query;
 
     const where: FindOptionsWhere<Event> = {
       status: EventStatus.APPROVED, // Only show approved events publically? Or all for MVP? Let's say APPROVED.
@@ -52,7 +52,7 @@ export const getAllEvents = async (req: Request, res: Response) => {
     const [events, total] = await eventRepository.findAndCount({
       where,
       relations: ['organizer', 'category'],
-      order: { date: 'ASC' },
+      order: sort ? { [sort as string]: (order as string || 'DESC').toUpperCase() } : { date: 'ASC' },
       skip,
       take: limit,
     });
@@ -76,7 +76,7 @@ export const getFeaturedEvents = async (req: Request, res: Response) => {
       where: { isFeatured: true, status: EventStatus.APPROVED },
       relations: ['organizer', 'category'],
       take: 5,
-      order: { date: 'ASC' },
+      order: { createdAt: 'DESC' },
     });
 
     return res.json(events);
@@ -123,10 +123,28 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
 
     const organizerProfile = await organizerProfileRepository.findOne({
       where: { userId },
+      relations: ['user'],
     });
 
     if (!organizerProfile) {
       return res.status(403).json({ error: 'User is not an organizer' });
+    }
+
+    const { user } = organizerProfile;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const eventsThisWeek = await eventRepository.count({
+      where: {
+        organizerId: organizerProfile.id,
+        createdAt: MoreThanOrEqual(oneWeekAgo),
+      },
+    });
+
+    if (eventsThisWeek >= user.weeklyEventQuota) {
+      return res.status(403).json({
+        error: `Weekly event creation limit reached (${user.weeklyEventQuota}). Contact admin to increase your quota.`,
+      });
     }
 
     const event = new Event();
@@ -134,13 +152,15 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
     event.description = description;
     event.city = city;
     event.date = new Date(date);
+    event.isFeatured = true; // Auto-feature for MVP visibility
     event.price = price;
     event.capacity = capacity;
     event.externalLink = externalLink || null;
     event.categoryId = categoryId;
     event.organizer = organizerProfile;
-    // Auto-approve for MVP
     event.status = EventStatus.APPROVED;
+    // Handle image from body if provided (local upload logic comes later)
+    if (req.body.mainImage) event.mainImage = req.body.mainImage;
 
     await eventRepository.save(event);
 

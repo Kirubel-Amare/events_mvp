@@ -256,6 +256,80 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const getRecentActivity = async (req: AuthRequest, res: Response) => {
+  try {
+    const recentUsers = await userRepository.find({
+      take: 5,
+      order: { createdAt: 'DESC' },
+      relations: ['personalProfile'],
+    });
+
+    const recentEvents = await eventRepository.find({
+      take: 5,
+      order: { createdAt: 'DESC' },
+      relations: ['organizer'],
+    });
+
+    const recentReports = await reportRepository.find({
+      take: 5,
+      order: { createdAt: 'DESC' },
+      relations: ['reporter'],
+    });
+
+    const activity = [
+      ...recentUsers.map(u => ({
+        id: `user-${u.id}`,
+        type: 'user',
+        title: `New user registered: ${u.name || u.email}`,
+        time: u.createdAt,
+        status: 'New User'
+      })),
+      ...recentEvents.map(e => ({
+        id: `event-${e.id}`,
+        type: 'event',
+        title: `New event created: ${e.title}`,
+        time: e.createdAt,
+        status: e.status
+      })),
+      ...recentReports.map(r => ({
+        id: `report-${r.id}`,
+        type: 'report',
+        title: `New report submitted: ${r.reason.substring(0, 30)}...`,
+        time: r.createdAt,
+        status: r.status
+      }))
+    ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, 10);
+
+    res.json(activity);
+  } catch (error) {
+    console.error('Get recent activity error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const updateUserQuota = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { weeklyEventQuota, weeklyPlanQuota } = req.body;
+
+    const user = await userRepository.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (weeklyEventQuota !== undefined) user.weeklyEventQuota = weeklyEventQuota;
+    if (weeklyPlanQuota !== undefined) user.weeklyPlanQuota = weeklyPlanQuota;
+
+    await userRepository.save(user);
+
+    res.json({ message: 'User quota updated successfully', user });
+  } catch (error) {
+    console.error('Update user quota error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export const getStats = async (req: AuthRequest, res: Response) => {
   try {
     const totalUsers = await userRepository.count();

@@ -46,24 +46,60 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id; // Authenticated
-    const { name, bio, city, profilePhoto } = req.body;
+    const { name, fullname, bio, city, profilePhoto, profilePicture } = req.body;
 
     const profile = await personalProfileRepository.findOne({
       where: { userId },
+      relations: ['user'],
     });
 
     if (!profile) {
       return res.status(404).json({ error: 'Profile not found' });
     }
 
-    if (name) profile.name = name;
+    const user = profile.user;
+
+    if (name) {
+      profile.name = name;
+      user.name = name;
+    }
+
+    if (fullname) {
+      user.fullname = fullname;
+    }
+
+    if (profilePicture) {
+      user.profilePicture = profilePicture;
+    }
+
+    if (profilePhoto) {
+      profile.profilePhoto = profilePhoto;
+      // Also update user.profilePicture if it's the main one
+      user.profilePicture = profilePhoto;
+    }
+
     if (bio !== undefined) profile.bio = bio;
     if (city !== undefined) profile.city = city;
-    if (profilePhoto !== undefined) profile.profilePhoto = profilePhoto;
 
-    await personalProfileRepository.save(profile);
+    await Promise.all([
+      personalProfileRepository.save(profile),
+      userRepository.save(user),
+    ]);
 
-    return res.json({ message: 'Profile updated successfully', profile });
+    return res.json({
+      message: 'Profile updated successfully',
+      profile: { ...profile, user: undefined },
+      user: {
+        id: user.id,
+        name: user.name,
+        fullname: user.fullname,
+        username: user.username,
+        profilePicture: user.profilePicture,
+        role: user.role,
+        isOrganizer: user.isOrganizer,
+        isAdmin: user.isAdmin,
+      }
+    });
   } catch (error) {
     console.error('Update profile error:', error);
     return res.status(500).json({ error: 'Internal server error' });

@@ -3,10 +3,13 @@ export interface User {
     email: string;
     name: string;
     username: string;
+    fullname: string | null;
+    profilePicture: string | null;
     role: 'user' | 'organizer' | 'admin';
-    isVerified?: boolean;
     isOrganizer: boolean;
     isAdmin: boolean;
+    weeklyEventQuota: number;
+    weeklyPlanQuota: number;
     organizerProfile?: OrganizerProfile;
     personalProfile?: {
         id: string;
@@ -43,6 +46,7 @@ export interface Event {
     id: string;
     title: string;
     description: string;
+    mainImage: string | null;
     images: string[];
     city: string;
     date: string;
@@ -68,6 +72,7 @@ export interface Plan {
     title: string;
     description: string;
     location: string;
+    image: string | null;
     date: string;
     externalLink: string | null;
     status: 'active' | 'completed' | 'cancelled';

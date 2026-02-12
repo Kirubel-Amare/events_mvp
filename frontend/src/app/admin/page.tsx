@@ -5,14 +5,12 @@ import {
     Users,
     Calendar,
     MapPin,
-    TrendingUp,
-    Clock,
-    CheckCircle2,
     AlertCircle,
     BarChart3,
     ArrowUpRight,
     ArrowDownRight,
     ChevronRight,
+    CheckCircle2, // Added CheckCircle2
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,24 +18,38 @@ import { adminApi, AdminStats } from "@/lib/api/admin"
 import { Skeleton } from "@/components/ui/skeleton"
 import toast from "react-hot-toast"
 
+// Define a type for recent activity items based on usage
+interface RecentActivityItem {
+    id: string;
+    type: 'user' | 'event' | 'report';
+    title: string;
+    time: string;
+    status: string;
+}
+
 export default function AdminDashboardPage() {
     const [stats, setStats] = useState<AdminStats | null>(null)
+    const [recentActivity, setRecentActivity] = useState<RecentActivityItem[]>([]) // Fixed type
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const data = await adminApi.getStats()
-                setStats(data)
+                const [statsData, activityData] = await Promise.all([
+                    adminApi.getStats(),
+                    adminApi.getRecentActivity()
+                ])
+                setStats(statsData)
+                setRecentActivity(activityData)
             } catch (error) {
-                console.error("Failed to fetch stats:", error)
+                console.error("Failed to fetch dashboard data:", error)
                 toast.error("Failed to load dashboard statistics")
             } finally {
                 setIsLoading(false)
             }
         }
 
-        fetchStats()
+        fetchData()
     }, [])
 
     const statCards = [
@@ -84,7 +96,7 @@ export default function AdminDashboardPage() {
             <div>
                 <h2 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard Overview</h2>
                 <p className="text-gray-500 mt-1">
-                    Welcome to the admin panel. Here's what's happening today.
+                    Welcome to the admin panel. Here&apos;s what&apos;s happening today.
                 </p>
             </div>
 
@@ -204,24 +216,38 @@ export default function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-6">
-                            {[1, 2, 3].map((item) => (
-                                <div key={item} className="flex items-start gap-4">
-                                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mt-1">
-                                        <Users className="h-4 w-4 text-blue-600" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium">New organizer registered: Tech Hub Addis</p>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-xs text-gray-500">2 hours ago</p>
-                                            <span className="text-xs text-gray-300">•</span>
-                                            <button className="text-xs text-blue-600 hover:underline">View Details</button>
+                            {recentActivity.length > 0 ? (
+                                recentActivity.map((activity) => (
+                                    <div key={activity.id} className="flex items-start gap-4">
+                                        <div className={`h-8 w-8 rounded-full flex items-center justify-center mt-1 ${activity.type === 'user' ? 'bg-blue-100 text-blue-600' :
+                                            activity.type === 'event' ? 'bg-purple-100 text-purple-600' :
+                                                'bg-amber-100 text-amber-600'
+                                            }`}>
+                                            {activity.type === 'user' ? <Users className="h-4 w-4" /> :
+                                                activity.type === 'event' ? <Calendar className="h-4 w-4" /> :
+                                                    <AlertCircle className="h-4 w-4" />}
                                         </div>
+                                        <div className="flex-1 space-y-1">
+                                            <p className="text-sm font-medium">{activity.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-xs text-gray-500">
+                                                    {new Date(activity.time).toLocaleString()}
+                                                </p>
+                                                <span className="text-xs text-gray-300">•</span>
+                                                <button className="text-xs text-blue-600 hover:underline">View Details</button>
+                                            </div>
+                                        </div>
+                                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${activity.status === 'approved' || activity.status === 'New User' ? 'bg-green-50 text-green-700 ring-green-700/10' :
+                                            activity.status === 'pending' ? 'bg-amber-50 text-amber-700 ring-amber-700/10' :
+                                                'bg-gray-50 text-gray-700 ring-gray-700/10'
+                                            }`}>
+                                            {activity.status}
+                                        </span>
                                     </div>
-                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                                        New User
-                                    </span>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-center text-gray-500 py-4">No recent activity</p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>

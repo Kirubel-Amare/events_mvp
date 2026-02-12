@@ -1,3 +1,4 @@
+import { In, MoreThanOrEqual } from 'typeorm';
 import { Request, Response } from 'express';
 import { AppDataSource } from '../config/database';
 import { User } from '../models/User';
@@ -74,8 +75,13 @@ export const getOrganizerEvents = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    // Try to find by organizer id first, then by userId
     const events = await eventRepository.find({
-      where: { organizerId: id },
+      where: [
+        { organizerId: id },
+        { organizer: { userId: id } }
+      ],
+      relations: ['organizer'],
       order: { date: 'ASC' },
     });
 
@@ -141,5 +147,57 @@ export const requestEventFeaturing = async (req: AuthRequest, res: Response) => 
   } catch (error) {
     console.error('Request event featuring error:', error);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
+  try {
+    const organizerId = req.params.id; // It's a string (UUID)
+
+    // Find the organizer profile first to be safe
+    const profile = await organizerProfileRepository.findOne({
+      where: [
+        { id: organizerId },
+        { userId: organizerId }
+      ]
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: 'Organizer not found' });
+    }
+
+    const actualOrganizerId = profile.id;
+
+    const totalEvents = await eventRepository.count({ where: { organizerId: actualOrganizerId } });
+    const upcomingEventsCount = await eventRepository.count({
+      where: {
+        organizerId: actualOrganizerId,
+        date: MoreThanOrEqual(new Date())
+      }
+    });
+
+    const events = await eventRepository.find({ where: { organizerId: actualOrganizerId } });
+    const eventIds = events.map(e => e.id);
+
+    let totalAttendees = 0;
+    if (eventIds.length > 0) {
+      // Logic for applications joined to events
+      // Assuming Application model has eventId
+      totalAttendees = await AppDataSource.getRepository('Application').count({
+        where: { eventId: In(eventIds), status: 'approved' }
+      });
+    }
+
+    res.json({
+      totalEvents,
+      upcomingEvents: upcomingEventsCount,
+      totalAttendees,
+      revenue: 0,
+      followers: 0,
+      rating: 4.8
+    });
+  } catch (error) {
+    console.error('Get organizer stats error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

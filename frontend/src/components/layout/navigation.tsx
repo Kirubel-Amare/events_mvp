@@ -10,7 +10,7 @@ export const NAV_LINKS = {
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "My Plans", href: "/plans", icon: Calendar },
-        { name: "Be Come Organizer", href: "/dashboard/become-organizer", icon: Sparkles },
+        { name: "Become Organizer", href: "/dashboard/become-organizer", icon: Sparkles },
         { name: "Profile", href: "/profile", icon: User },
         { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
@@ -20,7 +20,6 @@ export const NAV_LINKS = {
         { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "Events", href: "/organizer/events", icon: Calendar },
         { name: "Create Event", href: "/organizer/events/create", icon: PlusCircle },
-        { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "Settings", href: "/organizer/settings", icon: Settings },
     ],
     admin: [

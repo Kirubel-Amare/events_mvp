@@ -63,85 +63,11 @@ function BrowseEventsContent() {
     const [activeCategory, setActiveCategory] = useState("all")
     const [dateFilter, setDateFilter] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
-    const [categories, setCategories] = useState<Array<{
-        name: string;
-        count: number;
-        color: string;
-        icon: string;
-        textColor: string;
-        bgColor: string;
-        iconComponent?: React.ReactNode;
-    }>>([])
+    const [categories, setCategories] = useState<any[]>([])
     const [trendingCities, setTrendingCities] = useState<Array<{ name: string, count: number }>>([])
     const [likedEvents, setLikedEvents] = useState<string[]>([])
 
     // Categories with better design - matching HomePage
-    const categoryOptions = [
-        {
-            name: "Music",
-            icon: "🎵",
-            iconComponent: <Music className="h-6 w-6 text-blue-600" />,
-            color: "from-blue-500/10 to-blue-500/5",
-            textColor: "text-blue-600",
-            bgColor: "bg-blue-50"
-        },
-        {
-            name: "Business",
-            icon: "💼",
-            iconComponent: <Briefcase className="h-6 w-6 text-indigo-600" />,
-            color: "from-indigo-500/10 to-indigo-500/5",
-            textColor: "text-indigo-600",
-            bgColor: "bg-indigo-50"
-        },
-        {
-            name: "Wellness",
-            icon: "🧘",
-            iconComponent: <Users className="h-6 w-6 text-emerald-600" />,
-            color: "from-emerald-500/10 to-emerald-500/5",
-            textColor: "text-emerald-600",
-            bgColor: "bg-emerald-50"
-        },
-        {
-            name: "Art & Culture",
-            icon: "🎨",
-            iconComponent: <Palette className="h-6 w-6 text-purple-600" />,
-            color: "from-purple-500/10 to-purple-500/5",
-            textColor: "text-purple-600",
-            bgColor: "bg-purple-50"
-        },
-        {
-            name: "Food & Drink",
-            icon: "🍴",
-            iconComponent: <Utensils className="h-6 w-6 text-amber-600" />,
-            color: "from-amber-500/10 to-amber-500/5",
-            textColor: "text-amber-600",
-            bgColor: "bg-amber-50"
-        },
-        {
-            name: "Technology",
-            icon: "💻",
-            iconComponent: <Code className="h-6 w-6 text-slate-600" />,
-            color: "from-slate-500/10 to-slate-500/5",
-            textColor: "text-slate-600",
-            bgColor: "bg-slate-50"
-        },
-        {
-            name: "Entertainment",
-            icon: "🎭",
-            iconComponent: <Theater className="h-6 w-6 text-pink-600" />,
-            color: "from-pink-500/10 to-pink-500/5",
-            textColor: "text-pink-600",
-            bgColor: "bg-pink-50"
-        },
-        {
-            name: "Education",
-            icon: "📚",
-            iconComponent: <BookOpen className="h-6 w-6 text-cyan-600" />,
-            color: "from-cyan-500/10 to-cyan-500/5",
-            textColor: "text-cyan-600",
-            bgColor: "bg-cyan-50"
-        },
-    ]
 
     const filters = [
         { label: "All", active: activeCategory === "all", value: "all", icon: <Sparkles className="h-3.5 w-3.5" /> },
@@ -163,7 +89,7 @@ function BrowseEventsContent() {
                 }
 
                 if (searchQuery) queryParams.search = searchQuery
-                if (location) queryParams.location = location
+                if (location) queryParams.city = location
                 if (activeCategory && activeCategory !== "all") {
                     if (activeCategory === "free") {
                         queryParams.price = "free"
@@ -189,16 +115,30 @@ function BrowseEventsContent() {
                     }
                 }
 
-                // Fetch events
-                const response = await eventsApi.getEvents(queryParams)
+                // Fetch events and categories
+                const [response, categoriesData] = await Promise.all([
+                    eventsApi.getEvents(queryParams),
+                    eventsApi.getCategories()
+                ])
                 setEvents(response.events)
                 setTotalEvents(response.total || 0)
 
-                // Update categories with real counts
-                const updatedCategories = categoryOptions.map(cat => ({
-                    ...cat,
-                    count: response.events.filter(e => e.category?.name?.toLowerCase() === cat.name.toLowerCase()).length
-                }))
+                // Update categories with real counts and colors
+                const updatedCategories = categoriesData.map((cat, index) => {
+                    const fallbackColors = [
+                        { color: "from-blue-500/10 to-blue-500/5", textColor: "text-blue-600", bgColor: "bg-blue-50" },
+                        { color: "from-indigo-500/10 to-indigo-500/5", textColor: "text-indigo-600", bgColor: "bg-indigo-50" },
+                        { color: "from-emerald-500/10 to-emerald-500/5", textColor: "text-emerald-600", bgColor: "bg-emerald-50" },
+                        { color: "from-purple-500/10 to-purple-500/5", textColor: "text-purple-600", bgColor: "bg-purple-50" },
+                        { color: "from-amber-500/10 to-amber-500/5", textColor: "text-amber-600", bgColor: "bg-amber-50" },
+                    ]
+                    const colors = fallbackColors[index % fallbackColors.length]
+                    return {
+                        ...cat,
+                        ...colors,
+                        count: response.events.filter(e => e.categoryId === cat.id).length
+                    }
+                })
                 setCategories(updatedCategories)
 
                 // Fetch trending cities from events

@@ -130,5 +130,19 @@ router.put(
 
 // Stats
 router.get('/stats', adminController.getStats);
+router.get('/recent-activity', authenticate, requireAdmin, adminController.getRecentActivity);
+
+// Update user quota
+router.put(
+  '/users/:id/quota',
+  authenticate,
+  requireAdmin,
+  [
+    body('weeklyEventQuota').optional().isInt({ min: 0 }),
+    body('weeklyPlanQuota').optional().isInt({ min: 0 }),
+  ],
+  validateRequest,
+  adminController.updateUserQuota
+);
 
 export default router;

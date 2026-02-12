@@ -11,16 +11,21 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { planSchema, type PlanInput } from "@/lib/utils/validators"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
+import { ImageUpload } from "@/components/shared/ImageUpload"
 
 import { plansApi } from "@/lib/api/plans"
+import { useAuthStore } from "@/store/auth-store"
 
 export function PlanForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const { user } = useAuthStore()
 
     const {
         register,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors },
     } = useForm<PlanInput>({
         resolver: zodResolver(planSchema),
@@ -42,6 +47,16 @@ export function PlanForm() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+            {user && (
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+                    <p className="text-sm text-blue-700 font-medium">
+                        Your weekly plan creation quota: <span className="font-bold">{user.weeklyPlanQuota}</span>
+                    </p>
+                    <p className="text-xs text-blue-500 mt-1">
+                        Quotas are reset every 7 days. Contact admin to increase your limit.
+                    </p>
+                </div>
+            )}
             <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="title">Title</label>
                 <Input id="title" placeholder="e.g. Weekend Hiking" {...register("title")} disabled={isLoading} />
@@ -81,6 +96,14 @@ export function PlanForm() {
                     Users will use this link to contact you or join the group.
                 </p>
                 {errors.externalLink && <p className="text-sm text-destructive">{errors.externalLink.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium">Plan Image</label>
+                <ImageUpload
+                    onUpload={(url) => setValue("image", url as any)}
+                    value={watch("image")}
+                />
             </div>
 
             <div className="flex gap-4">

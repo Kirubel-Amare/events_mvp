@@ -4,9 +4,11 @@ import Link from "next/link"
 import { Calendar, Mail, Facebook, Twitter, Instagram } from "lucide-react"
 import { useState } from "react"
 import { Button } from "../ui/button"
+import { useAuthStore } from "@/store/auth-store"
 
 export default function Footer() {
   const [activeNav, setActiveNav] = useState("home")
+  const { user } = useAuthStore()
 
   return (
     <footer className="border-t bg-muted/40">
@@ -14,20 +16,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-              <Link href="/" className="flex items-center gap-2" onClick={() => setActiveNav("home")}>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur" />
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
-                <Calendar className="h-4 w-4 text-white" />
+            <Link href="/" className="flex items-center gap-2" onClick={() => setActiveNav("home")}>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur" />
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
+                  <Calendar className="h-4 w-4 text-white" />
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                EventHub
-              </span>
-              
-            </div>
-          </Link>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  EventHub
+                </span>
+
+              </div>
+            </Link>
             <p className="text-sm text-muted-foreground">
               Discover events and create social plans. Connect through shared interests.
             </p>
@@ -47,11 +49,13 @@ export default function Footer() {
                   Create Plans
                 </Link>
               </li>
-              <li>
-                <Link href="/organizer" className="text-muted-foreground hover:text-primary transition-colors">
-                  Become Organizer
-                </Link>
-              </li>
+              {!user?.isOrganizer && (
+                <li>
+                  <Link href="/organizer" className="text-muted-foreground hover:text-primary transition-colors">
+                    Become Organizer
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
                   About Us
@@ -100,15 +104,15 @@ export default function Footer() {
                   placeholder="Your email"
                   className="flex-1 rounded-l-lg border border-input bg-background px-3 py-2 text-sm"
                 />
-               <Button 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                asChild
-              >
-                <Link href="/subscribe">
-                  <Mail className="mr-2 h-4 w-4" />
-                
-                </Link>
-              </Button>
+                <Button
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  asChild
+                >
+                  <Link href="/subscribe">
+                    <Mail className="mr-2 h-4 w-4" />
+
+                  </Link>
+                </Button>
               </div>
             </form>
             <div className="flex gap-4 mt-6">

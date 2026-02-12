@@ -18,7 +18,7 @@ export default function Header() {
   const router = useRouter()
 
   // Define paths where the header should NOT be shown
-  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile","/notification"]
+  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile", "/notification"]
   const isExcluded = excludedPaths.some(path => pathname?.startsWith(path))
 
   if (isExcluded) {
@@ -57,41 +57,35 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Mobile Search */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-gray-600 hover:text-gray-900"
-          >
-            <Search className="h-4 w-4" />
-          </Button>
+
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { label: "Home", href: "/", active: activeNav === "home" },
+              { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
+              { label: "Events", href: "/events", active: activeNav === "events" },
+              { label: "contact", href: "/contact", active: activeNav === "contact" },
+              { label: "About", href: "/about", active: activeNav === "about" },
+            ].map((item) => (
+              <Link
+                key={item.href + item.label}
+                href={item.href}
+                onClick={() => setActiveNav(item.href.slice(1) || "home")}
+                className={`relative px-4 py-2 text-sm font-medium transition-colors ${item.active
+                  ? "text-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+                  }`}
+              >
+                {item.label}
+                {item.active && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                )}
+              </Link>
+            ))}
+          </nav>
         </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {[
-            { label: "Home", href: "/", active: activeNav === "home" },
-            { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
-            { label: "Events", href: "/events", active: activeNav === "events" },
-            // { label: "Trending", href: "/trending", active: activeNav === "trending" },
-            // { label: "Organizers", href: "/organizer", active: activeNav === "organizer" },
-          ].map((item) => (
-            <Link
-              key={item.href + item.label}
-              href={item.href}
-              onClick={() => setActiveNav(item.href.slice(1) || "home")}
-              className={`relative px-4 py-2 text-sm font-medium transition-colors ${item.active
-                ? "text-blue-600"
-                : "text-gray-700 hover:text-blue-600"
-                }`}
-            >
-              {item.label}
-              {item.active && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
-              )}
-            </Link>
-          ))}
-        </nav>
 
         {/* Search Bar - Desktop */}
         <div className="hidden md:flex items-center gap-2 flex-1 max-w-lg mx-6">
@@ -191,7 +185,12 @@ export default function Header() {
                 { label: "Become an Organizer", href: "/organizer/apply", icon: "🏢" },
                 // { label: "Saved", href: "/saved", icon: "❤️" },
                 // { label: "Notifications", href: "/notifications", icon: "🔔" },
-              ].map((item) => (
+              ].filter(item => {
+                if (item.label === "Become an Organizer" && user?.isOrganizer) {
+                  return false
+                }
+                return true
+              }).map((item) => (
                 <Link
                   key={item.href + item.label}
                   href={item.href}

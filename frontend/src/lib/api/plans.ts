@@ -6,6 +6,7 @@ export interface CreatePlanData {
     description: string;
     date: string;
     location: string;
+    image?: string | null;
     externalLink?: string;
 }
 

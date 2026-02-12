@@ -30,6 +30,9 @@ export class Plan {
   @Column({ type: 'varchar' })
   location!: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  image: string | null = null;
+
   @Column({ type: 'timestamp' })
   date!: Date;
 

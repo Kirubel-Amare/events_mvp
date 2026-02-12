@@ -70,6 +70,17 @@ export const requireAdmin = (
   next();
 };
 
+export const requireOrganizerOrAdmin = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.user?.isOrganizer && !req.user?.isAdmin) {
+    return res.status(403).json({ error: 'Organizer or Admin access required' });
+  }
+  next();
+};
+
 export const optionalAuth = async (
   req: AuthRequest,
   res: Response,

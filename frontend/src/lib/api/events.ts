@@ -18,6 +18,7 @@ export interface CreateEventData {
     date: string;
     city: string;
     images: string[];
+    mainImage?: string | null;
     price?: string;
     capacity?: number;
     externalLink?: string;

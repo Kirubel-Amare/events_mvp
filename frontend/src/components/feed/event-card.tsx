@@ -13,7 +13,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
-    const displayImage = (event as any).image || (event.images && event.images[0]) || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&auto=format&fit=crop"
+    const displayImage = event.mainImage || (event as any).image || (event.images && event.images[0]) || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&auto=format&fit=crop"
     const location = (event as any).location || event.city || "Online"
     const organizerName = typeof event.organizer === 'string' ? event.organizer : event.organizer?.organizationName || "Unknown Organizer"
     const categoryName = typeof event.category === 'string' ? event.category : event.category?.name || "Event"

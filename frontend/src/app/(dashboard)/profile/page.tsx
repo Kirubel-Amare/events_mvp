@@ -19,7 +19,7 @@ import { ImageUpload } from "@/components/shared/ImageUpload"
 import { usersApi } from "@/lib/api/users"
 
 const profileSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    fullname: z.string().min(2, "Full name must be at least 2 characters").optional(),
     username: z.string().min(3, "Username must be at least 3 characters"),
     email: z.string().email("Invalid email address"),
     bio: z.string().max(160, "Bio must be less than 160 characters").optional(),
@@ -46,13 +46,13 @@ export default function ProfilePage() {
     useEffect(() => {
         if (user) {
             reset({
-                name: user.name || "",
-                username: user.personalProfile?.username || user.username || "",
+                fullname: user.fullname || user.name || "",
+                username: user.username || "",
                 email: user.email || "",
                 bio: user.personalProfile?.bio || "",
                 website: "",
                 location: user.personalProfile?.city || "",
-                profilePhoto: user.personalProfile?.profilePhoto || ""
+                profilePhoto: user.profilePicture || user.personalProfile?.profilePhoto || ""
             })
         }
     }, [user, reset])
@@ -61,13 +61,14 @@ export default function ProfilePage() {
         setIsLoading(true)
         try {
             const response = await usersApi.updateProfile({
-                name: data.name,
+                fullname: data.fullname,
                 bio: data.bio,
                 city: data.location,
-                profilePhoto: data.profilePhoto
+                profilePicture: data.profilePhoto
             })
-            if (response.profile) {
-                setUser({ ...user, ...response.profile, personalProfile: response.profile } as any);
+            if (response.user) {
+                // Update the store with the new user data
+                setUser({ ...user, ...response.user } as any);
             }
             toast.success("Profile updated successfully!")
         } catch (_error) {
@@ -149,17 +150,53 @@ export default function ProfilePage() {
 
                                 <div className="mt-6 grid grid-cols-2 gap-4 w-full">
                                     <div className="text-center p-3 bg-blue-50 rounded-lg">
-                                        <div className="text-lg font-bold text-blue-600">12</div>
+                                        <div className="text-lg font-bold text-blue-600">
+                                            {user?.role === 'organizer' ? 'Organized' : 'Attending'}
+                                        </div>
                                         <div className="text-sm text-gray-600">Events</div>
                                     </div>
                                     <div className="text-center p-3 bg-purple-50 rounded-lg">
-                                        <div className="text-lg font-bold text-purple-600">45</div>
-                                        <div className="text-sm text-gray-600">Friends</div>
+                                        <div className="text-lg font-bold text-purple-600">
+                                            {user?.role === 'admin' ? 'Total Users' : 'Friends'}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                            {user?.role === 'admin' ? '1.2k' : '45'}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Weekly Quotas (Role-based) */}
+                    {(user?.role === 'user' || user?.role === 'organizer') && (
+                        <Card className="border border-gray-200">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-lg text-gray-900">Weekly Quotas</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Events</span>
+                                        <span className="font-medium">{user.weeklyEventQuota} per week</span>
+                                    </div>
+                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-500" style={{ width: '20%' }} />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Plans</span>
+                                        <span className="font-medium">{user.weeklyPlanQuota} per week</span>
+                                    </div>
+                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-purple-500" style={{ width: '40%' }} />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground italic">Quotas reset every Monday.</p>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Account Status */}
                     <Card className="border border-gray-200">
@@ -207,17 +244,17 @@ export default function ProfilePage() {
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-3">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="name">
+                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="fullname">
                                                 Full Name
                                             </label>
                                             <Input
-                                                id="name"
-                                                {...register("name")}
+                                                id="fullname"
+                                                {...register("fullname")}
                                                 disabled={isLoading}
                                                 className="bg-gray-50 border-gray-200 focus:bg-white"
                                             />
-                                            {errors.name && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+                                            {errors.fullname && (
+                                                <p className="text-sm text-red-600 mt-1">{errors.fullname.message}</p>
                                             )}
                                         </div>
 

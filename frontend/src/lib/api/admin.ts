@@ -26,6 +26,11 @@ export const adminApi = {
         return response.data;
     },
 
+    getRecentActivity: async (): Promise<any[]> => {
+        const response = await apiClient.get('/admin/recent-activity');
+        return response.data;
+    },
+
     // Users
     getUsers: async (role?: string): Promise<User[]> => {
         const response = await apiClient.get('/admin/users', { params: { role } });
@@ -34,6 +39,11 @@ export const adminApi = {
 
     updateUserRole: async (userId: string, role: string): Promise<User> => {
         const response = await apiClient.put(`/admin/users/${userId}/role`, { role });
+        return response.data;
+    },
+
+    updateUserQuota: async (userId: string, data: { weeklyEventQuota?: number, weeklyPlanQuota?: number }): Promise<User> => {
+        const response = await apiClient.put(`/admin/users/${userId}/quota`, data);
         return response.data;
     },
 
@@ -59,7 +69,7 @@ export const adminApi = {
         return response.data;
     },
 
-    handleOrganizerApplication: async (applicationId: string, status: 'approved' | 'rejected', adminComment?: string): Promise<any> => {
+    handleOrganizerApplication: async (applicationId: string, status: 'approved' | 'rejected', adminComment?: string): Promise<{ message: string; application: any }> => {
         const response = await apiClient.post(`/admin/organizers/applications/${applicationId}/handle`, { status, adminComment });
         return response.data;
     },

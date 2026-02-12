@@ -47,7 +47,7 @@ export function ImageUpload({ onUpload, onDelete, value, label, className, round
                     "Content-Type": "multipart/form-data",
                 },
             })
-            const url = response.data.url
+            const url = response.data.imageUrl
             onUpload(url)
             toast.success("Image uploaded successfully")
         } catch (error) {

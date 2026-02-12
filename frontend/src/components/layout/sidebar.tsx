@@ -37,8 +37,13 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
     const { isSidebarOpen, toggleSidebar } = useUIStore()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-    // Select links based on role
-    const links = NAV_LINKS[role as keyof typeof NAV_LINKS] || NAV_LINKS.user
+    // Select links based on role and filter them
+    const links = (NAV_LINKS[role as keyof typeof NAV_LINKS] || NAV_LINKS.user).filter(link => {
+        if (link.href === "/dashboard/become-organizer" && user?.isOrganizer) {
+            return false
+        }
+        return true
+    })
 
     const handleLogout = async () => {
         try {

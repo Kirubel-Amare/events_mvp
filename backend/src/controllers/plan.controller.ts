@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../config/database';
 import { Plan, PlanStatus } from '../models/Plan';
+import { User } from '../models/User';
 import { Application } from '../models/Application';
 import { AuthRequest } from '../middleware/auth';
 import { Like, MoreThanOrEqual, LessThanOrEqual, Between, FindOptionsWhere } from 'typeorm';
@@ -82,6 +83,25 @@ export const createPlan = async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const { title, description, location, date, externalLink } = req.body;
 
+    const user = await AppDataSource.getRepository(User).findOne({ where: { id: userId } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const plansThisWeek = await planRepository.count({
+      where: {
+        creatorId: userId,
+        createdAt: MoreThanOrEqual(oneWeekAgo),
+      },
+    });
+
+    if (plansThisWeek >= user.weeklyPlanQuota) {
+      return res.status(403).json({
+        error: `Weekly plan creation limit reached (${user.weeklyPlanQuota}). Contact admin to increase your quota.`,
+      });
+    }
+
     const plan = new Plan();
     plan.title = title;
     plan.description = description;
@@ -90,6 +110,7 @@ export const createPlan = async (req: AuthRequest, res: Response) => {
     plan.externalLink = externalLink || null;
     plan.creatorId = userId;
     plan.status = PlanStatus.ACTIVE;
+    if (req.body.image) plan.image = req.body.image;
 
     await planRepository.save(plan);
 

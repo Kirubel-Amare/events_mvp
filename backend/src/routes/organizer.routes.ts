@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { authenticate } from '../middleware/auth';
+import { authenticate, requireOrganizer } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
 import * as organizerController from '../controllers/organizer.controller';
 
@@ -24,10 +24,14 @@ router.get('/:id', organizerController.getOrganizerProfile);
 // Get organizer events
 router.get('/:id/events', organizerController.getOrganizerEvents);
 
+// Get organizer stats
+router.get('/:id/stats', organizerController.getOrganizerStats);
+
 // Update organizer profile (organizer only)
 router.put(
   '/profile',
   authenticate,
+  requireOrganizer,
   [
     body('organizationName').optional().trim().notEmpty(),
     body('city').optional().trim().notEmpty(),
@@ -43,6 +47,7 @@ router.put(
 router.post(
   '/events/:id/feature',
   authenticate,
+  requireOrganizer,
   organizerController.requestEventFeaturing
 );
 

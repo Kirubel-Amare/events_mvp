@@ -32,6 +32,9 @@ export class Event {
   @Column('text', { array: true, default: [] })
   images: string[] = [];
 
+  @Column({ type: 'varchar', nullable: true })
+  mainImage: string | null = null;
+
   @Column({ type: 'varchar' })
   city!: string;
 

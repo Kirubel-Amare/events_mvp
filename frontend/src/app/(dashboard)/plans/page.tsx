@@ -1,16 +1,44 @@
+"use client"
+
 import Link from "next/link"
-import { Plus, Calendar, Users, MapPin, Clock, TrendingUp, Sparkles } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Plus, Calendar, Users, MapPin, Clock, TrendingUp, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PlanCard } from "@/components/feed/plan-card"
-import { MOCK_PLANS } from "@/lib/data"
+import { plansApi } from "@/lib/api/plans"
 import { EmptyState } from "@/components/shared/empty-state"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Plan } from "@/types"
 
 export default function PlansPage() {
-    // Filter plans by current user (mock)
-    const myPlans = MOCK_PLANS.slice(0, 1)
-    const suggestedPlans = MOCK_PLANS.slice(1, 4)
+    const [plans, setPlans] = useState<Plan[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchPlans = async () => {
+            try {
+                const data = await plansApi.getPlans()
+                setPlans(data)
+            } catch (error) {
+                console.error("Failed to fetch plans", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchPlans()
+    }, [])
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+        )
+    }
+
+    const myPlans = plans // In a real app, you might filter by current user if backend doesn't already
+    const suggestedPlans = plans.slice(0, 3) // Mock suggestion logic
 
     return (
         <div className="space-y-8">
@@ -22,7 +50,7 @@ export default function PlansPage() {
                         Manage your active plans and discover new opportunities
                     </p>
                 </div>
-                <Button 
+                <Button
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
                     asChild
                 >
@@ -126,7 +154,7 @@ export default function PlansPage() {
                             <p className="text-gray-600 mb-6 max-w-sm mx-auto">
                                 You haven't created any plans yet. Start organizing your first activity!
                             </p>
-                            <Button 
+                            <Button
                                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                                 asChild
                             >

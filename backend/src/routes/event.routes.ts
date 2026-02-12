@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body, query } from 'express-validator';
-import { authenticate, optionalAuth } from '../middleware/auth';
+import { authenticate, optionalAuth, requireOrganizer, requireOrganizerOrAdmin } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
 import * as eventController from '../controllers/event.controller';
 
@@ -35,6 +35,7 @@ router.get('/:id', optionalAuth, eventController.getEventById);
 router.post(
   '/',
   authenticate,
+  requireOrganizer,
   [
     body('title').trim().notEmpty(),
     body('description').trim().notEmpty(),
@@ -53,6 +54,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
+  requireOrganizer,
   [
     body('title').optional().trim().notEmpty(),
     body('description').optional().trim().notEmpty(),
@@ -67,8 +69,8 @@ router.put(
   eventController.updateEvent
 );
 
-// Delete event (organizer only)
-router.delete('/:id', authenticate, eventController.deleteEvent);
+// Delete event (organizer or admin)
+router.delete('/:id', authenticate, requireOrganizerOrAdmin, eventController.deleteEvent);
 
 // Apply to join event
 router.post(
@@ -84,7 +86,7 @@ router.post(
 // Cancel application
 router.delete('/:id/apply', authenticate, eventController.cancelApplication);
 
-// Get event applications (organizer only)
-router.get('/:id/applications', authenticate, eventController.getEventApplications);
+// Get event applications (organizer or admin)
+router.get('/:id/applications', authenticate, requireOrganizerOrAdmin, eventController.getEventApplications);
 
 export default router;

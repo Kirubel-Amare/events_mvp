@@ -38,6 +38,18 @@ export class User {
   @Column({ type: 'varchar', unique: true, nullable: true })
   username: string | null = null;
 
+  @Column({ type: 'varchar', nullable: true })
+  fullname: string | null = null;
+
+  @Column({ type: 'varchar', nullable: true })
+  profilePicture: string | null = null;
+
+  @Column({ type: 'int', default: 1 })
+  weeklyEventQuota: number = 1;
+
+  @Column({ type: 'int', default: 1 })
+  weeklyPlanQuota: number = 1;
+
   @Column({
     type: 'enum',
     enum: UserRole,

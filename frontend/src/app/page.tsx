@@ -30,6 +30,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Card,
   CardContent,
@@ -40,20 +41,11 @@ import {
 } from "@/components/ui/card"
 
 // Categories with static images/icons
-const categories = [
-  { name: "Music", icon: "🎵", count: 156, color: "bg-gradient-to-br from-blue-100 to-blue-50 text-blue-700", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Business", icon: "💼", count: 89, color: "bg-gradient-to-br from-indigo-100 to-indigo-50 text-indigo-700", image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Wellness", icon: "🧘", count: 124, color: "bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-700", image: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Art & Culture", icon: "🎨", count: 67, color: "bg-gradient-to-br from-purple-100 to-purple-50 text-purple-700", image: "https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Food & Drink", icon: "🍴", count: 92, color: "bg-gradient-to-br from-amber-100 to-amber-50 text-amber-700", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Technology", icon: "💻", count: 78, color: "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-700", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Entertainment", icon: "🎭", count: 112, color: "bg-gradient-to-br from-pink-100 to-pink-50 text-pink-700", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-  { name: "Education", icon: "📚", count: 95, color: "bg-gradient-to-br from-cyan-100 to-cyan-50 text-cyan-700", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" },
-]
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore()
   const router = useRouter()
+  const [categories, setCategories] = useState<any[]>([])
   const [activeCategory, setActiveCategory] = useState("all")
   const [featuredEvents, setFeaturedEvents] = useState<Event[]>([])
   const [allEvents, setAllEvents] = useState<Event[]>([])
@@ -68,14 +60,16 @@ export default function HomePage() {
       try {
         setIsLoading(true)
 
-        // Always fetch events
-        const [featured, all] = await Promise.all([
+        // Always fetch events and categories
+        const [featured, all, categoriesData] = await Promise.all([
           eventsApi.getFeaturedEvents(),
-          eventsApi.getEvents({ limit: 8 })
+          eventsApi.getEvents({ limit: 8, sort: 'createdAt', order: 'DESC' }),
+          eventsApi.getCategories()
         ])
 
-        setFeaturedEvents(featured)
-        setAllEvents(all.events)
+        setFeaturedEvents(featured || [])
+        setAllEvents(all?.events || [])
+        setCategories(categoriesData || [])
 
         // Fetch plans only if authenticated
         if (isAuthenticated) {
@@ -218,7 +212,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       {/* Trending Now with Images */}
       {featuredEvents.length > 0 && (
         <section className="container py-16">
@@ -240,7 +233,7 @@ export default function HomePage() {
               >
                 <div className="relative h-40 overflow-hidden">
                   <SafeImage
-                    src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
+                    src={event.mainImage || event.images?.[0] || "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=60"}
                     alt={event.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -271,6 +264,51 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* How It Works Section */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge variant="outline" className="mb-4 px-4 py-1.5 bg-blue-50 text-blue-600 border-blue-100">
+              Simple & Easy
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-gray-900">How It Works</h2>
+            <p className="text-lg text-gray-600">
+              Join our platform in three simple steps and start creating meaningful connections today.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            <div className="hidden md:block absolute top-24 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100 -z-10" />
+
+            <div className="text-center space-y-4 group">
+              <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
+                <UsersIcon className="h-10 w-10 text-white" />
+              </div>
+              <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold mb-2">1</div>
+              <h3 className="text-xl font-bold text-gray-900">Create Account</h3>
+              <p className="text-gray-600 text-sm">Sign up in seconds and personalize your profile to match your interests.</p>
+            </div>
+
+            <div className="text-center space-y-4 group">
+              <div className="w-20 h-20 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
+                <Search className="h-10 w-10 text-white" />
+              </div>
+              <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold mb-2">2</div>
+              <h3 className="text-xl font-bold text-gray-900">Find or Create</h3>
+              <p className="text-gray-600 text-sm">Browse amazing events or use our tools to organize your own gatherings.</p>
+            </div>
+
+            <div className="text-center space-y-4 group">
+              <div className="w-20 h-20 bg-pink-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
+                <Sparkles className="h-10 w-10 text-white" />
+              </div>
+              <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-pink-100 text-pink-600 font-bold mb-2">3</div>
+              <h3 className="text-xl font-bold text-gray-900">Connect & Enjoy</h3>
+              <p className="text-gray-600 text-sm">Attend events, meet new people, and build lasting memories together.</p>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Categories with Images */}
       <section className="container py-16">
         <div className="text-center mb-10">
@@ -283,25 +321,24 @@ export default function HomePage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {categories.map((category) => (
             <button
-              key={category.name}
-              onClick={() => setActiveCategory(category.name.toLowerCase())}
-              className={`group relative overflow-hidden rounded-xl transition-all ${activeCategory === category.name.toLowerCase()
+              key={category.id}
+              onClick={() => category?.name && setActiveCategory(category.name.toLowerCase())}
+              className={`group relative overflow-hidden rounded-xl transition-all ${activeCategory === category?.name?.toLowerCase()
                 ? 'ring-2 ring-blue-500 ring-offset-2'
                 : 'hover:shadow-md'
                 }`}
             >
               <div className="relative h-32">
                 <SafeImage
-                  src={category.image}
+                  src={`https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&category=${category.name}`}
                   alt={category.name}
                   fill
                   className="object-cover opacity-30"
                 />
-                <div className={`absolute inset-0 ${category.color} opacity-80`} />
+                <div className={`absolute inset-0 bg-blue-100 opacity-80`} />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center p-4">
-                  <span className="text-2xl mb-2">{category.icon}</span>
+                  <span className="text-2xl mb-2">{category.icon || "✨"}</span>
                   <div className="font-semibold text-sm text-center mb-1">{category.name}</div>
-                  <div className="text-xs">{category.count} events</div>
                 </div>
               </div>
             </button>
@@ -310,113 +347,117 @@ export default function HomePage() {
       </section>
 
       {/* Featured Events with Images */}
-      {featuredEvents.length > 0 && (
-        <section className="container py-16">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">Featured Events</h2>
-              <p className="text-gray-600">Premium experiences curated for you</p>
+      {
+        featuredEvents.length > 0 && (
+          <section className="container py-16">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <h2 className="text-2xl font-bold mb-2 text-gray-900">Featured Events</h2>
+                <p className="text-gray-600">Premium experiences curated for you</p>
+              </div>
+              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" asChild>
+                <Link href="/events/featured">
+                  View All
+                  <ChevronRight className="ml-2 h-3 w-3" />
+                </Link>
+              </Button>
             </div>
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" asChild>
-              <Link href="/events/featured">
-                View All
-                <ChevronRight className="ml-2 h-3 w-3" />
-              </Link>
-            </Button>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {featuredEvents.map((event) => (
-              <Card key={event.id} className="group overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
-                <div className="relative h-48 overflow-hidden">
-                  <SafeImage
-                    src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
-                    alt={event.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-3 right-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 bg-white/90 hover:bg-white rounded-full"
-                      onClick={() => toggleLike(event.id)}
-                    >
-                      <Heart
-                        className={`h-4 w-4 ${likedEvents.includes(event.id)
-                          ? "fill-red-500 text-red-500"
-                          : "text-gray-400"
-                          }`}
-                      />
-                    </Button>
-                  </div>
-                  <div className="absolute bottom-3 left-3">
-                    <Badge variant="outline" className="bg-white/90 text-gray-700">
-                      {event.category?.name || "Event"}
-                    </Badge>
-                  </div>
-                </div>
-
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl group-hover:text-blue-600 transition-colors">
-                    {event.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 line-clamp-2">
-                    {event.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="pb-4">
-                  <div className="space-y-3 mb-4">
-                    <div className="flex flex-wrap gap-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <div className="text-sm">
-                          <div className="font-medium text-gray-900">
-                            {new Date(event.date).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-400" />
-                        <div className="font-medium text-sm text-gray-900 truncate max-w-[150px]">{event.city}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div>
-                      <div className="text-2xl font-bold text-gray-900">{event.price || "Free"}</div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/browse/events/${event.id}`}>
-                          Details
-                        </Link>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {featuredEvents.map((event) => (
+                <Card key={event.id} className="group overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                  <div className="relative h-48 overflow-hidden">
+                    <SafeImage
+                      src={event.mainImage || event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
+                      alt={event.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white/90 hover:bg-white rounded-full"
+                        onClick={() => toggleLike(event.id)}
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${likedEvents.includes(event.id)
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400"
+                            }`}
+                        />
                       </Button>
                     </div>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="bg-gray-50 pt-4">
-                  <div className="flex items-center justify-between w-full text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
-                        <UsersIcon className="h-3 w-3 text-blue-600" />
-                      </div>
-                      <div>
-                        {event.organizer?.organizationName && (
-                          <div className="font-medium">by {event.organizer.organizationName}</div>
-                        )}
-                      </div>
+                    <div className="absolute bottom-3 left-3">
+                      <Badge variant="outline" className="bg-white/90 text-gray-700">
+                        {event.category?.name || "Event"}
+                      </Badge>
                     </div>
                   </div>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
+
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl group-hover:text-blue-600 transition-colors">
+                      {event.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-600 line-clamp-2">
+                      {event.description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="pb-4">
+                    <div className="space-y-3 mb-4">
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <div className="text-sm">
+                            {event.date ? (
+                              <span suppressHydrationWarning>
+                                {new Date(event.date).toLocaleDateString()}
+                              </span>
+                            ) : 'Date TBD'}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          <div className="font-medium text-sm text-gray-900 truncate max-w-[150px]">{event.city}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div>
+                        <div className="text-2xl font-bold text-gray-900">{event.price || "Free"}</div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/browse/events/${event.id}`}>
+                            Details
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="bg-gray-50 pt-4">
+                    <div className="flex items-center justify-between w-full text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+                          <UsersIcon className="h-3 w-3 text-blue-600" />
+                        </div>
+                        <div>
+                          {event.organizer?.organizationName && (
+                            <div className="font-medium">by {event.organizer.organizationName}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )
+      }
 
       {/* All Events Grid with Images */}
       <section className="bg-gray-50 py-16">
@@ -433,7 +474,7 @@ export default function HomePage() {
               <Card key={event.id} className="group overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="relative h-40 overflow-hidden">
                   <SafeImage
-                    src={event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
+                    src={event.mainImage || event.images?.[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
                     alt={event.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -470,12 +511,9 @@ export default function HomePage() {
                   </CardDescription>
 
                   <div className="space-y-2 text-xs mb-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3 text-gray-400" />
-                      <span className="font-medium text-gray-900">
-                        {new Date(event.date).toLocaleDateString()}
-                      </span>
-                    </div>
+                    <span className="font-medium text-gray-900" suppressHydrationWarning>
+                      {event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD'}
+                    </span>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-3 w-3 text-gray-400" />
                       <span className="text-gray-600 truncate">{event.city}</span>
@@ -574,6 +612,145 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* About Us & Stats Section */}
+      <section className="py-20 bg-gray-900 text-white overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+          <SafeImage
+            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&auto=format&fit=crop&q=80"
+            alt="Event Background"
+            fill
+            className="object-cover"
+          />
+        </div>
+
+        <div className="container relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div>
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0 mb-4 px-4 py-1">Our Mission</Badge>
+                <h2 className="text-3xl md:text-5xl font-bold leading-tight">
+                  Bringing People Together Through <span className="text-blue-400">Shared Experiences</span>
+                </h2>
+              </div>
+              <p className="text-lg text-gray-400 leading-relaxed">
+                Founded with a simple goal: to make the world a smaller, more connected place. We believe that the best moments in life happen when people gather together, share passions, and create new stories.
+              </p>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <div className="text-3xl md:text-4xl font-bold text-blue-500">10k+</div>
+                  <div className="text-sm text-gray-500 uppercase tracking-wider">Active Members</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl md:text-4xl font-bold text-purple-500">500+</div>
+                  <div className="text-sm text-gray-500 uppercase tracking-wider">Monthly Events</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl md:text-4xl font-bold text-emerald-500">50+</div>
+                  <div className="text-sm text-gray-500 uppercase tracking-wider">Active Cities</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">4.9/5</div>
+                  <div className="text-sm text-gray-500 uppercase tracking-wider">User Rating</div>
+                </div>
+              </div>
+              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 transition-colors" asChild>
+                <Link href="/about">Learn More About Us</Link>
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                <SafeImage
+                  src="https://images.unsplash.com/photo-1528605248644-14dd04cb113d?w=800&auto=format&fit=crop&q=80"
+                  alt="Connecting People"
+                  width={800}
+                  height={600}
+                  className="w-full"
+                />
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute -top-6 -right-6 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact & Support Section */}
+      <section className="py-20 bg-white" id="contact">
+        <div className="container">
+          <div className="bg-gray-50 rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              <div className="p-8 md:p-16 space-y-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Get in Touch</h2>
+                  <p className="text-gray-600">Have questions or need help? Our premium support team is here for you 24/7.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-600">
+                      <MessageSquare className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">Live Chat</div>
+                      <div className="text-sm text-gray-500">Average response: 2 mins</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-purple-600">
+                      <Globe className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">Email Support</div>
+                      <div className="text-sm text-gray-500">support@eventhub.com</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600">
+                      <MapPin className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">Headquarters</div>
+                      <div className="text-sm text-gray-500">123 Event St, San Francisco, CA</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-gray-200">
+                  <p className="text-sm font-medium text-gray-900 mb-4">Follow us on social media</p>
+                  <div className="flex gap-4">
+                    {['Twitter', 'Instagram', 'LinkedIn', 'Facebook'].map(social => (
+                      <div key={social} className="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer text-gray-400 hover:text-blue-600">
+                        <span className="sr-only">{social}</span>
+                        <Globe className="h-4 w-4" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-600 to-purple-700 p-8 md:p-16 flex flex-col justify-center text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-50" />
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-bold mb-6">Send us a direct message</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input placeholder="First Name" className="bg-white/10 border-white/20 text-white placeholder:text-white/60 h-12" />
+                      <Input placeholder="Last Name" className="bg-white/10 border-white/20 text-white placeholder:text-white/60 h-12" />
+                    </div>
+                    <Input placeholder="Email Address" className="bg-white/10 border-white/20 text-white placeholder:text-white/60 h-12" />
+                    <Textarea placeholder="How can we help you?" className="bg-white/10 border-white/20 text-white placeholder:text-white/60 min-h-[120px]" />
+                    <Button className="w-full bg-white text-blue-600 hover:bg-gray-100 h-12 font-bold shadow-lg">
+                      Send Message
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="container py-16 md:py-20">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-gray-200">
@@ -642,6 +819,34 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    </div>
+
+      {/* Newsletter Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container">
+          <div className="max-w-4xl mx-auto bg-gradient-to-r from-gray-900 to-blue-900 rounded-3xl p-8 md:p-12 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+              <SafeImage
+                src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&auto=format&fit=crop&q=80"
+                alt="Blue Pattern"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <h3 className="text-2xl md:text-3xl font-bold text-white">Stay Updated</h3>
+                <p className="text-blue-100 max-w-sm">Join our newsletter to receive the latest events and community updates directly in your inbox.</p>
+              </div>
+              <div className="flex-1 w-full flex flex-col sm:flex-row gap-3">
+                <Input placeholder="Enter your email" className="bg-white/10 border-white/20 text-white placeholder:text-blue-200 h-12" />
+                <Button className="bg-white text-blue-900 hover:bg-blue-50 h-12 px-8 font-bold whitespace-nowrap">
+                  Subscribe Now
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div >
   )
 }

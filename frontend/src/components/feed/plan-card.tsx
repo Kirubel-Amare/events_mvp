@@ -15,7 +15,17 @@ export function PlanCard({ plan }: PlanCardProps) {
     const creatorName = (plan as any).organizer || plan.creator?.name || "Unknown"
     const creatorAvatar = (plan as any).avatar || plan.creator?.personalProfile?.profilePhoto
     return (
-        <Card className="h-full flex flex-col hover:border-blue-500/50 transition-colors">
+        <Card className="h-full flex flex-col hover:border-blue-500/50 transition-colors overflow-hidden">
+            {plan.image && (
+                <div className="relative aspect-video w-full overflow-hidden">
+                    <SafeImage
+                        src={plan.image}
+                        alt={plan.title}
+                        fill
+                        className="object-cover transition-transform hover:scale-105 duration-500"
+                    />
+                </div>
+            )}
             <CardHeader className="p-4 pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{plan.title}</CardTitle>

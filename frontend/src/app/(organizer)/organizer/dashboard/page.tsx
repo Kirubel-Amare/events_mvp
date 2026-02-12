@@ -1,49 +1,77 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Calendar, PlusCircle, Users, TrendingUp, DollarSign, Star, Activity, Target, Sparkles, ArrowRight, BarChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { organizerApi } from "@/lib/api/organizer"
+import { useAuthStore } from "@/store/auth-store"
+import { Skeleton } from "@/components/ui/skeleton"
+import toast from "react-hot-toast"
+import { Event } from "@/types"
 
 export default function OrganizerDashboardPage() {
-    const stats = [
+    const { user } = useAuthStore()
+    const [stats, setStats] = useState<any>(null)
+    const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            if (!user?.id) return
+            try {
+                const [statsData, eventsData] = await Promise.all([
+                    organizerApi.getStats(user.id),
+                    organizerApi.getOrganizerEvents(user.id)
+                ])
+                setStats(statsData)
+                setUpcomingEvents(eventsData.filter((e: Event) => new Date(e.date) >= new Date()).slice(0, 3))
+            } catch (error) {
+                console.error("Failed to fetch organizer dashboard data:", error)
+                toast.error("Failed to load dashboard data.")
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchDashboardData()
+    }, [user])
+
+    const statCards = [
         {
             label: "Total Events",
-            value: "12",
-            change: "+2",
+            value: stats?.totalEvents || 0,
+            change: "+0",
             icon: Calendar,
             color: "bg-gradient-to-br from-blue-500 to-cyan-500",
             trend: "up"
         },
         {
-            label: "Total Followers",
-            value: "2,350",
-            change: "+180",
+            label: "Total Attendees",
+            value: stats?.totalAttendees || 0,
+            change: "+0",
             icon: Users,
             color: "bg-gradient-to-br from-purple-500 to-pink-500",
             trend: "up"
         },
         {
             label: "Total Revenue",
-            value: "$4,850",
-            change: "+$420",
+            value: `$${stats?.revenue || 0}`,
+            change: "+$0",
             icon: DollarSign,
             color: "bg-gradient-to-br from-emerald-500 to-green-500",
             trend: "up"
         },
         {
             label: "Avg. Rating",
-            value: "4.8",
-            change: "+0.2",
+            value: stats?.rating || "N/A",
+            change: "+0",
             icon: Star,
             color: "bg-gradient-to-br from-amber-500 to-orange-500",
             trend: "up"
         }
-    ]
-
-    const upcomingEvents = [
-        { id: 1, title: "Summer Music Fest", date: "Jun 15", attendeesCount: "850/1000", status: "Active" },
-        { id: 2, title: "Tech Conference", date: "Jun 20", attendeesCount: "320/500", status: "Active" },
-        { id: 3, title: "Yoga Retreat", date: "Jun 25", attendeesCount: "45/50", status: "Almost Full" },
     ]
 
     const performance = [
@@ -52,6 +80,37 @@ export default function OrganizerDashboardPage() {
         { metric: "Engagement Rate", value: "8.2%", change: "+2.1%" },
     ]
 
+    if (isLoading) {
+        return (
+            <div className="space-y-8 animate-pulse">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <Skeleton className="h-10 w-64" />
+                            <Skeleton className="h-6 w-20" />
+                        </div>
+                        <Skeleton className="h-6 w-96" />
+                    </div>
+                    <Skeleton className="h-10 w-40" />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
+                </div>
+                <div className="grid lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                        <Skeleton className="h-64 rounded-xl" />
+                        <Skeleton className="h-48 rounded-xl" />
+                    </div>
+                    <div className="space-y-6">
+                        <Skeleton className="h-64 rounded-xl" />
+                        <Skeleton className="h-48 rounded-xl" />
+                        <Skeleton className="h-48 rounded-xl" />
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-8">
             {/* Header */}
@@ -59,10 +118,12 @@ export default function OrganizerDashboardPage() {
                 <div>
                     <div className="flex items-center gap-3 mb-2">
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Organizer Dashboard</h1>
-                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
-                            <Sparkles className="mr-1 h-3 w-3" />
-                            Verified
-                        </Badge>
+                        {user?.isOrganizer && (
+                            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
+                                <Sparkles className="mr-1 h-3 w-3" />
+                                Verified
+                            </Badge>
+                        )}
                     </div>
                     <p className="text-lg text-gray-600">
                         Manage your events, track performance, and grow your audience
@@ -81,14 +142,14 @@ export default function OrganizerDashboardPage() {
 
             {/* Stats Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {stats.map((stat, index) => (
+                {statCards.map((stat: { label: string; value: string | number; change: string; icon: any; color: string; trend: string }, index: number) => (
                     <Card key={index} className="border border-gray-200 hover:shadow-lg transition-all hover:-translate-y-1">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <div className={`h-12 w-12 rounded-xl ${stat.color} flex items-center justify-center`}>
+                                <div className={`h - 12 w - 12 rounded - xl ${stat.color} flex items - center justify - center`}>
                                     <stat.icon className="h-6 w-6 text-white" />
                                 </div>
-                                <Badge className={`${stat.trend === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} hover:bg-green-100 border-0`}>
+                                <Badge className={`${stat.trend === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} hover: bg - green - 100 border - 0`}>
                                     <TrendingUp className="h-3 w-3 mr-1" />
                                     {stat.change}
                                 </Badge>
@@ -120,35 +181,41 @@ export default function OrganizerDashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {upcomingEvents.map((event) => (
-                                    <div key={event.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                                                <Calendar className="h-6 w-6 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                                    {event.title}
+                                {upcomingEvents.length > 0 ? (
+                                    upcomingEvents.map((event) => (
+                                        <div key={event.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors group">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                                                    <Calendar className="h-6 w-6 text-blue-600" />
                                                 </div>
-                                                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                                                    <span>{event.date}</span>
-                                                    <span>•</span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Users className="h-3 w-3" />
-                                                        {event.attendeesCount}
-                                                    </span>
+                                                <div>
+                                                    <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                                        {event.title}
+                                                    </div>
+                                                    <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                                        <span>{new Date(event.date).toLocaleDateString()}</span>
+                                                        <span>•</span>
+                                                        <span className="flex items-center gap-1">
+                                                            <Users className="h-3 w-3" />
+                                                            {event.attendeesCount || 0}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <Badge className={
+                                                event.status === 'approved' ? 'bg-green-100 text-green-700' :
+                                                    event.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                                        'bg-blue-100 text-blue-700'
+                                            }>
+                                                {event.status}
+                                            </Badge>
                                         </div>
-                                        <Badge className={
-                                            event.status === 'Active' ? 'bg-green-100 text-green-700' :
-                                                event.status === 'Almost Full' ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-blue-100 text-blue-700'
-                                        }>
-                                            {event.status}
-                                        </Badge>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-8 text-gray-500">
+                                        No upcoming events scheduled
                                     </div>
-                                ))}
+                                )}
                             </div>
                             <Button variant="outline" className="w-full mt-6 border-gray-300 hover:bg-gray-100" asChild>
                                 <Link href="/organizer/events/create">
@@ -182,7 +249,7 @@ export default function OrganizerDashboardPage() {
                                         <div className="h-2 bg-gray-200 rounded-full mt-3 overflow-hidden">
                                             <div
                                                 className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                                                style={{ width: `${70 + index * 10}%` }}
+                                                style={{ width: `${70 + index * 10}% ` }}
                                             />
                                         </div>
                                     </div>

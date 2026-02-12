@@ -501,7 +501,7 @@ export default function DashboardPage() {
                                     className=" w-full px-10 md:px-10 h-12 md:h-10 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
                                     asChild
                                 >
-                                    <Link href="/organizer/apply">
+                                    <Link href="/dashboard/become-organizer">
                                         <Sparkles className="mr-5 h-4 w-4" />
                                         Start Application
                                     </Link>

@@ -12,6 +12,8 @@ router.put(
   authenticate,
   [
     body('name').optional().trim().notEmpty(),
+    body('fullname').optional().trim().notEmpty(),
+    body('profilePicture').optional().trim(),
     body('bio').optional().trim(),
     body('city').optional().trim(),
   ],
