@@ -32,7 +32,7 @@ export const NAV_LINKS = {
         { name: "Event Management", href: "/admin/events", icon: Calendar },
         { name: "Reported Content", href: "/admin/reports", icon: AlertCircle },
         { name: "Quota Requests", href: "/admin/quotas", icon: ShieldAlert },
-        {name: }
+        { name: "Events", href: "/organizer/events", icon: Calendar },
         { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "My Plans", href: "/plans", icon: Calendar },
         { name: "Profile", href: "/profile", icon: User },
