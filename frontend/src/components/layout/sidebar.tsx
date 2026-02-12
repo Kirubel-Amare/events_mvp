@@ -96,7 +96,7 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                     <nav className="space-y-2 py-6">
                         {links.map((link) => {
                             const isActive = pathname === link.href ||
-                                (link.href !== "/" && pathname?.startsWith(link.href))
+                                (link.href !== "/" && pathname?.startsWith(link.href + "/"))
 
                             return (
                                 <Link

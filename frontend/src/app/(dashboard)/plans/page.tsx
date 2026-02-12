@@ -19,7 +19,7 @@ export default function PlansPage() {
         const fetchPlans = async () => {
             try {
                 const data = await plansApi.getPlans()
-                setPlans(data)
+                setPlans(data.plans || [])
             } catch (error) {
                 console.error("Failed to fetch plans", error)
             } finally {

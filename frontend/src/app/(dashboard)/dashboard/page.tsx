@@ -66,27 +66,37 @@ export default function DashboardPage() {
 
     // Process data
     const upcomingEvents = applications
-        .filter(app => app.event && new Date(app.event.date) > new Date())
-        .map(app => ({
-            id: app.event.id,
-            title: app.event.title,
-            date: format(new Date(app.event.date), "PPP"),
-            time: format(new Date(app.event.date), "p"),
-            location: app.event.city,
-            category: typeof app.event.category === 'object' ? app.event.category.name : app.event.category,
-            attendees: app.event.capacity ? `${app.event.capacity} cap` : "Open",
-            image: app.event.image || (app.event.images && app.event.images[0]) || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&auto=format&fit=crop"
-        }))
+        .filter(app => app.event && app.event.date && new Date(app.event.date).toString() !== 'Invalid Date' && new Date(app.event.date) > new Date())
+        .map(app => {
+            const eventDate = new Date(app.event.date);
+            const isValidDate = eventDate.toString() !== 'Invalid Date';
+
+            return {
+                id: app.event.id,
+                title: app.event.title,
+                date: isValidDate ? format(eventDate, "PPP") : "TBD",
+                time: isValidDate ? format(eventDate, "p") : "TBD",
+                location: app.event.city,
+                category: typeof app.event.category === 'object' ? app.event.category.name : app.event.category,
+                attendees: app.event.capacity ? `${app.event.capacity} cap` : "Open",
+                image: app.event.image || (app.event.images && app.event.images[0]) || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&auto=format&fit=crop"
+            }
+        })
         .slice(0, 5)
 
-    const recentActivity = applications.slice(0, 5).map(app => ({
-        id: app.id,
-        action: "Joined",
-        event: app.event?.title || app.plan?.title || "Event",
-        time: format(new Date(app.appliedAt), "MMM d, h:mm a"),
-        type: app.event ? "event" : "plan",
-        status: app.status
-    }))
+    const recentActivity = applications.slice(0, 5).map(app => {
+        const appliedDate = app.appliedAt ? new Date(app.appliedAt) : null;
+        const isValidDate = appliedDate && appliedDate.toString() !== 'Invalid Date';
+
+        return {
+            id: app.id,
+            action: "Joined",
+            event: app.event?.title || app.plan?.title || "Event",
+            time: isValidDate ? format(appliedDate!, "MMM d, h:mm a") : "Recently",
+            type: app.event ? "event" : "plan",
+            status: app.status
+        }
+    })
 
     // Stats with enhanced data
     const totalEventsJoined = applications.length

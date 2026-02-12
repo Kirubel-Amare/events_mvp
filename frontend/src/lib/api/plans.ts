@@ -10,10 +10,19 @@ export interface CreatePlanData {
     externalLink?: string;
 }
 
+export interface GetPlansParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+    city?: string;
+    dateFrom?: string;
+    dateTo?: string;
+}
+
 export const plansApi = {
     // Get all plans
-    getPlans: async (): Promise<Plan[]> => {
-        const response = await apiClient.get('/plans');
+    getPlans: async (params?: GetPlansParams): Promise<{ plans: Plan[]; total: number; page: number; limit: number; totalPages: number }> => {
+        const response = await apiClient.get('/plans', { params });
         return response.data;
     },
 

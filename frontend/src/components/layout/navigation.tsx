@@ -20,9 +20,10 @@ export const NAV_LINKS = {
         { name: "Dashboard", href: "/organizer/dashboard", icon: LayoutDashboard },
         { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "Events", href: "/organizer/events", icon: Calendar },
-        // { name: "Create Event", href: "/organizer/events/create", icon: PlusCircle },
-        { name: "Settings", href: "/organizer/settings", icon: Settings },
+        { name: "My Plans", href: "/plans", icon: Calendar },
+        { name: "Profile", href: "/profile", icon: User },
         { name: "Request Quota", href: "/dashboard/quota-request", icon: PlusCircle },
+        { name: "Settings", href: "/organizer/settings", icon: Settings },
     ],
     admin: [
         { name: "Overview", href: "/admin", icon: LayoutDashboard },
@@ -31,7 +32,10 @@ export const NAV_LINKS = {
         { name: "Event Management", href: "/admin/events", icon: Calendar },
         { name: "Reported Content", href: "/admin/reports", icon: AlertCircle },
         { name: "Quota Requests", href: "/admin/quotas", icon: ShieldAlert },
+        {name: }
         { name: "Notifications", href: "/notifications", icon: Bell },
+        { name: "My Plans", href: "/plans", icon: Calendar },
+        { name: "Profile", href: "/profile", icon: User },
         { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ],

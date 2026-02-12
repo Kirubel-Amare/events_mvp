@@ -47,7 +47,7 @@ async function runSeeders() {
 
     const passwordHash = await Helpers.hashPassword('password123');
 
-    // Admin
+    // Adminadmin@eventhub.com
     let admin = await userRepository.findOneBy({ email: 'admin@eventhub.com' });
     if (!admin) {
       admin = userRepository.create({
