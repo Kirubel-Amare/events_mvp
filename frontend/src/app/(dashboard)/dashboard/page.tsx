@@ -162,7 +162,7 @@ export default function DashboardPage() {
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <div className="relative">
-                                    <div className="h-14 w-14 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
+                                    <div className="h-14 w-14 rounded-full relative flex  items-center justify-center  bg-gradient-to-r from-blue-600 to-purple-600">
                                         <span className="text-xl font-bold text-white">
                                             {user.name?.charAt(0).toUpperCase()}
                                         </span>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Stats Grid with Modern Design */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {stats.map((stat, index) => (
                     <Card
                         key={index}
@@ -326,9 +326,11 @@ export default function DashboardPage() {
                                             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                                                 You haven't joined any events yet. Explore events to get started!
                                             </p>
-                                            <Button asChild>
+                                            <Button size="lg"
+                                                className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+                                                asChild>
                                                 <Link href="/browse/events">
-                                                    <Sparkles className="mr-2 h-4 w-4" />
+                                                    <Sparkles className="mr-3 h-4 w-4" />
                                                     Browse Events
                                                 </Link>
                                             </Button>
@@ -495,11 +497,12 @@ export default function DashboardPage() {
                             </CardContent>
                             <CardFooter className="relative">
                                 <Button
-                                    className="w-full gap-2 bg-gradient-to-r from-primary to-purple-600 hover:shadow-lg transition-all"
+
+                                    className=" w-full px-10 md:px-10 h-12 md:h-10 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
                                     asChild
                                 >
                                     <Link href="/organizer/apply">
-                                        <Sparkles className="h-4 w-4" />
+                                        <Sparkles className="mr-5 h-4 w-4" />
                                         Start Application
                                     </Link>
                                 </Button>
@@ -580,9 +583,10 @@ export default function DashboardPage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button variant="outline" className="w-full gap-2" asChild>
+                            <Button className=" w-full px-10 md:px-10 h-12 md:h-10 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+                                asChild>
                                 <Link href="/profile/edit">
-                                    <Settings className="h-4 w-4" />
+                                    <Settings className="mr-5 h-4 w-4" />
                                     Complete Profile
                                 </Link>
                             </Button>

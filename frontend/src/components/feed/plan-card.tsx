@@ -15,7 +15,7 @@ export function PlanCard({ plan }: PlanCardProps) {
     const creatorName = (plan as any).organizer || plan.creator?.name || "Unknown"
     const creatorAvatar = (plan as any).avatar || plan.creator?.personalProfile?.profilePhoto
     return (
-        <Card className="h-full flex flex-col hover:border-primary/50 transition-colors">
+        <Card className="h-full flex flex-col hover:border-blue-500/50 transition-colors">
             <CardHeader className="p-4 pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{plan.title}</CardTitle>
@@ -33,11 +33,11 @@ export function PlanCard({ plan }: PlanCardProps) {
                 <p className="text-sm">{plan.description}</p>
                 <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
-                        <Calendar className="h-3 w-3" />
+                        <Calendar className="h-3 w-3 text-blue-600" />
                         <span>{plan.date}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <MapPin className="h-3 w-3" />
+                        <MapPin className="h-3 w-3 text-blue-600" />
                         <span>{plan.location}</span>
                     </div>
                 </div>
@@ -45,7 +45,7 @@ export function PlanCard({ plan }: PlanCardProps) {
             <CardFooter className="p-4 pt-0">
                 <Modal>
                     <ModalTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full">Join Plan</Button>
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0">Join Plan</Button>
                     </ModalTrigger>
                     <ModalContent>
                         <ModalHeader>

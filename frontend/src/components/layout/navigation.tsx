@@ -1,4 +1,4 @@
-import { Home, Calendar, PlusCircle, User, Settings, LayoutDashboard, Search, Users, Shield, AlertCircle, BarChart3, Bell, Sparkles } from "lucide-react"
+import { Home, Calendar, PlusCircle, User, Settings, LayoutDashboard, Search, Users, Shield, AlertCircle, BarChart3, Bell, Sparkles, Ticket } from "lucide-react"
 
 export const NAV_LINKS = {
     main: [
@@ -8,7 +8,7 @@ export const NAV_LINKS = {
     user: [
         { name: "Home", href: "/", icon: Home },
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-        { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
+        { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "My Plans", href: "/plans", icon: Calendar },
         { name: "Be Come Organizer", href: "/dashboard/become-organizer", icon: Sparkles },
         { name: "Profile", href: "/profile", icon: User },
@@ -17,9 +17,10 @@ export const NAV_LINKS = {
     organizer: [
         { name: "Home", href: "/", icon: Home },
         { name: "Dashboard", href: "/organizer/dashboard", icon: LayoutDashboard },
-        { name: "Notifications", href: "/organizer/notifications", icon: Bell },
+        { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "Events", href: "/organizer/events", icon: Calendar },
         { name: "Create Event", href: "/organizer/events/create", icon: PlusCircle },
+        { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "Settings", href: "/organizer/settings", icon: Settings },
     ],
     admin: [
@@ -28,6 +29,7 @@ export const NAV_LINKS = {
         { name: "Organizer Applications", href: "/admin/organizers", icon: Shield },
         { name: "Event Management", href: "/admin/events", icon: Calendar },
         { name: "Reported Content", href: "/admin/reports", icon: AlertCircle },
+        { name: "Notifications", href: "/notifications", icon: Bell },
         { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ],

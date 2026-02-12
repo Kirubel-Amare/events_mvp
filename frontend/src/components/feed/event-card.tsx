@@ -33,7 +33,7 @@ export function EventCard({ event }: EventCardProps) {
                 </Badge>
             </div>
             <CardHeader className="p-4 pb-2 space-y-1">
-                <div className="text-sm text-muted-foreground font-medium text-primary">
+                <div className="text-sm font-medium text-blue-600">
                     {organizerName}
                 </div>
                 <CardTitle className="line-clamp-1">{event.title}</CardTitle>
@@ -44,17 +44,17 @@ export function EventCard({ event }: EventCardProps) {
                 </CardDescription>
                 <div className="flex flex-col gap-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
+                        <Calendar className="h-4 w-4 text-blue-600" />
                         <span>{event.date} • {timeDisplay}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
+                        <MapPin className="h-4 w-4 text-blue-600" />
                         <span>{location}</span>
                     </div>
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-                <Button asChild className="w-full bg-slate-900 text-white hover:bg-slate-800">
+                <Button asChild className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0">
                     <Link href={`/browse/events/${event.id}`}>View Details</Link>
                 </Button>
             </CardFooter>

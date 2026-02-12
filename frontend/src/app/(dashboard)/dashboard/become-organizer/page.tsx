@@ -100,7 +100,7 @@ export default function ApplyOrganizerPage() {
                 <div className="absolute inset-0 bg-grid-pattern opacity-5" />
                 <div className="absolute top-10 left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-10 right-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
-                
+
                 <div className="container relative">
                     <div className="max-w-4xl mx-auto text-center space-y-6">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 animate-fade-in">
@@ -109,26 +109,27 @@ export default function ApplyOrganizerPage() {
                                 Join our verified organizer community
                             </span>
                         </div>
-                        
+
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
                             Become a{" "}
                             <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                                 Verified Organizer
                             </span>
                         </h1>
-                        
+
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                             Share your passion, build your community, and create unforgettable experiences
                             with our professional event hosting platform.
                         </p>
-                        
+
                         <div className="pt-4">
-                            <Button 
-                                size="lg" 
-                                className="gap-2 px-8 animate-bounce-subtle"
+                            <Button
+                                size="lg"
+                                className="px-8 md:px-10 h-12 md:h-10 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
+
                                 onClick={() => document.getElementById('application-form')?.scrollIntoView({ behavior: 'smooth' })}
                             >
-                                <Zap className="h-5 w-5" />
+                                <Zap className="mr-5 h-5 w-5" />
                                 Start Application
                                 <ArrowRight className="h-5 w-5" />
                             </Button>
@@ -146,8 +147,8 @@ export default function ApplyOrganizerPage() {
                                 <div key={step} className="flex items-center">
                                     <div className={`
                                         flex items-center justify-center w-12 h-12 rounded-full border-2
-                                        ${currentStep >= step 
-                                            ? 'bg-primary text-primary-foreground border-primary' 
+                                        ${currentStep >= step
+                                            ? 'bg-primary text-primary-foreground border-primary'
                                             : 'bg-muted text-muted-foreground border-border'}
                                         font-semibold
                                     `}>
@@ -159,7 +160,7 @@ export default function ApplyOrganizerPage() {
                                 </div>
                             ))}
                         </div>
-                        
+
                         <div className="text-center">
                             <h3 className="text-lg font-semibold mb-2">
                                 {currentStep === 1 && "Step 1: Learn About Benefits"}
@@ -192,8 +193,8 @@ export default function ApplyOrganizerPage() {
                                         <CardContent className="p-6">
                                             <div className="grid sm:grid-cols-2 gap-6">
                                                 {features.map((feature, index) => (
-                                                    <div 
-                                                        key={index} 
+                                                    <div
+                                                        key={index}
                                                         className="flex items-start gap-4 p-4 rounded-xl border hover:bg-muted/30 transition-all hover-lift"
                                                     >
                                                         <div className="rounded-lg bg-gradient-to-br from-primary/10 to-purple-500/10 p-3">
@@ -244,7 +245,7 @@ export default function ApplyOrganizerPage() {
                                     </Card>
 
                                     <div className="flex justify-center gap-4">
-                                        <Button onClick={nextStep} size="lg" className="gap-2 px-8">
+                                        <Button onClick={nextStep} size="lg" className="px-8 md:px-10 h-12 md:h-14 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg">
                                             Continue to Application
                                             <ArrowRight className="h-4 w-4" />
                                         </Button>
@@ -269,7 +270,7 @@ export default function ApplyOrganizerPage() {
                                                     <Building className="h-5 w-5 text-primary" />
                                                     Organization Details
                                                 </h3>
-                                                
+
                                                 <div className="space-y-3">
                                                     <div>
                                                         <label className="text-sm font-medium mb-2 block" htmlFor="organizationName">
@@ -350,17 +351,17 @@ export default function ApplyOrganizerPage() {
                                             </div>
                                         </CardContent>
                                         <CardFooter className="flex gap-4 p-6 border-t">
-                                            <Button 
-                                                type="button" 
-                                                variant="outline" 
+                                            <Button
+                                                type="button"
+                                                variant="outline"
                                                 onClick={prevStep}
                                                 disabled={isLoading}
                                                 className="flex-1"
                                             >
                                                 Back
                                             </Button>
-                                            <Button 
-                                                type="submit" 
+                                            <Button
+                                                type="submit"
                                                 disabled={isLoading}
                                                 className="flex-1 gap-2 bg-gradient-to-r from-primary to-purple-600 hover:shadow-lg"
                                             >
@@ -389,15 +390,15 @@ export default function ApplyOrganizerPage() {
                                         <div className="rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                                             <CheckCircle className="h-12 w-12 text-green-600" />
                                         </div>
-                                        
+
                                         <h2 className="text-3xl font-bold mb-4">Application Submitted! 🎉</h2>
-                                        
+
                                         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                                            Thank you for applying to become a verified organizer! Our team will review 
-                                            your application within 24-48 hours. You'll receive an email notification 
+                                            Thank you for applying to become a verified organizer! Our team will review
+                                            your application within 24-48 hours. You'll receive an email notification
                                             once a decision has been made.
                                         </p>
-                                        
+
                                         <div className="space-y-6">
                                             <div className="rounded-xl border p-6 max-w-md mx-auto">
                                                 <h3 className="font-semibold mb-4 flex items-center justify-center gap-2">
@@ -431,7 +432,7 @@ export default function ApplyOrganizerPage() {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            
+
                                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                                 <Button asChild className="gap-2">
                                                     <Link href="/dashboard">
@@ -453,8 +454,8 @@ export default function ApplyOrganizerPage() {
 
                         {/* Right Column - Sidebar */}
                         <div className="space-y-6">
-                            
-                      
+
+
                             {/* Benefits Card */}
                             <Card className="border-border shadow-lg">
                                 <CardHeader>

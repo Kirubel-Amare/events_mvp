@@ -18,7 +18,7 @@ export default function Header() {
   const router = useRouter()
 
   // Define paths where the header should NOT be shown
-  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile"]
+  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile","/notification"]
   const isExcluded = excludedPaths.some(path => pathname?.startsWith(path))
 
   if (isExcluded) {
