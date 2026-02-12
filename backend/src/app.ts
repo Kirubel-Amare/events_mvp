@@ -32,7 +32,9 @@ class App {
 
   private initializeMiddlewares(): void {
     // Security
-    this.app.use(helmet());
+    this.app.use(helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" }
+    }));
     this.app.use(cors(corsOptions));
 
     // Compression

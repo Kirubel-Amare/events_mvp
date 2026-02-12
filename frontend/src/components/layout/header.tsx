@@ -65,8 +65,8 @@ export default function Header() {
               { label: "Home", href: "/", active: activeNav === "home" },
               { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
               { label: "Events", href: "/events", active: activeNav === "events" },
-              { label: "contact", href: "/contact", active: activeNav === "contact" },
-              { label: "About", href: "/about", active: activeNav === "about" },
+              { label: "contact", href: "/#contact", active: activeNav === "contact" },
+              { label: "About", href: "/#about", active: activeNav === "about" },
             ].map((item) => (
               <Link
                 key={item.href + item.label}
@@ -265,12 +265,12 @@ export default function Header() {
 
             {/* Mobile Footer Links */}
             <div className="pt-4 border-t border-gray-200 grid grid-cols-2 gap-2 text-xs text-gray-500">
-              <Link href="/about" className="hover:text-blue-600 py-2">About</Link>
-              <Link href="/help" className="hover:text-blue-600 py-2">Help Center</Link>
-              <Link href="/privacy" className="hover:text-blue-600 py-2">Privacy</Link>
-              <Link href="/terms" className="hover:text-blue-600 py-2">Terms</Link>
-              <Link href="/cookies" className="hover:text-blue-600 py-2">Cookies</Link>
-              <Link href="/contact" className="hover:text-blue-600 py-2">Contact</Link>
+              <Link href="/#about" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>About</Link>
+              <Link href="/help" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Help Center</Link>
+              <Link href="/privacy" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Privacy</Link>
+              <Link href="/terms" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Terms</Link>
+              <Link href="/cookies" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Cookies</Link>
+              <Link href="/#contact" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Contact</Link>
             </div>
           </div>
         </div>

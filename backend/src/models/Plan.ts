@@ -62,7 +62,4 @@ export class Plan {
 
   @UpdateDateColumn()
   updatedAt!: Date;
-
-  constructor() {
-  }
 }

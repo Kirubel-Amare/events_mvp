@@ -40,7 +40,7 @@ export const validateFile = (
 export const validateDate = (field: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const date = new Date(req.body[field]);
-    
+
     if (isNaN(date.getTime())) {
       return res.status(400).json({ error: `Invalid ${field} date` });
     }

@@ -119,7 +119,18 @@ export const getCategories = async (req: Request, res: Response) => {
 export const createEvent = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { title, description, city, date, price, capacity, externalLink, categoryId } = req.body;
+    const {
+      title,
+      description,
+      city,
+      date,
+      price,
+      capacity,
+      externalLink,
+      categoryId,
+      mainImage,
+      images
+    } = req.body;
 
     const organizerProfile = await organizerProfileRepository.findOne({
       where: { userId },
@@ -157,6 +168,8 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
     event.capacity = capacity;
     event.externalLink = externalLink || null;
     event.categoryId = categoryId;
+    event.mainImage = mainImage || null;
+    event.images = images || [];
     event.organizer = organizerProfile;
     event.status = EventStatus.APPROVED;
     // Handle image from body if provided (local upload logic comes later)
@@ -189,7 +202,18 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    const { title, description, city, date, price, capacity, externalLink, categoryId } = req.body;
+    const {
+      title,
+      description,
+      city,
+      date,
+      price,
+      capacity,
+      externalLink,
+      categoryId,
+      mainImage,
+      images
+    } = req.body;
 
     if (title) event.title = title;
     if (description) event.description = description;
@@ -199,6 +223,8 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
     if (capacity !== undefined) event.capacity = capacity;
     if (externalLink !== undefined) event.externalLink = externalLink || null;
     if (categoryId !== undefined) event.categoryId = categoryId;
+    if (mainImage !== undefined) event.mainImage = mainImage || null;
+    if (images !== undefined) event.images = images || [];
 
     await eventRepository.save(event);
 

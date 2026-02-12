@@ -17,14 +17,19 @@ export function SafeImage({
     alt,
     ...props
 }: SafeImageProps) {
+    const isLocal = useMemo(() => !!src && src.startsWith('/uploads/'), [src]);
+
     const finalSrc = useMemo(() => {
         if (!src) return fallbackSrc;
-        if (src.startsWith('/uploads/')) {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
-            return `${baseUrl}${src}`;
+        if (isLocal) {
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+            const baseUrl = apiBase.split('/api/v1')[0];
+            const cleanSrc = src.startsWith('/') ? src : `/${src}`;
+            const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+            return `${cleanBase}${cleanSrc}`;
         }
         return src;
-    }, [src, fallbackSrc]);
+    }, [src, fallbackSrc, isLocal]);
 
     const [imgSrc, setImgSrc] = useState<string>(finalSrc)
     const [hasError, setHasError] = useState(false)
@@ -47,7 +52,7 @@ export function SafeImage({
             src={imgSrc}
             alt={alt || "Image"}
             onError={handleError}
-            unoptimized={hasError || props.unoptimized}
+            unoptimized={isLocal || hasError || props.unoptimized}
         />
     )
 }

@@ -48,16 +48,27 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id; // Authenticated
     const { name, fullname, bio, city, profilePhoto, profilePicture } = req.body;
 
-    const profile = await personalProfileRepository.findOne({
+    let profile = await personalProfileRepository.findOne({
       where: { userId },
       relations: ['user'],
     });
 
-    if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' });
-    }
+    let user;
 
-    const user = profile.user;
+    if (!profile) {
+      // Profile missing (legacy or seeded data), create one
+      user = await userRepository.findOne({ where: { id: userId } });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      profile = new PersonalProfile();
+      profile.userId = userId;
+      profile.user = user;
+      profile.name = user.name || '';
+      profile.username = user.username || '';
+    } else {
+      user = profile.user;
+    }
 
     if (name) {
       profile.name = name;

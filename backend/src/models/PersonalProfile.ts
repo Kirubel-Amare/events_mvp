@@ -27,7 +27,7 @@ export class PersonalProfile {
   profilePhoto: string | null = null;
 
   @Column('text', { array: true, default: [] })
-  additionalImages: string[] = [];
+  additionalImages!: string[];
 
   @Column({ type: 'varchar', nullable: true })
   city: string | null = null;
@@ -46,8 +46,4 @@ export class PersonalProfile {
 
   @UpdateDateColumn()
   updatedAt!: Date;
-
-  constructor() {
-    this.additionalImages = [];
-  }
 }

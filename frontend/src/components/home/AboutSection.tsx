@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 
 export function AboutSection() {
   return (
-    <section className="py-20 bg-gray-900 text-white overflow-hidden relative">
+    <section className="py-20 bg-gray-900 text-white overflow-hidden relative" id="about">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <SafeImage
           src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&auto=format&fit=crop&q=80"

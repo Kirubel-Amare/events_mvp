@@ -30,7 +30,7 @@ export class Event {
   description!: string;
 
   @Column('text', { array: true, default: [] })
-  images: string[] = [];
+  images!: string[];
 
   @Column({ type: 'varchar', nullable: true })
   mainImage: string | null = null;
@@ -82,10 +82,6 @@ export class Event {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   updatedAt!: Date;
-
-  constructor() {
-    this.images = [];
-  }
 }
