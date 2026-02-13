@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, useEffect } from "react"
 import { toast } from "react-hot-toast"
 import { z } from "zod"
-import { User, Globe, Link as LinkIcon, Mail, Calendar, MapPin, Sparkles, Camera, ArrowLeft } from "lucide-react"
+import { User, Globe, Link as LinkIcon, Mail, Calendar, MapPin, Sparkles, Camera, ArrowLeft, Instagram } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,6 +25,8 @@ const profileSchema = z.object({
     website: z.string().url("Invalid URL").optional().or(z.literal("")),
     location: z.string().optional(),
     profilePhoto: z.string().optional(),
+    instagram: z.string().optional(),
+    twitter: z.string().optional(),
 })
 
 type ProfileInput = z.infer<typeof profileSchema>
@@ -56,7 +58,9 @@ export default function EditProfilePage() {
                 bio: user.personalProfile?.bio || "",
                 website: user.personalProfile?.website || "",
                 location: user.personalProfile?.city || "",
-                profilePhoto: user.profilePicture || user.personalProfile?.profilePhoto || ""
+                profilePhoto: user.profilePicture || user.personalProfile?.profilePhoto || "",
+                instagram: user.personalProfile?.instagram || "",
+                twitter: user.personalProfile?.twitter || ""
             })
         }
     }, [user, reset])
@@ -71,7 +75,9 @@ export default function EditProfilePage() {
                 city: data.location,
                 website: data.website || undefined,
                 profilePicture: data.profilePhoto,
-                profilePhoto: data.profilePhoto
+                profilePhoto: data.profilePhoto,
+                instagram: data.instagram,
+                twitter: data.twitter
             })
             if (response.user) {
                 // Update the store with the new user data
@@ -102,8 +108,8 @@ export default function EditProfilePage() {
                     </Link>
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
-                    <p className="text-gray-600">Update your personal information</p>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Edit Profile</h1>
+                    <p className="text-gray-600">Update your personal information and social links</p>
                 </div>
             </div>
 
@@ -213,6 +219,40 @@ export default function EditProfilePage() {
                                     {errors.website && (
                                         <p className="text-sm text-red-600 mt-1">{errors.website.message}</p>
                                     )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="instagram">
+                                    Instagram
+                                </label>
+                                <div className="relative">
+                                    <Instagram className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
+                                    <Input
+                                        id="instagram"
+                                        placeholder="@username"
+                                        {...register("instagram")}
+                                        disabled={isLoading}
+                                        className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="twitter">
+                                    Twitter
+                                </label>
+                                <div className="relative">
+                                    <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
+                                    <Input
+                                        id="twitter"
+                                        placeholder="@username"
+                                        {...register("twitter")}
+                                        disabled={isLoading}
+                                        className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
+                                    />
                                 </div>
                             </div>
                         </div>

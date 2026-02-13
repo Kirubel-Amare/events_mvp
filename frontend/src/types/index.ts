@@ -20,6 +20,8 @@ export interface User {
         bio: string;
         city: string;
         website?: string;
+        instagram?: string;
+        twitter?: string;
     };
     createdAt: string;
     updatedAt: string;
@@ -34,6 +36,8 @@ export interface OrganizerProfile {
     contactEmail: string;
     contactPhone?: string;
     website?: string;
+    instagram?: string;
+    twitter?: string;
     isVerified: boolean;
 }
 

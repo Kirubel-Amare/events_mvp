@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Mail, MapPin, Calendar, Sparkles, User, Globe, Edit2 } from "lucide-react"
+import { Mail, MapPin, Calendar, Sparkles, User, Globe, Edit2, Instagram, Link as LinkIcon } from "lucide-react"
 import Link from "next/link"
 import { OrganizerApplicationForm } from "@/components/forms/OrganizerApplicationForm"
+import { SafeImage } from "@/components/shared/safe-image"
 
 export default function ProfilePage() {
     const { user } = useAuthStore()
@@ -45,9 +46,18 @@ export default function ProfilePage() {
                         <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
                         <CardContent className="relative pt-0 pb-8 px-6">
                             <div className="relative -mt-16 mb-4 flex justify-center">
-                                <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                                    <AvatarImage src={user.personalProfile?.profilePhoto || user.profilePicture || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.name} className="object-cover" />
-                                    <AvatarFallback className="text-3xl">{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                                <Avatar className="h-32 w-32 border-4 border-white shadow-lg overflow-hidden">
+                                    {user.profilePicture || user.personalProfile?.profilePhoto ? (
+                                        <SafeImage
+                                            src={user.profilePicture || user.personalProfile?.profilePhoto}
+                                            alt={user.name || ""}
+                                            fill
+                                            className="object-cover"
+                                            fallbackSrc={"https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.name}
+                                        />
+                                    ) : (
+                                        <AvatarFallback className="text-3xl">{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                                    )}
                                 </Avatar>
                             </div>
 
@@ -77,6 +87,20 @@ export default function ProfilePage() {
                                         <a href={user.personalProfile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">
                                             {user.personalProfile.website.replace(/^https?:\/\//, '')}
                                         </a>
+                                    </div>
+                                )}
+                                {(user.personalProfile?.instagram || user.personalProfile?.twitter) && (
+                                    <div className="flex items-center gap-4 mt-2">
+                                        {user.personalProfile?.instagram && (
+                                            <a href={`https://instagram.com/${user.personalProfile.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-600 transition-colors">
+                                                <Instagram className="h-4 w-4" />
+                                            </a>
+                                        )}
+                                        {user.personalProfile?.twitter && (
+                                            <a href={`https://twitter.com/${user.personalProfile.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                                <LinkIcon className="h-4 w-4" />
+                                            </a>
+                                        )}
                                     </div>
                                 )}
                                 <div className="flex items-center gap-3 text-gray-600">

@@ -35,6 +35,12 @@ export class PersonalProfile {
   @Column({ type: 'varchar', nullable: true })
   website: string | null = null;
 
+  @Column({ type: 'varchar', nullable: true })
+  instagram: string | null = null;
+
+  @Column({ type: 'varchar', nullable: true })
+  twitter: string | null = null;
+
   @OneToOne(() => User, (user) => user.personalProfile, {
     onDelete: 'CASCADE',
   })

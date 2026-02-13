@@ -64,8 +64,11 @@ export const getOrganizerProfile = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const profile = await organizerProfileRepository.findOne({
-      where: { id },
-      relations: ['events'],
+      where: [
+        { id },
+        { userId: id }
+      ],
+      relations: ['events', 'user'],
     });
 
     if (!profile) {
@@ -103,7 +106,7 @@ export const getOrganizerEvents = async (req: Request, res: Response) => {
 export const updateOrganizerProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { organizationName, city, description, contactInfo, profilePhoto } = req.body;
+    const { organizationName, city, description, contactInfo, profilePhoto, website, instagram, twitter } = req.body;
 
     const profile = await organizerProfileRepository.findOne({
       where: { userId },
@@ -118,6 +121,9 @@ export const updateOrganizerProfile = async (req: AuthRequest, res: Response) =>
     if (description) profile.description = description;
     if (contactInfo) profile.contactInfo = contactInfo;
     if (profilePhoto !== undefined) profile.profilePhoto = profilePhoto;
+    if (website !== undefined) profile.website = website;
+    if (instagram !== undefined) profile.instagram = instagram;
+    if (twitter !== undefined) profile.twitter = twitter;
 
     await organizerProfileRepository.save(profile);
 

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { organizerApi } from "@/lib/api/organizer"
 import { useAuthStore } from "@/store/auth-store"
 import Link from "next/link"
+import { SafeImage } from "@/components/shared/safe-image"
 
 export default function OrganizerProfilePage() {
     const [profile, setProfile] = useState<any>(null)
@@ -62,11 +63,20 @@ export default function OrganizerProfilePage() {
                         <div className="h-32 bg-gradient-to-r from-purple-600 to-blue-600"></div>
                         <CardContent className="relative pt-0 pb-8 px-6">
                             <div className="relative -mt-16 mb-4 flex justify-center">
-                                <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                                    <AvatarImage src={profile.profilePhoto || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + profile.organizationName} className="object-cover" />
-                                    <AvatarFallback className="text-3xl bg-white text-purple-600">
-                                        {profile.organizationName?.[0]?.toUpperCase()}
-                                    </AvatarFallback>
+                                <Avatar className="h-32 w-32 border-4 border-white shadow-lg overflow-hidden">
+                                    {profile.profilePhoto ? (
+                                        <SafeImage
+                                            src={profile.profilePhoto}
+                                            alt={profile.organizationName}
+                                            fill
+                                            className="object-cover"
+                                            fallbackSrc={"https://api.dicebear.com/7.x/avataaars/svg?seed=" + profile.organizationName}
+                                        />
+                                    ) : (
+                                        <AvatarFallback className="text-3xl bg-white text-purple-600">
+                                            {profile.organizationName?.[0]?.toUpperCase()}
+                                        </AvatarFallback>
+                                    )}
                                 </Avatar>
                             </div>
 
@@ -84,7 +94,7 @@ export default function OrganizerProfilePage() {
                                 </div>
                                 <div className="flex items-center gap-3 text-gray-600">
                                     <Mail className="h-4 w-4 text-gray-400" />
-                                    <span className="text-sm">{profile.contactInfo}</span>
+                                    <span className="text-sm">{profile.user?.email || profile.contactInfo}</span>
                                 </div>
                                 {profile.website && (
                                     <div className="flex items-center gap-3 text-gray-600">

@@ -19,6 +19,7 @@ interface ImageUploadProps {
 
 export function ImageUpload({ onUpload, onDelete, value, label, className, rounded = "rounded-lg" }: ImageUploadProps) {
     const [isUploading, setIsUploading] = useState(false)
+    const [zoom, setZoom] = useState(1)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,30 +71,61 @@ export function ImageUpload({ onUpload, onDelete, value, label, className, round
 
             <div className="relative group">
                 {value ? (
-                    <div className={cn("relative h-40 w-full overflow-hidden border-2 border-gray-100", rounded)}>
-                        <SafeImage
-                            src={value}
-                            alt="Upload preview"
-                            fill
-                            className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => fileInputRef.current?.click()}
+                    <div className="space-y-4">
+                        <div className={cn(
+                            "relative h-40 w-40 mx-auto overflow-hidden border-4 border-white shadow-xl ring-1 ring-gray-100",
+                            rounded
+                        )}>
+                            <div
+                                className="w-full h-full transition-transform duration-200 ease-out"
+                                style={{ transform: `scale(${zoom})` }}
                             >
-                                Change
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={handleDelete}
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
+                                <SafeImage
+                                    src={value}
+                                    alt="Upload preview"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="h-8 px-2"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    Change
+                                </Button>
+                                {onDelete && (
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                        onClick={handleDelete}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Zoom Control */}
+                        <div className="max-w-[200px] mx-auto space-y-2">
+                            <div className="flex justify-between text-xs text-gray-500 font-medium">
+                                <span>Zoom</span>
+                                <span>{Math.round(zoom * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="1"
+                                max="3"
+                                step="0.1"
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
                         </div>
                     </div>
                 ) : (

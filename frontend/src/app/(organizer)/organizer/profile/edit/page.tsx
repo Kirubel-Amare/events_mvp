@@ -105,8 +105,8 @@ export default function EditOrganizerProfilePage() {
                     </Link>
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Edit Organization</h1>
-                    <p className="text-gray-600">Update your organization's public information</p>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Edit Organization</h1>
+                    <p className="text-gray-600">Update your organization's public information and social presence</p>
                 </div>
             </div>
 
@@ -229,7 +229,7 @@ export default function EditOrganizerProfilePage() {
                                             placeholder="@username"
                                             {...register("instagram")}
                                             disabled={isLoading}
-                                            className="pl-10"
+                                            className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                         />
                                     </div>
                                 </div>
@@ -245,7 +245,7 @@ export default function EditOrganizerProfilePage() {
                                             placeholder="@username"
                                             {...register("twitter")}
                                             disabled={isLoading}
-                                            className="pl-10"
+                                            className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
                                         />
                                     </div>
                                 </div>

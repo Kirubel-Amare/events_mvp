@@ -31,6 +31,15 @@ export class OrganizerProfile {
   @Column({ type: 'varchar', nullable: true })
   contactInfo: string | null = null;
 
+  @Column({ type: 'varchar', nullable: true })
+  website: string | null = null;
+
+  @Column({ type: 'varchar', nullable: true })
+  instagram: string | null = null;
+
+  @Column({ type: 'varchar', nullable: true })
+  twitter: string | null = null;
+
   @Column({ type: 'boolean', default: false })
   isVerified: boolean = false;
 

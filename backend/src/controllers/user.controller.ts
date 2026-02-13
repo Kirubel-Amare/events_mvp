@@ -46,7 +46,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id; // Authenticated
-    const { name, fullname, bio, city, website, profilePhoto, profilePicture, username } = req.body;
+    const { name, fullname, bio, city, website, profilePhoto, profilePicture, username, instagram, twitter } = req.body;
 
     let profile = await personalProfileRepository.findOne({
       where: { userId },
@@ -102,6 +102,8 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     if (bio !== undefined) profile.bio = bio;
     if (city !== undefined) profile.city = city;
     if (website !== undefined) profile.website = website;
+    if (instagram !== undefined) profile.instagram = instagram;
+    if (twitter !== undefined) profile.twitter = twitter;
 
     await Promise.all([
       personalProfileRepository.save(profile),
