@@ -27,6 +27,11 @@ export const notificationsApi = {
         return response.data;
     },
 
+    getById: async (id: string) => {
+        const response = await apiClient.get<Notification>(`/notifications/${id}`);
+        return response.data;
+    },
+
     markAsRead: async (id: string) => {
         const response = await apiClient.patch(`/notifications/${id}/read`);
         return response.data;

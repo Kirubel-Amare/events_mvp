@@ -157,11 +157,25 @@ export default function NotificationsPage() {
                                                 <p className="text-sm text-muted-foreground">
                                                     {notification.message}
                                                 </p>
-                                                {notification.link && (
-                                                    <Button variant="link" className="h-auto p-0 text-primary" asChild>
-                                                        <Link href={notification.link}>View Details</Link>
-                                                    </Button>
-                                                )}
+                                                <div className="flex items-center gap-2">
+                                                    {notification.link ? (
+                                                        <Button variant="link" className="h-auto p-0 text-primary font-semibold" asChild>
+                                                            <Link href={notification.link}>Take Action</Link>
+                                                        </Button>
+                                                    ) : (
+                                                        <Button variant="link" className="h-auto p-0 text-primary" asChild>
+                                                            <Link href={`/notifications/${notification.id}`}>View Details</Link>
+                                                        </Button>
+                                                    )}
+                                                    {notification.link && (
+                                                        <>
+                                                            <span className="text-muted-foreground text-xs">•</span>
+                                                            <Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-primary transition-colors" asChild>
+                                                                <Link href={`/notifications/${notification.id}`}>Summary</Link>
+                                                            </Button>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {!notification.isRead && (

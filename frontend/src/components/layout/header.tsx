@@ -8,7 +8,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/auth-store"
 import { useRouter, usePathname } from "next/navigation"
-import { notificationApi } from "@/lib/api/notification"
+import { notificationsApi } from "@/lib/api/notifications"
 
 export default function Header() {
   const pathname = usePathname()
@@ -23,7 +23,7 @@ export default function Header() {
     if (isAuthenticated) {
       const fetchUnreadCount = async () => {
         try {
-          const data = await notificationApi.getNotifications(1, 1)
+          const data = await notificationsApi.getAll(1, 1)
           setUnreadCount(data.unreadCount)
         } catch (error) {
           console.error("Failed to fetch unread count:", error)

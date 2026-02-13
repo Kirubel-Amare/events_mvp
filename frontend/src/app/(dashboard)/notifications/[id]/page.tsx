@@ -6,7 +6,7 @@ import { Bell, ArrowLeft, Calendar, Info, CheckCircle, AlertTriangle, XCircle, T
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { notificationApi, Notification } from "@/lib/api/notification"
+import { notificationsApi, Notification } from "@/lib/api/notifications"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
@@ -21,12 +21,12 @@ export default function NotificationDetailPage() {
         const fetchNotification = async () => {
             if (!params.id) return
             try {
-                const data = await notificationApi.getNotificationById(params.id as string)
+                const data = await notificationsApi.getById(params.id as string)
                 setNotification(data)
 
                 // Mark as read if not already
                 if (!data.isRead) {
-                    await notificationApi.markAsRead(data.id)
+                    await notificationsApi.markAsRead(data.id)
                 }
             } catch (error) {
                 console.error("Failed to fetch notification:", error)
@@ -43,7 +43,7 @@ export default function NotificationDetailPage() {
     const handleDelete = async () => {
         if (!notification) return
         try {
-            await notificationApi.deleteNotification(notification.id)
+            await notificationsApi.delete(notification.id)
             toast.success("Notification deleted")
             router.push("/notifications")
         } catch (error) {
@@ -113,9 +113,9 @@ export default function NotificationDetailPage() {
 
             <Card className="border-0 shadow-xl overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
                 <div className={`h-2 w-full bg-gradient-to-r ${notification.type === 'success' ? 'from-green-500 to-emerald-500' :
-                        notification.type === 'warning' ? 'from-amber-500 to-orange-500' :
-                            notification.type === 'error' ? 'from-red-500 to-rose-500' :
-                                'from-blue-500 to-purple-500'
+                    notification.type === 'warning' ? 'from-amber-500 to-orange-500' :
+                        notification.type === 'error' ? 'from-red-500 to-rose-500' :
+                            'from-blue-500 to-purple-500'
                     }`} />
                 <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
@@ -134,9 +134,9 @@ export default function NotificationDetailPage() {
                             </div>
                         </div>
                         <Badge className={`capitalize ${notification.type === 'success' ? 'bg-green-100 text-green-700' :
-                                notification.type === 'warning' ? 'bg-amber-100 text-amber-700' :
-                                    notification.type === 'error' ? 'bg-red-100 text-red-700' :
-                                        'bg-blue-100 text-blue-700'
+                            notification.type === 'warning' ? 'bg-amber-100 text-amber-700' :
+                                notification.type === 'error' ? 'bg-red-100 text-red-700' :
+                                    'bg-blue-100 text-blue-700'
                             } border-0`}>
                             {notification.type}
                         </Badge>
