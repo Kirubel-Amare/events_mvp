@@ -3,6 +3,8 @@ import { AppDataSource } from '../config/database';
 import { User } from '../models/User';
 import { QuotaRequest, QuotaRequestStatus, QuotaRequestType } from '../models/QuotaRequest';
 import { AuthRequest } from '../middleware/auth';
+import { NotificationService } from '../services/notification.service';
+import { NotificationType } from '../models/Notification';
 
 const quotaRequestRepository = AppDataSource.getRepository(QuotaRequest);
 const userRepository = AppDataSource.getRepository(User);
@@ -40,6 +42,14 @@ export const createQuotaRequest = async (req: AuthRequest, res: Response) => {
         request.reason = reason;
 
         await quotaRequestRepository.save(request);
+
+        // Notify Admins
+        await NotificationService.notifyAdmins({
+            type: NotificationType.WARNING,
+            title: 'New Quota Request',
+            message: `${req.user?.name || 'An organizer'} has requested a quota increase.`,
+            link: '/admin/quotas'
+        });
 
         return res.status(201).json({ message: 'Quota request submitted successfully', request });
     } catch (error) {
@@ -119,6 +129,17 @@ export const updateQuotaRequestStatus = async (req: AuthRequest, res: Response) 
         }
 
         await quotaRequestRepository.save(request);
+
+        // Notify User
+        await NotificationService.createNotification({
+            userId: request.userId,
+            type: status === QuotaRequestStatus.APPROVED ? NotificationType.SUCCESS : NotificationType.WARNING,
+            title: `Quota Request ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+            message: status === QuotaRequestStatus.APPROVED
+                ? `Your request for more ${request.type} quota has been approved!`
+                : `Your request for more ${request.type} quota has been ${status}. ${adminComment ? 'Comment: ' + adminComment : ''}`,
+            link: '/organizer/dashboard'
+        });
 
         return res.json({ message: `Quota request ${status}`, request });
     } catch (error) {

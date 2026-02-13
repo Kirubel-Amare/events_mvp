@@ -9,6 +9,10 @@ import { Like, MoreThanOrEqual, LessThanOrEqual, Between, FindOptionsWhere } fro
 const planRepository = AppDataSource.getRepository(Plan);
 const applicationRepository = AppDataSource.getRepository(Application);
 
+import { NotificationService } from '../services/notification.service';
+import { NotificationType } from '../models/Notification';
+import { ApplicationStatus } from '../models/Application';
+
 export const getAllPlans = async (req: AuthRequest, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -217,6 +221,17 @@ export const applyToPlan = async (req: AuthRequest, res: Response) => {
 
     await applicationRepository.save(application);
 
+    // Notify Creator
+    if (plan.creatorId) {
+      await NotificationService.createNotification({
+        userId: plan.creatorId,
+        type: NotificationType.INFO,
+        title: 'New Plan Application',
+        message: `${req.user?.name || 'Someone'} joined your plan: ${plan.title}`,
+        link: `/dashboard/plans/${id}/applications`
+      });
+    }
+
     return res.status(201).json({ message: 'Applied to plan', application });
   } catch (error) {
     console.error('Apply to plan error:', error);
@@ -272,6 +287,47 @@ export const getPlanApplications = async (req: AuthRequest, res: Response) => {
     return res.json(applications);
   } catch (error) {
     console.error('Get plan applications error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const updatePlanApplicationStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id, applicationId } = req.params;
+    const { status } = req.body;
+    const userId = req.user!.id;
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const application = await applicationRepository.findOne({
+      where: { id: applicationId, planId: id },
+      relations: ['plan']
+    });
+
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    if (application.plan?.creatorId !== userId && !req.user?.isAdmin) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    application.status = status as ApplicationStatus;
+    await applicationRepository.save(application);
+
+    // Notify Applicant
+    await NotificationService.notifyApplicationStatus(
+      application.userId,
+      application.plan?.title || 'Plan',
+      status,
+      `/dashboard/applications`
+    );
+
+    return res.json({ message: `Application ${status}`, application });
+  } catch (error) {
+    console.error('Update plan application status error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

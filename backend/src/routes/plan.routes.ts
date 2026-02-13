@@ -75,4 +75,7 @@ router.delete('/:id/apply', authenticate, planController.cancelPlanApplication);
 // Get plan applications
 router.get('/:id/applications', authenticate, planController.getPlanApplications);
 
+// Update plan application status
+router.put('/:id/applications/:applicationId/status', authenticate, planController.updatePlanApplicationStatus);
+
 export default router;

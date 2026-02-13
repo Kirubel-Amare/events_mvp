@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut, LayoutDashboard, Building } from "lucide-react"
@@ -8,6 +8,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/auth-store"
 import { useRouter, usePathname } from "next/navigation"
+import { notificationApi } from "@/lib/api/notification"
 
 export default function Header() {
   const pathname = usePathname()
@@ -15,10 +16,29 @@ export default function Header() {
   const { isAuthenticated, user, logout } = useAuthStore()
   const [activeNav, setActiveNav] = useState("home")
   const [searchQuery, setSearchQuery] = useState("")
+  const [unreadCount, setUnreadCount] = useState(0)
   const router = useRouter()
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      const fetchUnreadCount = async () => {
+        try {
+          const data = await notificationApi.getNotifications(1, 1)
+          setUnreadCount(data.unreadCount)
+        } catch (error) {
+          console.error("Failed to fetch unread count:", error)
+        }
+      }
+      fetchUnreadCount()
+      const interval = setInterval(fetchUnreadCount, 30000) // Every 30 seconds
+      return () => clearInterval(interval)
+    } else {
+      setUnreadCount(0)
+    }
+  }, [isAuthenticated])
+
   // Define paths where the header should NOT be shown
-  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile", "/notification"]
+  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile", "/notifications"]
   const isExcluded = excludedPaths.some(path => pathname?.startsWith(path))
 
   if (isExcluded) {
@@ -108,12 +128,16 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-2">
           {isAuthenticated && user ? (
             <>
-              <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-[10px]">
-                  3
-                </Badge>
-              </Button>
+              <Link href="/notifications">
+                <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 min-w-[18px] px-1 flex items-center justify-center bg-red-500 text-[10px] text-white rounded-full">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
 
 
               <Button

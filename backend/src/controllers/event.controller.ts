@@ -10,6 +10,10 @@ const eventRepository = AppDataSource.getRepository(Event);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
 const applicationRepository = AppDataSource.getRepository(Application);
 
+import { NotificationService } from '../services/notification.service';
+import { NotificationType } from '../models/Notification';
+import { ApplicationStatus } from '../models/Application';
+
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -292,6 +296,21 @@ export const applyToEvent = async (req: AuthRequest, res: Response) => {
 
     await applicationRepository.save(application);
 
+    // Notify Organizer
+    const eventWithOrganizer = await eventRepository.findOne({
+      where: { id },
+      relations: ['organizer']
+    });
+
+    if (eventWithOrganizer && eventWithOrganizer.organizer) {
+      await NotificationService.notifyEventOrganizer(
+        eventWithOrganizer.organizer.userId,
+        req.user?.name || 'Someone',
+        event.title,
+        id
+      );
+    }
+
     return res.status(201).json({ message: 'Applied to event', application });
   } catch (error) {
     console.error('Apply to event error:', error);
@@ -362,6 +381,50 @@ export const getEventApplications = async (req: AuthRequest, res: Response) => {
     return res.json(publicApplications);
   } catch (error) {
     console.error('Get event applications error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const updateApplicationStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id, applicationId } = req.params;
+    const { status } = req.body; // 'approved' or 'rejected'
+    const userId = req.user!.id;
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const application = await applicationRepository.findOne({
+      where: { id: applicationId, eventId: id },
+      relations: ['event', 'event.organizer']
+    });
+
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const isAdmin = req.user?.isAdmin;
+    const isOrganizer = application.event?.organizer?.userId === userId;
+
+    if (!isAdmin && !isOrganizer) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    application.status = status as ApplicationStatus;
+    await applicationRepository.save(application);
+
+    // Notify Applicant
+    await NotificationService.notifyApplicationStatus(
+      application.userId,
+      application.event?.title || 'Event',
+      status,
+      `/dashboard/applications`
+    );
+
+    return res.json({ message: `Application ${status}`, application });
+  } catch (error) {
+    console.error('Update application status error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

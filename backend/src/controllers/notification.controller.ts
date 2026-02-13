@@ -37,6 +37,26 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
     }
 };
 
+export const getNotificationById = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user!.id;
+        const { id } = req.params;
+
+        const notification = await notificationRepository.findOne({
+            where: { id, userId },
+        });
+
+        if (!notification) {
+            return res.status(404).json({ error: 'Notification not found' });
+        }
+
+        return res.json(notification);
+    } catch (error) {
+        console.error('Get notification by id error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 export const markAsRead = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user!.id;

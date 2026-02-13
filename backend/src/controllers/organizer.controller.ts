@@ -11,6 +11,8 @@ import { Application } from '../models/Application';
 import { Review } from '../models/Review';
 import { OrganizerFollower } from '../models/OrganizerFollower';
 import { calculateGrowth } from '../utils/stats.utils';
+import { NotificationService } from '../services/notification.service';
+import { NotificationType } from '../models/Notification';
 
 const userRepository = AppDataSource.getRepository(User);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
@@ -26,7 +28,7 @@ export const applyToBeOrganizer = async (req: AuthRequest, res: Response) => {
     const { reason, organizationName } = req.body;
 
     // Check if there's already a pending or approved application
-    const existingApplication = await applicationRepository.findOne({
+    const existingApplication = await organizerApplicationRepository.findOne({
       where: [
         { userId, status: ApplicationStatus.PENDING },
         { userId, status: ApplicationStatus.APPROVED }
@@ -47,7 +49,15 @@ export const applyToBeOrganizer = async (req: AuthRequest, res: Response) => {
     application.organizationName = organizationName;
     application.status = ApplicationStatus.PENDING;
 
-    await applicationRepository.save(application);
+    await organizerApplicationRepository.save(application);
+
+    // Notify Admins
+    await NotificationService.notifyAdmins({
+      type: NotificationType.WARNING,
+      title: 'New Organizer Application',
+      message: `${req.user?.name || 'A user'} has applied to be an organizer.`,
+      link: '/admin/organizers'
+    });
 
     return res.status(201).json({
       message: 'Application submitted successfully. It will be reviewed by an admin.',
@@ -167,6 +177,7 @@ export const requestEventFeaturing = async (req: AuthRequest, res: Response) => 
 export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
   try {
     const organizerId = req.params.id;
+    console.log(`[DEBUG] Fetching stats for organizer: ${organizerId}`);
 
     const profile = await organizerProfileRepository.findOne({
       where: [
@@ -176,13 +187,16 @@ export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
     });
 
     if (!profile) {
+      // console.log(`[DEBUG] Organizer profile not found for id: ${organizerId}`);
       return res.status(404).json({ error: 'Organizer not found' });
     }
 
     const actualOrganizerId = profile.id;
+    // console.log(`[DEBUG] Found profile: ${actualOrganizerId}, userId: ${profile.userId}`);
 
     // Total counts
     const totalEvents = await eventRepository.count({ where: { organizerId: actualOrganizerId } });
+    // console.log(`[DEBUG] Total events: ${totalEvents}`);
 
     // Total attendees (Approved applications)
     const events = await eventRepository.find({ where: { organizerId: actualOrganizerId } });
@@ -227,12 +241,18 @@ export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
     const rating = reviewStats.avg ? parseFloat(parseFloat(reviewStats.avg).toFixed(1)) : 0;
 
     // Growth metrics (Last 30 days)
+    // console.log('[DEBUG] Calculating event growth...');
     const eventGrowth = await calculateGrowth(eventRepository, 'createdAt', 30, { organizerId: actualOrganizerId });
-    const attendeeGrowth = await calculateGrowth(applicationRepository, 'appliedAt', 30, {
-      eventId: eventIds.length > 0 ? In(eventIds) : undefined,
-      status: ApplicationStatus.APPROVED
-    });
 
+    // Only calculate attendee growth if there are events
+    const attendeeGrowth = eventIds.length > 0
+      ? await calculateGrowth(applicationRepository, 'appliedAt', 30, {
+        eventId: In(eventIds),
+        status: ApplicationStatus.APPROVED
+      })
+      : { percentage: 0 };
+
+    // console.log('[DEBUG] Sending response...');
     res.json({
       totalEvents,
       totalAttendees,
@@ -248,5 +268,93 @@ export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error('Get organizer stats error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const followOrganizer = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const organizerId = req.params.id; // profile id
+
+    // Check if profile exists
+    const profile = await organizerProfileRepository.findOne({
+      where: { id: organizerId },
+      relations: ['user']
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: 'Organizer not found' });
+    }
+
+    if (profile.userId === userId) {
+      return res.status(400).json({ error: 'Cannot follow yourself' });
+    }
+
+    // Check if already following
+    const existingFollow = await followerRepository.findOne({
+      where: { userId, organizerId }
+    });
+
+    if (existingFollow) {
+      return res.status(400).json({ error: 'Already following this organizer' });
+    }
+
+    const follower = new OrganizerFollower();
+    follower.userId = userId;
+    follower.organizerId = organizerId;
+
+    await followerRepository.save(follower);
+
+    // Notify organizer
+    await NotificationService.createNotification({
+      userId: profile.userId,
+      type: NotificationType.INFO,
+      title: 'New Follower',
+      message: `${req.user?.name || 'Someone'} started following you!`,
+      link: `/organizer/profile` // Or a followers page if exists
+    });
+
+    return res.status(201).json({ message: 'Followed successfully' });
+  } catch (error) {
+    console.error('Follow organizer error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const unfollowOrganizer = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const organizerId = req.params.id;
+
+    const follow = await followerRepository.findOne({
+      where: { userId, organizerId }
+    });
+
+    if (!follow) {
+      return res.status(404).json({ error: 'You are not following this organizer' });
+    }
+
+    await followerRepository.remove(follow);
+
+    return res.json({ message: 'Unfollowed successfully' });
+  } catch (error) {
+    console.error('Unfollow organizer error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getFollowStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const organizerId = req.params.id;
+
+    const follow = await followerRepository.findOne({
+      where: { userId, organizerId }
+    });
+
+    return res.json({ isFollowing: !!follow });
+  } catch (error) {
+    console.error('Get follow status error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };

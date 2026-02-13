@@ -89,4 +89,7 @@ router.delete('/:id/apply', authenticate, eventController.cancelApplication);
 // Get event applications (organizer or admin)
 router.get('/:id/applications', authenticate, requireOrganizerOrAdmin, eventController.getEventApplications);
 
+// Update application status (organizer or admin)
+router.put('/:id/applications/:applicationId/status', authenticate, requireOrganizerOrAdmin, eventController.updateApplicationStatus);
+
 export default router;

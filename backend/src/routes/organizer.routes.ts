@@ -51,4 +51,9 @@ router.post(
   organizerController.requestEventFeaturing
 );
 
+// Follow/Unfollow organizer
+router.post('/:id/follow', authenticate, organizerController.followOrganizer);
+router.delete('/:id/follow', authenticate, organizerController.unfollowOrganizer);
+router.get('/:id/follow/status', authenticate, organizerController.getFollowStatus);
+
 export default router;

@@ -9,6 +9,8 @@ import { Plan } from '../models/Plan';
 import { AuthRequest } from '../middleware/auth';
 import { OrganizerApplication, ApplicationStatus } from '../models/OrganizerApplication';
 import { calculateGrowth } from '../utils/stats.utils';
+import { NotificationService } from '../services/notification.service';
+import { NotificationType } from '../models/Notification';
 
 const eventRepository = AppDataSource.getRepository(Event);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
@@ -41,6 +43,17 @@ export const updateEventStatus = async (req: AuthRequest, res: Response) => {
 
     event.status = status;
     await eventRepository.save(event);
+
+    // Notify Organizer
+    if (event.organizer && event.organizer.userId) {
+      await NotificationService.createNotification({
+        userId: event.organizer.userId,
+        type: status === EventStatus.APPROVED ? NotificationType.SUCCESS : NotificationType.WARNING,
+        title: `Event ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        message: `Your event "${event.title}" has been ${status}.`,
+        link: `/organizer/events/${event.id}`
+      });
+    }
 
     res.json({ message: 'Event status updated', event });
   } catch (error) {
@@ -123,6 +136,17 @@ export const handleOrganizerApplication = async (req: AuthRequest, res: Response
         await organizerProfileRepository.save(profile);
       }
     }
+
+    // Notify User
+    await NotificationService.createNotification({
+      userId: application.userId,
+      type: status === ApplicationStatus.APPROVED ? NotificationType.SUCCESS : NotificationType.WARNING,
+      title: `Organizer Application ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      message: status === ApplicationStatus.APPROVED
+        ? 'Congratulations! Your application to become an organizer has been approved.'
+        : `Your application to become an organizer has been ${status}. ${adminComment ? 'Comment: ' + adminComment : ''}`,
+      link: '/dashboard'
+    });
 
     res.json({ message: `Application ${status}`, application });
   } catch (error) {
