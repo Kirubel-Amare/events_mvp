@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge"
 export function AboutSection() {
   return (
     <section className="py-20 bg-gray-900 text-white overflow-hidden relative" id="about">
-      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
         <SafeImage
-          src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&auto=format&fit=crop&q=80"
+          src="/images/about-bg.png"
           alt="Event Background"
           fill
           className="object-cover"
@@ -50,13 +50,13 @@ export function AboutSection() {
             </Button>
           </div>
           <div className="relative">
-            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 bg-gray-800">
               <SafeImage
-                src="https://images.unsplash.com/photo-1528605248644-14dd04cb113d?w=800&auto=format&fit=crop&q=80"
+                src="/images/about-people.png"
                 alt="Connecting People"
                 width={800}
                 height={600}
-                className="w-full"
+                className="w-full h-auto object-cover"
               />
             </div>
             <div className="absolute -top-6 -right-6 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl" />
