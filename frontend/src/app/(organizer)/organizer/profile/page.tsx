@@ -1,295 +1,170 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
-import { toast } from "react-hot-toast"
-import { z } from "zod"
-import { Building2, Globe, Mail, MapPin, Instagram, Users, Sparkles, Camera, Link as LinkIcon, Save } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Building2, Globe, Mail, MapPin, Instagram, Link as LinkIcon, Edit2, Calendar, Users, TrendingUp } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { LoadingSpinner } from "@/components/shared/loading-spinner"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { organizerApi } from "@/lib/api/organizer" // Import api
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { organizerApi } from "@/lib/api/organizer"
 import { useAuthStore } from "@/store/auth-store"
-import { ImageUpload } from "@/components/shared/ImageUpload"
-
-const organizerProfileSchema = z.object({
-    organizationName: z.string().min(3, "Name must be at least 3 characters"),
-    description: z.string().min(20, "Description must be at least 20 characters"),
-    city: z.string().min(2, "City is required"),
-    contactInfo: z.string().min(5, "Contact info is required"),
-    website: z.string().url("Invalid URL").optional().or(z.literal("")),
-    instagram: z.string().optional(),
-    twitter: z.string().optional(),
-    profilePhoto: z.string().optional(),
-})
-
-type OrganizerProfileInput = z.infer<typeof organizerProfileSchema>
+import Link from "next/link"
 
 export default function OrganizerProfilePage() {
-    const [isLoading, setIsLoading] = useState(false)
-
-
+    const [profile, setProfile] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
     const { user } = useAuthStore()
 
-    // Fetch existing data
     useEffect(() => {
         const fetchProfile = async () => {
             if (!user?.id) return
             try {
-                // We need to fetch the specific organizer profile data
-                // The user object might not have the latest organizer details if they were just updated
-                // But for now, let's assume we can get it or use defaults. 
-                // However, the best way is to fetch it.
-                // Since we don't have a direct 'getOrganizerProfile' that returns the form shape, 
-                // we might need to rely on what's in the user object or fetch the public profile.
-
-                // Let's try to fetch via the API we have.
-                const profile = await organizerApi.getProfile(user.id)
-
-                // If profile exists, reset form
-                if (profile) {
-                    reset({
-                        organizationName: profile.organizationName || "",
-                        description: profile.description || "",
-                        city: profile.city || "",
-                        contactInfo: profile.contactInfo || "",
-                        website: profile.website || "",
-                        instagram: profile.instagram || "",
-                        twitter: profile.twitter || "",
-                        profilePhoto: profile.profilePhoto || ""
-                    })
-                }
+                const data = await organizerApi.getProfile(user.id)
+                setProfile(data)
             } catch (error) {
                 console.error("Failed to fetch organizer profile", error)
-                // Don't show error to user as they might just be setting it up
+            } finally {
+                setIsLoading(false)
             }
         }
 
         fetchProfile()
-    }, [user, reset])
+    }, [user])
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        setValue,
-        watch,
-        formState: { errors },
-    } = useForm<OrganizerProfileInput>({
-        resolver: zodResolver(organizerProfileSchema),
-        defaultValues: {
-            organizationName: "",
-            description: "",
-            city: "",
-            contactInfo: "",
-            website: "",
-            instagram: "",
-            twitter: "",
-            profilePhoto: ""
-        }
-    })
-
-    const profilePhoto = watch("profilePhoto")
-
-    const onSubmit = async (data: OrganizerProfileInput) => {
-        setIsLoading(true)
-        try {
-            await organizerApi.updateProfile(data) // Use real API
-            toast.success("Organizer profile updated successfully!")
-        } catch (error) {
-            toast.error("Failed to update profile. Please try again.")
-        } finally {
-            setIsLoading(false)
-        }
+    if (isLoading) {
+        return <div className="p-8 text-center">Loading profile...</div>
     }
 
-
+    if (!profile) {
+        return <div className="p-8 text-center">Profile not found.</div>
+    }
 
     return (
         <div className="space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">Organization Profile</h1>
-                <p className="text-lg text-gray-600 mt-2">
-                    Manage your organization's public information
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Organization Profile</h1>
+                    <p className="text-lg text-gray-600 mt-2">
+                        Manage your organization's public presence
+                    </p>
+                </div>
+                <Button asChild className="bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 shadow-sm">
+                    <Link href="/organizer/profile/edit">
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        Edit Profile
+                    </Link>
+                </Button>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
-                {/* Left Column - Preview */}
-                <div className="space-y-6">
-                    <Card className="border border-gray-200">
-                        <CardContent className="p-6">
-                            <div className="flex flex-col items-center text-center">
-                                <div className="mb-4">
-                                    <ImageUpload
-                                        value={profilePhoto || "https://api.dicebear.com/7.x/avataaars/svg?seed=CityEvents"}
-                                        onUpload={(url) => setValue("profilePhoto", url)}
-                                        className="h-32 w-32 mx-auto"
-                                        rounded="rounded-full"
-                                    />
-                                </div>
-                                <h2 className="text-xl font-bold text-gray-900">{watch("organizationName") || "City Events Co."}</h2>
-                                <p className="text-gray-500 text-sm">Preview</p>
+                {/* Left Column - Main Info */}
+                <div className="lg:col-span-1 space-y-6">
+                    <Card className="border border-gray-200 overflow-hidden">
+                        <div className="h-32 bg-gradient-to-r from-purple-600 to-blue-600"></div>
+                        <CardContent className="relative pt-0 pb-8 px-6">
+                            <div className="relative -mt-16 mb-4 flex justify-center">
+                                <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+                                    <AvatarImage src={profile.profilePhoto || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + profile.organizationName} className="object-cover" />
+                                    <AvatarFallback className="text-3xl bg-white text-purple-600">
+                                        {profile.organizationName?.[0]?.toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
                             </div>
+
+                            <div className="text-center space-y-2">
+                                <h2 className="text-2xl font-bold text-gray-900">{profile.organizationName}</h2>
+                                <p className="text-gray-500 font-medium flex items-center justify-center gap-1">
+                                    <MapPin className="h-4 w-4" /> {profile.city}
+                                </p>
+                            </div>
+
+                            <div className="mt-6 space-y-3 pt-6 border-t border-gray-100">
+                                <div className="flex items-center gap-3 text-gray-600">
+                                    <Building2 className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm">Organization</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-gray-600">
+                                    <Mail className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm">{profile.contactInfo}</span>
+                                </div>
+                                {profile.website && (
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                        <Globe className="h-4 w-4 text-gray-400" />
+                                        <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">
+                                            {profile.website.replace(/^https?:\/\//, '')}
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Social Links */}
+                            {(profile.instagram || profile.twitter) && (
+                                <div className="flex justify-center gap-4 mt-6 pt-6 border-t border-gray-100">
+                                    {profile.instagram && (
+                                        <a href={`https://instagram.com/${profile.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-600 transition-colors">
+                                            <Instagram className="h-5 w-5" />
+                                        </a>
+                                    )}
+                                    {profile.twitter && (
+                                        <a href={`https://twitter.com/${profile.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                            <LinkIcon className="h-5 w-5" />
+                                        </a>
+                                    )}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Right Column - Form */}
-                <div className="lg:col-span-2">
+                {/* Right Column - Details & Stats */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* About Section */}
                     <Card className="border border-gray-200">
                         <CardHeader>
-                            <CardTitle>Profile Details</CardTitle>
-                            <CardDescription>
-                                This information will be displayed on your public organizer page
-                            </CardDescription>
+                            <CardTitle>About Organization</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="organizationName">
-                                            Organizer Name
-                                        </label>
-                                        <div className="relative">
-                                            <Building2 className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                            <Input
-                                                id="organizationName"
-                                                {...register("organizationName")}
-                                                disabled={isLoading}
-                                                className="pl-10"
-                                            />
-                                        </div>
-                                        {errors.organizationName && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.organizationName.message}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="description">
-                                            About
-                                        </label>
-                                        <Textarea
-                                            id="description"
-                                            className="min-h-[120px] resize-none"
-                                            {...register("description")}
-                                            disabled={isLoading}
-                                        />
-                                        {errors.description && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.description.message}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="city">
-                                                Location
-                                            </label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="city"
-                                                    {...register("city")}
-                                                    disabled={isLoading}
-                                                    className="pl-10"
-                                                />
-                                            </div>
-                                            {errors.city && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.city.message}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="contactInfo">
-                                                Contact Email
-                                            </label>
-                                            <div className="relative">
-                                                <Mail className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="contactInfo"
-                                                    {...register("contactInfo")}
-                                                    disabled={isLoading}
-                                                    className="pl-10"
-                                                />
-                                            </div>
-                                            {errors.contactInfo && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.contactInfo.message}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="website">
-                                            Website
-                                        </label>
-                                        <div className="relative">
-                                            <Globe className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                            <Input
-                                                id="website"
-                                                placeholder="https://"
-                                                {...register("website")}
-                                                disabled={isLoading}
-                                                className="pl-10"
-                                            />
-                                        </div>
-                                        {errors.website && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.website.message}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="instagram">
-                                                Instagram
-                                            </label>
-                                            <div className="relative">
-                                                <Instagram className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="instagram"
-                                                    placeholder="@username"
-                                                    {...register("instagram")}
-                                                    disabled={isLoading}
-                                                    className="pl-10"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="twitter">
-                                                Twitter
-                                            </label>
-                                            <div className="relative">
-                                                <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="twitter"
-                                                    placeholder="@username"
-                                                    {...register("twitter")}
-                                                    disabled={isLoading}
-                                                    className="pl-10"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end pt-4">
-                                    <Button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white min-w-[120px]"
-                                    >
-                                        {isLoading ? <LoadingSpinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-                                        Save Profile
-                                    </Button>
-                                </div>
-                            </form>
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                                {profile.description || "No description provided."}
+                            </p>
                         </CardContent>
                     </Card>
+
+                    {/* Stats Grid */}
+                    <div className="grid sm:grid-cols-3 gap-4">
+                        <Card className="border border-gray-200">
+                            <CardContent className="p-6 flex flex-col items-center text-center">
+                                <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                                    <Calendar className="h-5 w-5 text-blue-600" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    {profile.events?.length || 0}
+                                </h3>
+                                <p className="text-sm text-gray-500">Total Events</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="border border-gray-200">
+                            <CardContent className="p-6 flex flex-col items-center text-center">
+                                <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                    <Users className="h-5 w-5 text-purple-600" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    1.2k
+                                </h3>
+                                <p className="text-sm text-gray-500">Total Attendees</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="border border-gray-200">
+                            <CardContent className="p-6 flex flex-col items-center text-center">
+                                <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                                    <TrendingUp className="h-5 w-5 text-green-600" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    4.8
+                                </h3>
+                                <p className="text-sm text-gray-500">Average Rating</p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>

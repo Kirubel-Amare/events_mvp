@@ -1,214 +1,91 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useState, useEffect } from "react"
-import { toast } from "react-hot-toast"
-import { z } from "zod"
-import { User, Globe, Link as LinkIcon, Mail, Calendar, MapPin, Sparkles, Camera } from "lucide-react"
+import { useAuthStore } from "@/store/auth-store"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { LoadingSpinner } from "@/components/shared/loading-spinner"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useAuthStore } from "@/store/auth-store"
+import { Mail, MapPin, Calendar, Sparkles, User, Globe, Edit2 } from "lucide-react"
+import Link from "next/link"
 import { OrganizerApplicationForm } from "@/components/forms/OrganizerApplicationForm"
-import { ImageUpload } from "@/components/shared/ImageUpload"
-import { usersApi } from "@/lib/api/users"
-
-const profileSchema = z.object({
-    fullname: z.string().min(2, "Full name must be at least 2 characters").optional(),
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    email: z.string().email("Invalid email address"),
-    bio: z.string().max(160, "Bio must be less than 160 characters").optional(),
-    website: z.string().url("Invalid URL").optional().or(z.literal("")),
-    location: z.string().optional(),
-    profilePhoto: z.string().optional(),
-})
-
-type ProfileInput = z.infer<typeof profileSchema>
 
 export default function ProfilePage() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [isUploading, setIsUploading] = useState(false)
-    const { setUser, user } = useAuthStore()
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm<ProfileInput>({
-        resolver: zodResolver(profileSchema),
-    })
+    const { user } = useAuthStore()
 
-    useEffect(() => {
-        if (user) {
-            reset({
-                fullname: user.fullname || user.name || "",
-                username: user.username || "",
-                email: user.email || "",
-                bio: user.personalProfile?.bio || "",
-                website: user.personalProfile?.website || "",
-                location: user.personalProfile?.city || "",
-                profilePhoto: user.profilePicture || user.personalProfile?.profilePhoto || ""
-            })
-        }
-    }, [user, reset])
-
-    const onSubmit = async (data: ProfileInput) => {
-        setIsLoading(true)
-        try {
-            const response = await usersApi.updateProfile({
-                fullname: data.fullname,
-                username: data.username,
-                bio: data.bio,
-                city: data.location,
-                website: data.website || undefined,
-                profilePicture: data.profilePhoto,
-                profilePhoto: data.profilePhoto
-            })
-            if (response.user) {
-                // Update the store with the new user data
-                setUser({ ...user, ...response.user } as any);
-            }
-            toast.success("Profile updated successfully!")
-        } catch (error: any) {
-            console.error("Profile update error:", error)
-            const errorMessage = error.response?.data?.error || "Failed to update profile. Please try again."
-
-            if (errorMessage.toLowerCase().includes("username already taken")) {
-                toast.error("Username is already taken. Please choose another.")
-                // You could also set a form error here if you wanted specific field validation
-                // setError("username", { type: "manual", message: "Username already taken" })
-            } else {
-                toast.error(errorMessage)
-            }
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const handleAvatarUpload = async () => {
-        setIsUploading(true)
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 800))
-            toast.success("Profile picture updated!")
-        } catch (_error) {
-            toast.error("Failed to upload image")
-        } finally {
-            setIsUploading(false)
-        }
-    }
+    if (!user) return null
 
     return (
         <div className="space-y-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Profile Settings</h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">My Profile</h1>
+                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
+                            <Sparkles className="mr-1 h-3 w-3" />
+                            Premium Member
+                        </Badge>
+                    </div>
                     <p className="text-lg text-gray-600 mt-2">
                         Manage your public profile and personal preferences
                     </p>
                 </div>
-                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
-                    <Sparkles className="mr-1 h-3 w-3" />
-                    Premium Member
-                </Badge>
+                <Button asChild className="bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 shadow-sm">
+                    <Link href="/profile/edit">
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        Edit Profile
+                    </Link>
+                </Button>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
-                {/* Left Column - Profile Card */}
-                <div className="space-y-6">
-                    {/* Profile Card */}
-                    <Card className="border border-gray-200">
-                        <CardContent className="p-6">
-                            <div className="flex flex-col items-center text-center">
-                                <div className="mb-4">
-                                    <ImageUpload
-                                        onUpload={async (url) => {
-                                            if (!url) return;
-                                            try {
-                                                await onSubmit({ ...user, profilePhoto: url } as any);
-                                                toast.success("Profile photo updated!");
-                                            } catch (error) {
-                                                toast.error("Failed to update profile photo");
-                                            }
-                                        }}
-                                        value={user?.personalProfile?.profilePhoto || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user?.name}
-                                        className="w-32 h-42 mx-auto"
-                                        rounded="rounded-full"
-                                    />
+                {/* Left Column - Main Info */}
+                <div className="lg:col-span-1 space-y-6">
+                    <Card className="border border-gray-200 overflow-hidden">
+                        <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                        <CardContent className="relative pt-0 pb-8 px-6">
+                            <div className="relative -mt-16 mb-4 flex justify-center">
+                                <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+                                    <AvatarImage src={user.personalProfile?.profilePhoto || user.profilePicture || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.name} className="object-cover" />
+                                    <AvatarFallback className="text-3xl">{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                            </div>
+
+                            <div className="text-center space-y-2">
+                                <h2 className="text-2xl font-bold text-gray-900">{user.fullname || user.name}</h2>
+                                <p className="text-gray-500 font-medium">@{user.username}</p>
+
+                                <div className="flex items-center justify-center gap-2 pt-2">
+                                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50">
+                                        {user.role === 'organizer' ? 'Organizer' : 'Member'}
+                                    </Badge>
                                 </div>
+                            </div>
 
-                                <h2 className="text-xl font-bold text-gray-900">{user?.name || "User"}</h2>
-                                <p className="text-gray-600">@{user?.personalProfile?.username || user?.username || "username"}</p>
-
-                                <div className="mt-4 space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <Mail className="h-4 w-4" />
-                                        {user?.email}
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <MapPin className="h-4 w-4" />
-                                        {user?.personalProfile?.city || "No location set"}
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <Calendar className="h-4 w-4" />
-                                        Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Unknown'}
-                                    </div>
+                            <div className="mt-6 space-y-3 pt-6 border-t border-gray-100">
+                                <div className="flex items-center gap-3 text-gray-600">
+                                    <Mail className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm">{user.email}</span>
                                 </div>
-
-                                <div className="mt-6 grid grid-cols-2 gap-4 w-full">
-                                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                                        <div className="text-lg font-bold text-blue-600">
-                                            {user?.role === 'organizer' ? 'Organized' : 'Attending'}
-                                        </div>
-                                        <div className="text-sm text-gray-600">Events</div>
+                                <div className="flex items-center gap-3 text-gray-600">
+                                    <MapPin className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm">{user.personalProfile?.city || "No location set"}</span>
+                                </div>
+                                {user.personalProfile?.website && (
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                        <Globe className="h-4 w-4 text-gray-400" />
+                                        <a href={user.personalProfile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">
+                                            {user.personalProfile.website.replace(/^https?:\/\//, '')}
+                                        </a>
                                     </div>
-                                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                                        <div className="text-lg font-bold text-purple-600">
-                                            {user?.role === 'admin' ? 'Total Users' : 'Friends'}
-                                        </div>
-                                        <div className="text-sm text-gray-600">
-                                            {user?.role === 'admin' ? '1.2k' : '45'}
-                                        </div>
-                                    </div>
+                                )}
+                                <div className="flex items-center gap-3 text-gray-600">
+                                    <Calendar className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm">Joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Unknown'}</span>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Weekly Quotas (Role-based) */}
-                    {(user?.role === 'user' || user?.role === 'organizer') && (
-                        <Card className="border border-gray-200">
-                            <CardHeader className="pb-4">
-                                <CardTitle className="text-lg text-gray-900">Weekly Quotas</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-600">Events</span>
-                                        <span className="font-medium">{user.weeklyEventQuota} per week</span>
-                                    </div>
-                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500" style={{ width: '20%' }} />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-600">Plans</span>
-                                        <span className="font-medium">{user.weeklyPlanQuota} per week</span>
-                                    </div>
-                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-500" style={{ width: '40%' }} />
-                                    </div>
-                                </div>
-                                <p className="text-xs text-muted-foreground italic">Quotas reset every Monday.</p>
-                            </CardContent>
-                        </Card>
-                    )}
 
                     {/* Account Status */}
                     <Card className="border border-gray-200">
@@ -222,201 +99,86 @@ export default function ProfilePage() {
                                     Verified
                                 </Badge>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">Member Since</span>
-                                <span className="text-sm font-medium">Jan 2024</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">Last Updated</span>
-                                <span className="text-sm font-medium">2 days ago</span>
-                            </div>
                             <Button variant="outline" className="w-full border-gray-300 hover:bg-gray-100" asChild>
-                                <a href="/settings/security">Security Settings</a>
+                                <Link href="/settings">Security Settings</Link>
                             </Button>
                         </CardContent>
                     </Card>
+                </div>
+
+                {/* Center/Right Column - Details & Stats */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Bio Section */}
+                    <Card className="border border-gray-200">
+                        <CardHeader>
+                            <CardTitle>About Me</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-gray-600 leading-relaxed">
+                                {user.personalProfile?.bio || "No bio yet. Click Edit Profile to add one!"}
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Stats Grid */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                        <Card className="border border-gray-200 bg-blue-50/50">
+                            <CardContent className="p-6 flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-blue-600">Events Attended</p>
+                                    <h3 className="text-3xl font-bold text-gray-900 mt-1">12</h3>
+                                </div>
+                                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <Calendar className="h-6 w-6 text-blue-600" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="border border-gray-200 bg-purple-50/50">
+                            <CardContent className="p-6 flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-purple-600">Plans Created</p>
+                                    <h3 className="text-3xl font-bold text-gray-900 mt-1">5</h3>
+                                </div>
+                                <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <MapPin className="h-6 w-6 text-purple-600" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Weekly Quotas */}
+                    {(user.role === 'user' || user.role === 'organizer') && (
+                        <Card className="border border-gray-200">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-lg text-gray-900">Weekly Activity Quotas</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Event Interactions</span>
+                                        <span className="font-medium">{user.weeklyEventQuota} remaining</span>
+                                    </div>
+                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-500" style={{ width: '60%' }} />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Plan Creations</span>
+                                        <span className="font-medium">{user.weeklyPlanQuota} remaining</span>
+                                    </div>
+                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-purple-500" style={{ width: '30%' }} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Organizer Application */}
                     {!user?.isOrganizer && (
                         <OrganizerApplicationForm />
                     )}
-                </div>
-
-                {/* Right Column - Edit Form */}
-                <div className="lg:col-span-2">
-                    <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-2xl text-gray-900">Edit Profile</CardTitle>
-                            <p className="text-gray-600">
-                                Update your personal information and preferences
-                            </p>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="fullname">
-                                                Full Name
-                                            </label>
-                                            <Input
-                                                id="fullname"
-                                                {...register("fullname")}
-                                                disabled={isLoading}
-                                                className="bg-gray-50 border-gray-200 focus:bg-white"
-                                            />
-                                            {errors.fullname && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.fullname.message}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="username">
-                                                Username
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                                    @
-                                                </div>
-                                                <Input
-                                                    id="username"
-                                                    {...register("username")}
-                                                    disabled={isLoading}
-                                                    className="pl-7 bg-gray-50 border-gray-200 focus:bg-white"
-                                                />
-                                            </div>
-                                            {errors.username && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.username.message}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="email">
-                                                Email Address
-                                            </label>
-                                            <div className="relative">
-                                                <Mail className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="email"
-                                                    {...register("email")}
-                                                    disabled={isLoading}
-                                                    type="email"
-                                                    className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
-                                                />
-                                            </div>
-                                            {errors.email && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="location">
-                                                Location
-                                            </label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="location"
-                                                    {...register("location")}
-                                                    disabled={isLoading}
-                                                    className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="website">
-                                                Website
-                                            </label>
-                                            <div className="relative">
-                                                <Globe className="absolute left-3 top-1/2 h-4 w-4 transform -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    id="website"
-                                                    placeholder="https://yourwebsite.com"
-                                                    {...register("website")}
-                                                    disabled={isLoading}
-                                                    className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
-                                                />
-                                            </div>
-                                            {errors.website && (
-                                                <p className="text-sm text-red-600 mt-1">{errors.website.message}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900 mb-1.5" htmlFor="bio">
-                                        Bio
-                                    </label>
-                                    <Textarea
-                                        id="bio"
-                                        placeholder="Tell us about yourself, your interests, and what kind of events you enjoy..."
-                                        className="resize-none bg-gray-50 border-gray-200 focus:bg-white min-h-[120px]"
-                                        {...register("bio")}
-                                        disabled={isLoading}
-                                    />
-                                    <div className="flex justify-between items-center mt-1">
-                                        {errors.bio && (
-                                            <p className="text-sm text-red-600">{errors.bio.message}</p>
-                                        )}
-                                        <span className="text-sm text-gray-500 ml-auto">
-                                            Max 160 characters
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3 pt-4 border-t border-gray-200">
-                                    <Button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                                    >
-                                        {isLoading && <LoadingSpinner className="mr-2 h-4 w-4" />}
-                                        Save Changes
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        disabled={isLoading}
-                                        className="border-gray-300 hover:bg-gray-100"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
-
-                    {/* Connected Accounts */}
-                    <Card className="border border-gray-200 mt-6">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-xl text-gray-900">Connected Accounts</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <User className="h-5 w-5 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <div className="font-medium text-gray-900">Google</div>
-                                            <div className="text-sm text-gray-600">john@example.com</div>
-                                        </div>
-                                    </div>
-                                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0">
-                                        Connected
-                                    </Badge>
-                                </div>
-                                <Button variant="outline" className="w-full border-gray-300 hover:bg-gray-100">
-                                    Connect More Accounts
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         </div>
