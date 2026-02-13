@@ -20,6 +20,7 @@ export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [applications, setApplications] = useState<Application[]>([])
     const [myEvents, setMyEvents] = useState<Event[]>([])
+    const [dashboardStats, setDashboardStats] = useState<any>(null)
     const [activeTab, setActiveTab] = useState("events")
 
     useEffect(() => {
@@ -39,6 +40,10 @@ export default function DashboardPage() {
                     const eventsData = await organizerApi.getOrganizerEvents(user.organizerProfile.id)
                     setMyEvents(eventsData)
                 }
+
+                // Fetch dashboard stats
+                const statsData = await usersApi.getDashboardStats()
+                setDashboardStats(statsData)
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error)
             } finally {
@@ -572,12 +577,12 @@ export default function DashboardPage() {
                             <CardDescription>Complete your profile for better recommendations</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <Progress value={75} className="h-2" />
+                            <Progress value={dashboardStats?.profileStrength || 0} className="h-2" />
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span>Basic Info</span>
-                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">
-                                        Complete
+                                    <span>Profile Strength</span>
+                                    <Badge variant="outline" className={dashboardStats?.profileStrength > 70 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/10 text-amber-700 dark:text-amber-300"}>
+                                        {dashboardStats?.profileStrength || 0}%
                                     </Badge>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
@@ -595,7 +600,7 @@ export default function DashboardPage() {
                         <CardFooter>
                             <Button className=" w-full px-10 md:px-10 h-12 md:h-10 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 transition-all duration-300 group shadow-lg"
                                 asChild>
-                                <Link href="/profile/edit">
+                                <Link href="/profile">
                                     <Settings className="mr-5 h-4 w-4" />
                                     Complete Profile
                                 </Link>

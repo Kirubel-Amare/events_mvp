@@ -1,13 +1,26 @@
 import { apiClient } from './client';
 import { Event } from '@/types';
 
+export interface OrganizerStats {
+    totalEvents: number;
+    totalAttendees: number;
+    revenue: number;
+    followers: number;
+    rating: number;
+    totalViews: number;
+    growth: {
+        events: number;
+        attendees: number;
+    };
+}
+
 export const organizerApi = {
     apply: async (data: { reason: string; organizationName?: string }) => {
         const response = await apiClient.post('/organizers/apply', data);
         return response.data;
     },
 
-    getStats: async (id: string) => {
+    getStats: async (id: string): Promise<OrganizerStats> => {
         const response = await apiClient.get(`/organizers/${id}/stats`);
         return response.data;
     },

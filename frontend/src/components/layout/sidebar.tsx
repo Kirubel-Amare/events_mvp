@@ -131,7 +131,7 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                             {isSidebarOpen && (
                                 <div className="flex items-center gap-3 mb-4 px-2">
                                     <Avatar className="h-10 w-10 border shadow-sm">
-                                        <AvatarImage src={user?.personalProfile?.profilePhoto || ""} />
+                                        <AvatarImage src={user?.personalProfile?.profilePhoto || user?.profilePicture || ""} />
                                         <AvatarFallback className="bg-blue-50 text-blue-600 font-bold">
                                             {user?.name?.[0]?.toUpperCase() || "U"}
                                         </AvatarFallback>
@@ -247,7 +247,7 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 px-2 mb-4">
                                 <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
-                                    <AvatarImage src={user?.personalProfile?.profilePhoto || ""} />
+                                    <AvatarImage src={user?.personalProfile?.profilePhoto || user?.profilePicture || ""} />
                                     <AvatarFallback className="bg-blue-600 text-white font-bold text-lg">
                                         {user?.name?.[0]?.toUpperCase() || "U"}
                                     </AvatarFallback>

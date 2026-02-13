@@ -7,10 +7,18 @@ import { Event } from '../models/Event';
 import { AuthRequest } from '../middleware/auth';
 import { OrganizerApplication, ApplicationStatus } from '../models/OrganizerApplication';
 
+import { Application } from '../models/Application';
+import { Review } from '../models/Review';
+import { OrganizerFollower } from '../models/OrganizerFollower';
+import { calculateGrowth } from '../utils/stats.utils';
+
 const userRepository = AppDataSource.getRepository(User);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
 const eventRepository = AppDataSource.getRepository(Event);
-const applicationRepository = AppDataSource.getRepository(OrganizerApplication);
+const organizerApplicationRepository = AppDataSource.getRepository(OrganizerApplication);
+const applicationRepository = AppDataSource.getRepository(Application);
+const reviewRepository = AppDataSource.getRepository(Review);
+const followerRepository = AppDataSource.getRepository(OrganizerFollower);
 
 export const applyToBeOrganizer = async (req: AuthRequest, res: Response) => {
   try {
@@ -152,9 +160,8 @@ export const requestEventFeaturing = async (req: AuthRequest, res: Response) => 
 
 export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
   try {
-    const organizerId = req.params.id; // It's a string (UUID)
+    const organizerId = req.params.id;
 
-    // Find the organizer profile first to be safe
     const profile = await organizerProfileRepository.findOne({
       where: [
         { id: organizerId },
@@ -168,33 +175,69 @@ export const getOrganizerStats = async (req: AuthRequest, res: Response) => {
 
     const actualOrganizerId = profile.id;
 
+    // Total counts
     const totalEvents = await eventRepository.count({ where: { organizerId: actualOrganizerId } });
-    const upcomingEventsCount = await eventRepository.count({
-      where: {
-        organizerId: actualOrganizerId,
-        date: MoreThanOrEqual(new Date())
-      }
-    });
 
+    // Total attendees (Approved applications)
     const events = await eventRepository.find({ where: { organizerId: actualOrganizerId } });
     const eventIds = events.map(e => e.id);
 
     let totalAttendees = 0;
+    let revenue = 0;
+    let totalViews = 0;
+
     if (eventIds.length > 0) {
-      // Logic for applications joined to events
-      // Assuming Application model has eventId
-      totalAttendees = await AppDataSource.getRepository('Application').count({
-        where: { eventId: In(eventIds), status: 'approved' }
+      totalAttendees = await applicationRepository.count({
+        where: { eventId: In(eventIds), status: ApplicationStatus.APPROVED }
       });
+
+      // Calculate revenue (Price * Approved Applications)
+      const approvedApps = await applicationRepository.find({
+        where: { eventId: In(eventIds), status: ApplicationStatus.APPROVED },
+        relations: ['event']
+      });
+
+      approvedApps.forEach(app => {
+        if (app.event && app.event.price) {
+          const price = parseFloat(app.event.price.replace(/[^0-9.]/g, ''));
+          if (!isNaN(price)) revenue += price;
+        }
+      });
+
+      // Total views
+      totalViews = events.reduce((acc, curr) => acc + (curr.views || 0), 0);
     }
+
+    // Followers count
+    const followers = await followerRepository.count({ where: { organizerId: actualOrganizerId } });
+
+    // Rating (AVG)
+    const reviewStats = await reviewRepository
+      .createQueryBuilder('review')
+      .select('AVG(review.rating)', 'avg')
+      .where('review.organizerId = :id', { id: actualOrganizerId })
+      .getRawOne();
+
+    const rating = reviewStats.avg ? parseFloat(parseFloat(reviewStats.avg).toFixed(1)) : 0;
+
+    // Growth metrics (Last 30 days)
+    const eventGrowth = await calculateGrowth(eventRepository, 'createdAt', 30, { organizerId: actualOrganizerId });
+    const attendeeGrowth = await calculateGrowth(applicationRepository, 'appliedAt', 30, {
+      eventId: eventIds.length > 0 ? In(eventIds) : undefined,
+      status: ApplicationStatus.APPROVED
+    });
 
     res.json({
       totalEvents,
-      upcomingEvents: upcomingEventsCount,
       totalAttendees,
-      revenue: 0,
-      followers: 0,
-      rating: 4.8
+      revenue,
+      followers,
+      rating: rating || 5.0, // Default to 5.0 if no reviews yet
+      totalViews,
+      growth: {
+        events: eventGrowth.percentage,
+        attendees: attendeeGrowth.percentage
+      }
     });
   } catch (error) {
     console.error('Get organizer stats error:', error);

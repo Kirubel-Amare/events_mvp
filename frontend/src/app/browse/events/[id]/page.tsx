@@ -123,6 +123,14 @@ export default function EventDetailsPage() {
                             className="object-cover"
                             priority
                         />
+                    ) : event.mainImage ? (
+                        <SafeImage
+                            src={event.mainImage}
+                            alt={event.title}
+                            fill
+                            className="object-cover"
+                            priority
+                        />
                     ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                             <span className="text-gray-400">No Image Available</span>

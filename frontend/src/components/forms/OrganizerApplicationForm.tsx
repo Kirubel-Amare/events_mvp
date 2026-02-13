@@ -128,7 +128,7 @@ export function OrganizerApplicationForm() {
                     <span className="text-sm font-bold uppercase tracking-wider">Become an Organizer</span>
                 </div>
                 <CardTitle>Become an Organizer</CardTitle>
-                <CardDescription className="space-y-4 pt-2">
+                <div className="text-sm text-muted-foreground space-y-4 pt-2">
                     <p>By submitting this application, you are requesting approval to become an event organizer on our platform.</p>
                     <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg space-y-2 text-blue-900">
                         <p className="font-semibold text-blue-800">Please note:</p>
@@ -139,7 +139,7 @@ export function OrganizerApplicationForm() {
                             <li>You will be notified once your application is approved or rejected.</li>
                         </ul>
                     </div>
-                </CardDescription>
+                </div>
             </CardHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <CardContent className="space-y-4">

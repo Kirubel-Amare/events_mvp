@@ -46,7 +46,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id; // Authenticated
-    const { name, fullname, bio, city, profilePhoto, profilePicture } = req.body;
+    const { name, fullname, bio, city, website, profilePhoto, profilePicture, username } = req.body;
 
     let profile = await personalProfileRepository.findOne({
       where: { userId },
@@ -70,6 +70,16 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
       user = profile.user;
     }
 
+    // Handle Username Uniqueness
+    if (username && username !== user.username) {
+      const existingUser = await userRepository.findOne({ where: { username } });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
+      user.username = username;
+      profile.username = username;
+    }
+
     if (name) {
       profile.name = name;
       user.name = name;
@@ -91,6 +101,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
 
     if (bio !== undefined) profile.bio = bio;
     if (city !== undefined) profile.city = city;
+    if (website !== undefined) profile.website = website;
 
     await Promise.all([
       personalProfileRepository.save(profile),
@@ -109,6 +120,10 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         role: user.role,
         isOrganizer: user.isOrganizer,
         isAdmin: user.isAdmin,
+        personalProfile: { // Return updated personal profile data
+          ...profile,
+          user: undefined
+        }
       }
     });
   } catch (error) {
@@ -259,5 +274,52 @@ export const getUserApplications = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error('Get user applications error:', error);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getUserDashboardStats = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+
+    const user = await userRepository.findOne({
+      where: { id: userId },
+      relations: ['personalProfile', 'applications', 'plans']
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Calculate profile strength
+    let completedFields = 0;
+    const fieldsToTrack = [
+      user.name,
+      user.fullname,
+      user.profilePicture,
+      user.personalProfile?.bio,
+      user.personalProfile?.city,
+    ];
+
+    fieldsToTrack.forEach(field => {
+      if (field && typeof field === 'string' && field.trim() !== '') completedFields++;
+    });
+
+    const profileStrength = Math.round((completedFields / fieldsToTrack.length) * 100);
+
+    // Get basic stats
+    const totalActivities = (user.applications?.length || 0) + (user.plans?.length || 0);
+    const upcomingEventsCount = (user.applications || []).filter(app => {
+      return app.event && app.event.date && new Date(app.event.date) > new Date();
+    }).length;
+
+    res.json({
+      profileStrength,
+      totalActivities,
+      upcomingEvents: upcomingEventsCount,
+      level: user.isOrganizer ? 'Organizer' : 'Member'
+    });
+  } catch (error) {
+    console.error('Get user dashboard stats error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

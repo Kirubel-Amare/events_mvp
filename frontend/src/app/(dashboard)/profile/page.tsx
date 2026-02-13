@@ -50,7 +50,7 @@ export default function ProfilePage() {
                 username: user.username || "",
                 email: user.email || "",
                 bio: user.personalProfile?.bio || "",
-                website: "",
+                website: user.personalProfile?.website || "",
                 location: user.personalProfile?.city || "",
                 profilePhoto: user.profilePicture || user.personalProfile?.profilePhoto || ""
             })
@@ -62,17 +62,29 @@ export default function ProfilePage() {
         try {
             const response = await usersApi.updateProfile({
                 fullname: data.fullname,
+                username: data.username,
                 bio: data.bio,
                 city: data.location,
-                profilePicture: data.profilePhoto
+                website: data.website || undefined,
+                profilePicture: data.profilePhoto,
+                profilePhoto: data.profilePhoto
             })
             if (response.user) {
                 // Update the store with the new user data
                 setUser({ ...user, ...response.user } as any);
             }
             toast.success("Profile updated successfully!")
-        } catch (_error) {
-            toast.error("Failed to update profile. Please try again.")
+        } catch (error: any) {
+            console.error("Profile update error:", error)
+            const errorMessage = error.response?.data?.error || "Failed to update profile. Please try again."
+
+            if (errorMessage.toLowerCase().includes("username already taken")) {
+                toast.error("Username is already taken. Please choose another.")
+                // You could also set a form error here if you wanted specific field validation
+                // setError("username", { type: "manual", message: "Username already taken" })
+            } else {
+                toast.error(errorMessage)
+            }
         } finally {
             setIsLoading(false)
         }

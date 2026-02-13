@@ -57,8 +57,8 @@ export default function AdminDashboardPage() {
             title: "Total Users",
             value: stats?.totalUsers || 0,
             icon: Users,
-            description: "+12.5% from last month",
-            trend: "up",
+            description: stats?.growth?.users !== undefined ? (stats.growth.users >= 0 ? `+${stats.growth.users}% from last month` : `${stats.growth.users}% from last month`) : "0% from last month",
+            trend: (stats?.growth?.users || 0) >= 0 ? "up" : "down",
             color: "text-blue-600",
             bgColor: "bg-blue-50"
         },
@@ -66,8 +66,8 @@ export default function AdminDashboardPage() {
             title: "Total Events",
             value: stats?.totalEvents || 0,
             icon: Calendar,
-            description: "+5.2% from last month",
-            trend: "up",
+            description: stats?.growth?.events !== undefined ? (stats.growth.events >= 0 ? `+${stats.growth.events}% from last month` : `${stats.growth.events}% from last month`) : "0% from last month",
+            trend: (stats?.growth?.events || 0) >= 0 ? "up" : "down",
             color: "text-purple-600",
             bgColor: "bg-purple-50"
         },
@@ -75,8 +75,8 @@ export default function AdminDashboardPage() {
             title: "Active Plans",
             value: stats?.totalPlans || 0,
             icon: MapPin,
-            description: "+3.1% from last month",
-            trend: "up",
+            description: stats?.growth?.plans !== undefined ? (stats.growth.plans >= 0 ? `+${stats.growth.plans}% from last month` : `${stats.growth.plans}% from last month`) : "0% from last month",
+            trend: (stats?.growth?.plans || 0) >= 0 ? "up" : "down",
             color: "text-emerald-600",
             bgColor: "bg-emerald-50"
         },
@@ -84,8 +84,8 @@ export default function AdminDashboardPage() {
             title: "Reports",
             value: stats?.totalReports || 0,
             icon: AlertCircle,
-            description: "-15% from last month",
-            trend: "down",
+            description: stats?.growth?.reports !== undefined ? (stats.growth.reports >= 0 ? `+${stats.growth.reports}% from last month` : `${stats.growth.reports}% from last month`) : "0% from last month",
+            trend: (stats?.growth?.reports || 0) >= 0 ? "up" : "down",
             color: "text-amber-600",
             bgColor: "bg-amber-50"
         }
@@ -128,10 +128,10 @@ export default function AdminDashboardPage() {
                                 <div className="flex items-center mt-1">
                                     {card.trend === "up" ? (
                                         <ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1" />
-                                    ) : (
-                                        <ArrowDownRight className="h-3 w-3 text-emerald-500 mr-1" />
-                                    )}
-                                    <p className="text-xs text-emerald-600 font-medium">{card.description}</p>
+                                    ) : card.trend === "down" ? (
+                                        <ArrowDownRight className="h-3 w-3 text-rose-500 mr-1" />
+                                    ) : null}
+                                    <p className={`text-xs font-medium ${card.trend === 'up' ? 'text-emerald-600' : 'text-rose-600'}`}>{card.description}</p>
                                 </div>
                             </CardContent>
                         </Card>

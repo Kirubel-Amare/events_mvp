@@ -17,14 +17,19 @@ export function SafeImage({
     alt,
     ...props
 }: SafeImageProps) {
-    const isLocal = useMemo(() => !!src && src.startsWith('/uploads/'), [src]);
+    const isLocal = useMemo(() => !!src && (src.startsWith('/uploads/') || src.startsWith('uploads/')), [src]);
 
     const finalSrc = useMemo(() => {
         if (!src) return fallbackSrc;
         if (isLocal) {
             const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-            const baseUrl = apiBase.split('/api/v1')[0];
+            // remove /api/v1 to get base URL
+            const baseUrl = apiBase.replace('/api/v1', '');
+
+            // Ensure src starts with /
             const cleanSrc = src.startsWith('/') ? src : `/${src}`;
+
+            // Ensure no double slashes when joining
             const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
             return `${cleanBase}${cleanSrc}`;
         }

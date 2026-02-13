@@ -43,31 +43,31 @@ export default function OrganizerDashboardPage() {
         {
             label: "Total Events",
             value: stats?.totalEvents || 0,
-            change: "+0",
+            change: stats?.growth?.events !== undefined ? (stats.growth.events >= 0 ? `+${stats.growth.events}%` : `${stats.growth.events}%`) : "0%",
             icon: Calendar,
             color: "bg-gradient-to-br from-blue-500 to-cyan-500",
-            trend: "up"
+            trend: (stats?.growth?.events || 0) >= 0 ? "up" : "down"
         },
         {
             label: "Total Attendees",
             value: stats?.totalAttendees || 0,
-            change: "+0",
+            change: stats?.growth?.attendees !== undefined ? (stats.growth.attendees >= 0 ? `+${stats.growth.attendees}%` : `${stats.growth.attendees}%`) : "0%",
             icon: Users,
             color: "bg-gradient-to-br from-purple-500 to-pink-500",
-            trend: "up"
+            trend: (stats?.growth?.attendees || 0) >= 0 ? "up" : "down"
         },
         {
-            label: "Total Revenue",
-            value: `$${stats?.revenue || 0}`,
-            change: "+$0",
-            icon: DollarSign,
+            label: "Total Followers",
+            value: stats?.followers || 0,
+            change: "+0",
+            icon: Target,
             color: "bg-gradient-to-br from-emerald-500 to-green-500",
             trend: "up"
         },
         {
             label: "Avg. Rating",
-            value: stats?.rating || "N/A",
-            change: "+0",
+            value: stats?.rating || "5.0",
+            change: "★",
             icon: Star,
             color: "bg-gradient-to-br from-amber-500 to-orange-500",
             trend: "up"
@@ -75,9 +75,24 @@ export default function OrganizerDashboardPage() {
     ]
 
     const performance = [
-        { metric: "Event Views", value: "12.5K", change: "+24%" },
-        { metric: "Ticket Sales", value: "845", change: "+18%" },
-        { metric: "Engagement Rate", value: "8.2%", change: "+2.1%" },
+        {
+            metric: "Event Views",
+            value: stats?.totalViews?.toLocaleString() || "0",
+            change: "+0%",
+            progress: Math.min(((stats?.totalViews || 0) / 1000) * 100, 100) // target 1000
+        },
+        {
+            metric: "Total Revenue",
+            value: `$${stats?.revenue?.toLocaleString() || "0"}`,
+            change: "+0%",
+            progress: Math.min(((stats?.revenue || 0) / 5000) * 100, 100) // target 5000
+        },
+        {
+            metric: "Engagement Rate",
+            value: stats?.totalAttendees && stats?.totalViews ? `${((stats.totalAttendees / stats.totalViews) * 100).toFixed(1)}%` : "0%",
+            change: "+0%",
+            progress: stats?.totalAttendees && stats?.totalViews ? (stats.totalAttendees / stats.totalViews) * 100 : 0
+        },
     ]
 
     if (isLoading) {
@@ -248,8 +263,8 @@ export default function OrganizerDashboardPage() {
                                         <div className="text-2xl font-bold text-gray-900">{item.value}</div>
                                         <div className="h-2 bg-gray-200 rounded-full mt-3 overflow-hidden">
                                             <div
-                                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                                                style={{ width: `${70 + index * 10}% ` }}
+                                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500"
+                                                style={{ width: `${item.progress}%` }}
                                             />
                                         </div>
                                     </div>
@@ -328,28 +343,28 @@ export default function OrganizerDashboardPage() {
                                 <div>
                                     <div className="flex justify-between text-sm mb-1">
                                         <span className="text-gray-700">Event Creation</span>
-                                        <span className="font-medium text-gray-900">2/5</span>
+                                        <span className="font-medium text-gray-900">{stats?.totalEvents || 0}/5</span>
                                     </div>
                                     <div className="h-2 bg-white/50 rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style={{ width: '40%' }} />
+                                        <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500" style={{ width: `${Math.min(((stats?.totalEvents || 0) / 5) * 100, 100)}%` }} />
                                     </div>
                                 </div>
                                 <div>
                                     <div className="flex justify-between text-sm mb-1">
                                         <span className="text-gray-700">Revenue Target</span>
-                                        <span className="font-medium text-gray-900">$850/$2,000</span>
+                                        <span className="font-medium text-gray-900">${stats?.revenue || 0}/$2,000</span>
                                     </div>
                                     <div className="h-2 bg-white/50 rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style={{ width: '42.5%' }} />
+                                        <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500" style={{ width: `${Math.min(((stats?.revenue || 0) / 2000) * 100, 100)}%` }} />
                                     </div>
                                 </div>
                                 <div>
                                     <div className="flex justify-between text-sm mb-1">
                                         <span className="text-gray-700">New Followers</span>
-                                        <span className="font-medium text-gray-900">180/500</span>
+                                        <span className="font-medium text-gray-900">{stats?.followers || 0}/500</span>
                                     </div>
                                     <div className="h-2 bg-white/50 rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full" style={{ width: '36%' }} />
+                                        <div className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all duration-500" style={{ width: `${Math.min(((stats?.followers || 0) / 500) * 100, 100)}%` }} />
                                     </div>
                                 </div>
                             </div>

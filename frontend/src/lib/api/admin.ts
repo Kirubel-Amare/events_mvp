@@ -6,6 +6,12 @@ export interface AdminStats {
     totalEvents: number;
     totalPlans: number;
     totalReports: number;
+    growth: {
+        users: number;
+        events: number;
+        plans: number;
+        reports: number;
+    };
 }
 
 export interface AdminReport {

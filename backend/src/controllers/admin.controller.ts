@@ -8,6 +8,7 @@ import { User, UserRole } from '../models/User';
 import { Plan } from '../models/Plan';
 import { AuthRequest } from '../middleware/auth';
 import { OrganizerApplication, ApplicationStatus } from '../models/OrganizerApplication';
+import { calculateGrowth } from '../utils/stats.utils';
 
 const eventRepository = AppDataSource.getRepository(Event);
 const organizerProfileRepository = AppDataSource.getRepository(OrganizerProfile);
@@ -337,8 +338,25 @@ export const getStats = async (req: AuthRequest, res: Response) => {
     const totalPlans = await planRepository.count();
     const totalReports = await reportRepository.count();
 
-    res.json({ totalUsers, totalEvents, totalPlans, totalReports });
+    const userGrowth = await calculateGrowth(userRepository, 'createdAt');
+    const eventGrowth = await calculateGrowth(eventRepository, 'createdAt');
+    const planGrowth = await calculateGrowth(planRepository, 'createdAt');
+    const reportGrowth = await calculateGrowth(reportRepository, 'createdAt');
+
+    res.json({
+      totalUsers,
+      totalEvents,
+      totalPlans,
+      totalReports,
+      growth: {
+        users: userGrowth.percentage,
+        events: eventGrowth.percentage,
+        plans: planGrowth.percentage,
+        reports: reportGrowth.percentage
+      }
+    });
   } catch (error) {
+    console.error('Get admin stats error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

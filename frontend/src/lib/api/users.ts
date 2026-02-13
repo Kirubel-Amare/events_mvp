@@ -37,8 +37,14 @@ export const usersApi = {
     },
 
     // Update profile
-    updateProfile: async (data: { name?: string; fullname?: string; bio?: string; city?: string; profilePhoto?: string; profilePicture?: string }) => {
+    updateProfile: async (data: { name?: string; fullname?: string; bio?: string; city?: string; profilePhoto?: string; profilePicture?: string; website?: string; username?: string }) => {
         const response = await apiClient.put('/users/profile', data);
+        return response.data;
+    },
+
+    // Get dashboard stats
+    getDashboardStats: async () => {
+        const response = await apiClient.get('/users/stats');
         return response.data;
     }
 };

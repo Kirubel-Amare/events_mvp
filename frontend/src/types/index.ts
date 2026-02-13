@@ -19,6 +19,7 @@ export interface User {
         profilePhoto: string;
         bio: string;
         city: string;
+        website?: string;
     };
     createdAt: string;
     updatedAt: string;

@@ -42,6 +42,13 @@ router.delete(
   userController.removeProfileImage
 );
 
+// Get user dashboard stats
+router.get(
+  '/stats',
+  authenticate,
+  userController.getUserDashboardStats
+);
+
 // Get user's applications
 router.get(
   '/applications',

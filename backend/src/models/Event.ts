@@ -53,6 +53,9 @@ export class Event {
   @Column({ type: 'boolean', default: false })
   isFeatured: boolean = false;
 
+  @Column({ type: 'int', default: 0 })
+  views: number = 0;
+
   @Column({
     type: 'enum',
     enum: EventStatus,

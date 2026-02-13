@@ -33,24 +33,22 @@ export default function SettingsPage() {
             <Separator />
 
             <div className="grid gap-6">
-                {/* Profile Settings */}
+                {/* Appearance */}
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <User className="h-5 w-5 text-blue-600" />
-                            <CardTitle>Profile Information</CardTitle>
+                            <Moon className="h-5 w-5 text-blue-600" />
+                            <CardTitle>Appearance</CardTitle>
                         </div>
-                        <CardDescription>Update your public profile details.</CardDescription>
+                        <CardDescription>Customize how EventHub looks for you.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Display Name</Label>
-                            <Input id="name" defaultValue={user?.name || ""} placeholder="John Doe" />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email Address</Label>
-                            <Input id="email" defaultValue={user?.email || ""} disabled className="bg-gray-50" />
-                            <p className="text-[12px] text-gray-400">Email cannot be changed directly for security reasons.</p>
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label>Dark Mode</Label>
+                                <p className="text-sm text-gray-500">Enable dark theme for the dashboard.</p>
+                            </div>
+                            <Switch />
                         </div>
                     </CardContent>
                 </Card>

@@ -1,4 +1,4 @@
-import { Home, Calendar, PlusCircle, User, Settings, LayoutDashboard, Search, Users, Shield, AlertCircle, BarChart3, Bell, Sparkles, Ticket, ShieldAlert } from "lucide-react"
+import { Home, Calendar, PlusCircle, User, Settings, LayoutDashboard, Search, Users, Shield, AlertCircle, BarChart3, Bell, Sparkles, Ticket, ShieldAlert, Building2 } from "lucide-react"
 
 export const NAV_LINKS = {
     main: [
@@ -12,7 +12,7 @@ export const NAV_LINKS = {
         { name: "My Plans", href: "/plans", icon: Calendar },
         { name: "Become Organizer", href: "/dashboard/become-organizer", icon: Sparkles },
         { name: "Profile", href: "/profile", icon: User },
-        { name: "Settings", href: "/dashboard/settings", icon: Settings },
+        { name: "Settings", href: "/settings", icon: Settings },
         { name: "Request Quota", href: "/dashboard/quota-request", icon: PlusCircle },
     ],
     organizer: [
@@ -22,6 +22,7 @@ export const NAV_LINKS = {
         { name: "Events", href: "/organizer/events", icon: Calendar },
         { name: "My Plans", href: "/plans", icon: Calendar },
         { name: "Profile", href: "/profile", icon: User },
+        { name: "Organization", href: "/organizer/profile", icon: Building2 },
         { name: "Request Quota", href: "/dashboard/quota-request", icon: PlusCircle },
         { name: "Settings", href: "/organizer/settings", icon: Settings },
     ],
