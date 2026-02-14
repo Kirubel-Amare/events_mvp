@@ -4,6 +4,7 @@ import { AppDataSource } from '../config/database';
 import { Event, EventStatus } from '../models/Event';
 import { OrganizerProfile } from '../models/OrganizerProfile';
 import { Application } from '../models/Application';
+import { Category } from '../models/Category';
 import { AuthRequest } from '../middleware/auth';
 
 const eventRepository = AppDataSource.getRepository(Event);
@@ -84,9 +85,16 @@ export const getFeaturedEvents = async (req: Request, res: Response) => {
     });
 
     return res.json(events);
-  } catch (error) {
-    console.error('Get featured events error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+  } catch (error: any) {
+    console.error('Get featured events error:', {
+      message: error.message,
+      stack: error.stack,
+      detail: error.detail,
+    });
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message // Include message for easier debugging during MVP
+    });
   }
 };
 
@@ -112,7 +120,7 @@ export const getEventById = async (req: Request, res: Response) => {
 
 export const getCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await AppDataSource.getRepository('Category').find();
+    const categories = await AppDataSource.getRepository(Category).find();
     return res.json(categories);
   } catch (error) {
     console.error('Get categories error:', error);
