@@ -4,12 +4,13 @@ import { config } from './env';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
+  url: config.database.url,
   host: config.database.host,
   port: config.database.port,
   username: config.database.username,
   password: config.database.password,
   database: config.database.database,
-  
+
   // Auto-sync only in development for convenience
   synchronize: config.nodeEnv === 'development',
 
