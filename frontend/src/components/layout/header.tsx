@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Menu, X, Calendar, MapPin, User, Sparkles, Bell, Heart, LogOut, LayoutDashboard, Building } from "lucide-react"
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/auth-store"
 import { useRouter, usePathname } from "next/navigation"
 import { notificationsApi } from "@/lib/api/notifications"
+import { NAV_LINKS } from "./navigation"
 
 export default function Header() {
   const pathname = usePathname()
@@ -37,13 +38,28 @@ export default function Header() {
     }
   }, [isAuthenticated])
 
-  // Define paths where the header should NOT be shown
-  const excludedPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile", "/notifications"]
-  const isExcluded = excludedPaths.some(path => pathname?.startsWith(path))
+  // Define paths where the header should NOT be shown on DESKTOP
+  const dashboardPaths = ["/admin", "/dashboard", "/organizer", "/plans", "/profile", "/notifications"]
+  const isDashboardPath = dashboardPaths.some(path => pathname?.startsWith(path))
 
-  if (isExcluded) {
-    return null
-  }
+  // Determine which links to show in mobile menu
+  const mobileLinks = useMemo(() => {
+    if (isDashboardPath) {
+      const role = user?.role || "user"
+      const links = NAV_LINKS[role as keyof typeof NAV_LINKS] || NAV_LINKS.user
+      return links.filter(link => {
+        if (link.href === "/dashboard/become-organizer" && user?.isOrganizer) {
+          return false
+        }
+        return true
+      })
+    }
+    return [
+      { name: "Home", href: "/", icon: HomeIcon },
+      { name: "Browse", href: "/browse/events", icon: SearchIcon },
+      { name: "Events", href: "/events", icon: TicketIcon },
+    ]
+  }, [isDashboardPath, user?.role, user?.isOrganizer])
 
   const handleLogout = () => {
     logout()
@@ -58,7 +74,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 ${isDashboardPath ? "md:hidden" : ""}`}>
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
@@ -80,97 +96,103 @@ export default function Header() {
 
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
-            {[
-              { label: "Home", href: "/", active: activeNav === "home" },
-              { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
-              { label: "Events", href: "/events", active: activeNav === "events" },
-              { label: "contact", href: "/#contact", active: activeNav === "contact" },
-              { label: "About", href: "/#about", active: activeNav === "about" },
-            ].map((item) => (
-              <Link
-                key={item.href + item.label}
-                href={item.href}
-                onClick={() => setActiveNav(item.href.slice(1) || "home")}
-                className={`relative px-4 py-2 text-sm font-medium transition-colors ${item.active
-                  ? "text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
-                  }`}
-              >
-                {item.label}
-                {item.active && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
-                )}
-              </Link>
-            ))}
-          </nav>
+          {!isDashboardPath && (
+            <nav className="hidden md:flex items-center gap-1">
+              {[
+                { label: "Home", href: "/", active: activeNav === "home" },
+                { label: "Browse", href: "/browse/events", active: activeNav === "browse" },
+                { label: "Events", href: "/events", active: activeNav === "events" },
+                { label: "contact", href: "/#contact", active: activeNav === "contact" },
+                { label: "About", href: "/#about", active: activeNav === "about" },
+              ].map((item) => (
+                <Link
+                  key={item.href + item.label}
+                  href={item.href}
+                  onClick={() => setActiveNav(item.href.slice(1) || "home")}
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors ${item.active
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
+                    }`}
+                >
+                  {item.label}
+                  {item.active && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                  )}
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
 
 
         {/* Search Bar - Desktop */}
-        <div className="hidden md:flex items-center gap-2 flex-1 max-w-lg mx-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search events, categories, or locations..."
-              className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearch}
-            />
+        {!isDashboardPath && (
+          <div className="hidden md:flex items-center gap-2 flex-1 max-w-lg mx-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Search events, categories, or locations..."
+                className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+            </div>
+            <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-100 hover:border-gray-300">
+              <MapPin className="h-4 w-4 text-gray-600" />
+            </Button>
           </div>
-          <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-100 hover:border-gray-300">
-            <MapPin className="h-4 w-4 text-gray-600" />
-          </Button>
-        </div>
+        )}
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-2">
-          {isAuthenticated && user ? (
-            <>
-              <Link href="/notifications">
-                <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                  <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 min-w-[18px] px-1 flex items-center justify-center bg-red-500 text-[10px] text-white rounded-full">
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </Badge>
-                  )}
+        {!isDashboardPath && (
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated && user ? (
+              <>
+                <Link href="/notifications">
+                  <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 min-w-[18px] px-1 flex items-center justify-center bg-red-500 text-[10px] text-white rounded-full">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </Link>
+
+
+                <Button
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  asChild
+                >
+                  <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
+                    Dashboard
+                  </Link>
                 </Button>
-              </Link>
-
-
-              <Button
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                asChild
-              >
-                <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
-                  Dashboard
-                </Link>
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                asChild
-              >
-                <Link href="/login">
-                  Log In
-                </Link>
-              </Button>
-              <Button
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                asChild
-              >
-                <Link href="/register">
-                  Sign Up
-                </Link>
-              </Button>
-            </>
-          )}
-        </div>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  asChild
+                >
+                  <Link href="/login">
+                    Log In
+                  </Link>
+                </Button>
+                <Button
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  asChild
+                >
+                  <Link href="/register">
+                    Sign Up
+                  </Link>
+                </Button>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Mobile Menu Button */}
         <Button
@@ -188,41 +210,33 @@ export default function Header() {
         <div className="md:hidden border-t border-gray-200 bg-white">
           <div className="container py-4 space-y-6">
             {/* Mobile Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Search events..."
-                className="pl-10 bg-gray-50 border-gray-200"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearch}
-              />
-            </div>
+            {!isDashboardPath && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="Search events..."
+                  className="pl-10 bg-gray-50 border-gray-200"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearch}
+                />
+              </div>
+            )}
 
             {/* Mobile Navigation */}
             <div className="space-y-1">
-              {[
-                { label: "Home", href: "/", icon: "🏠" },
-                { label: "Browse", href: "/browse/events", icon: "🔍" },
-                { label: "Events", href: "/events", icon: "🎫" },
-                // { label: "Trending", href: "/trending", icon: "🔥" },
-                { label: "Become an Organizer", href: "/organizer/apply", icon: "🏢" },
-                // { label: "Saved", href: "/saved", icon: "❤️" },
-                // { label: "Notifications", href: "/notifications", icon: "🔔" },
-              ].filter(item => {
-                if (item.label === "Become an Organizer" && user?.isOrganizer) {
-                  return false
-                }
-                return true
-              }).map((item) => (
+              {mobileLinks.map((item) => (
                 <Link
-                  key={item.href + item.label}
+                  key={item.href + item.name}
                   href={item.href}
                   className="flex items-center gap-3 py-3 px-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="font-medium">{item.label}</span>
+                  <span className="text-blue-600/70">
+                    {/* @ts-ignore */}
+                    {item.icon && <item.icon className="h-5 w-5" />}
+                  </span>
+                  <span className="font-medium">{item.name}</span>
                 </Link>
               ))}
             </div>
@@ -240,11 +254,17 @@ export default function Header() {
                       <div className="text-sm text-gray-500">{user.email}</div>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full border-gray-300" asChild>
-                    <Link href="/dashboard">
-                      Dashboard
-                    </Link>
-                  </Button>
+                  {!isDashboardPath && (
+                    <Button
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      asChild
+                    >
+                      <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -252,15 +272,6 @@ export default function Header() {
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Log Out
-                  </Button>
-                  <Button
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                    asChild
-                  >
-                    <Link href={user.role === 'admin' ? '/admin' : (user.role === 'organizer' ? '/organizer/dashboard' : '/dashboard')}>
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Link>
                   </Button>
                 </>
               ) : (
@@ -288,17 +299,31 @@ export default function Header() {
             </div>
 
             {/* Mobile Footer Links */}
-            <div className="pt-4 border-t border-gray-200 grid grid-cols-2 gap-2 text-xs text-gray-500">
-              <Link href="/#about" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>About</Link>
-              <Link href="/help" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Help Center</Link>
-              <Link href="/privacy" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Privacy</Link>
-              <Link href="/terms" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Terms</Link>
-              <Link href="/cookies" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Cookies</Link>
-              <Link href="/#contact" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-            </div>
+            {!isDashboardPath && (
+              <div className="pt-4 border-t border-gray-200 grid grid-cols-2 gap-2 text-xs text-gray-500">
+                <Link href="/#about" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>About</Link>
+                <Link href="/help" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Help Center</Link>
+                <Link href="/privacy" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Privacy</Link>
+                <Link href="/terms" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Terms</Link>
+                <Link href="/cookies" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Cookies</Link>
+                <Link href="/#contact" className="hover:text-blue-600 py-2" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+              </div>
+            )}
           </div>
         </div>
       )}
     </header>
   )
+}
+
+function HomeIcon(props: any) {
+  return <Calendar {...props} />
+}
+
+function SearchIcon(props: any) {
+  return <Search {...props} />
+}
+
+function TicketIcon(props: any) {
+  return <Calendar {...props} />
 }

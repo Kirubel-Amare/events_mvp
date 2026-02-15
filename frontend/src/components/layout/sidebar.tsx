@@ -35,7 +35,6 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
     const router = useRouter()
     const { user, logout, isAuthenticated } = useAuthStore()
     const { isSidebarOpen, toggleSidebar } = useUIStore()
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     // Select links based on role and filter them
     const links = (NAV_LINKS[role as keyof typeof NAV_LINKS] || NAV_LINKS.user).filter(link => {
@@ -174,112 +173,6 @@ export function Sidebar({ className, role = "user", ...props }: SidebarProps) {
                 </div>
             </aside>
 
-            {/* Mobile Navigation Header */}
-            <div className="md:hidden flex items-center justify-between p-4 border-b bg-white sticky top-0 z-30">
-                <Logo />
-                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
-                    <Menu className="h-6 w-6" />
-                </Button>
-            </div>
-
-            {/* Mobile Sidebar Overlay */}
-            {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                />
-            )}
-
-            {/* Mobile Sidebar */}
-            <aside
-                className={cn(
-                    "fixed top-0 left-0 bottom-0 w-72 bg-white z-50 transition-transform md:hidden shadow-2xl flex flex-col",
-                    isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-                )}
-            >
-                <div className="p-6 flex items-center justify-between border-b">
-                    <Logo />
-                    <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
-                        <X className="h-6 w-6" />
-                    </Button>
-                </div>
-
-                <ScrollArea className="flex-1 px-4">
-                    <nav className="p-4 space-y-2">
-                        {links.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                                    pathname === link.href
-                                        ? "bg-blue-50 text-blue-600 font-semibold"
-                                        : "text-gray-600 hover:bg-gray-50"
-                                )}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
-                                    <link.icon className="h-full w-full" />
-                                </div>
-                                <span className="leading-none">{link.name}</span>
-                            </Link>
-                        ))}
-                    </nav>
-                </ScrollArea>
-
-                {role === "user" && !user?.isOrganizer && (
-                    <div className="px-6 py-4">
-                        <Button
-                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-6 rounded-xl shadow-lg font-bold flex items-center justify-center gap-3"
-                            asChild
-                            onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                            <Link href="/dashboard/become-organizer">
-                                <Sparkles className="h-5 w-5" />
-                                <span>Start Organizer Application</span>
-                            </Link>
-                        </Button>
-                    </div>
-                )}
-
-                <div className="p-6 border-t bg-gray-50/50">
-                    {isAuthenticated ? (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 px-2 mb-4">
-                                <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
-                                    <AvatarImage src={user?.personalProfile?.profilePhoto || user?.profilePicture || ""} />
-                                    <AvatarFallback className="bg-blue-600 text-white font-bold text-lg">
-                                        {user?.name?.[0]?.toUpperCase() || "U"}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-bold text-gray-900 leading-none mb-1">{user?.name}</p>
-                                    <p className="text-sm text-gray-500 capitalize leading-none">{role}</p>
-                                </div>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl py-6 flex items-center gap-3"
-                                onClick={handleLogout}
-                            >
-                                <LogOut className="h-5 w-5 flex-shrink-0" />
-                                <span className="font-medium leading-none">Logout</span>
-                            </Button>
-                        </div>
-                    ) : (
-                        <Button
-                            variant="default"
-                            className="w-full bg-blue-600 hover:bg-blue-700 py-6 rounded-xl shadow-lg font-bold flex items-center justify-center gap-3"
-                            asChild
-                        >
-                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                <LogIn className="h-5 w-5 flex-shrink-0" />
-                                <span className="leading-none">Sign In to Explore</span>
-                            </Link>
-                        </Button>
-                    )}
-                </div>
-            </aside>
         </>
     )
 }
