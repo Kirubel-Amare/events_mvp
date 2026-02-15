@@ -194,15 +194,46 @@ export default function Header() {
           </div>
         )}
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+        {/* Mobile Actions Container */}
+        <div className="flex md:hidden items-center gap-2">
+          {isAuthenticated && (
+            <div className="flex items-center gap-2 mr-1">
+              <Link href="/notifications">
+                <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 h-9 w-9">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 flex items-center justify-center bg-red-500 text-[9px] text-white rounded-full border-2 border-white">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+              <Link href="/profile">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
+                  {user?.personalProfile?.profilePhoto || user?.profilePicture ? (
+                    <img
+                      src={(user.personalProfile?.profilePhoto || user?.profilePicture) as string}
+                      alt={user.name || "User"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white text-xs font-semibold">{user?.name?.[0]?.toUpperCase() || "U"}</span>
+                  )}
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 h-9 w-9"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
