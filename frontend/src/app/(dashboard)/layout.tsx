@@ -17,7 +17,7 @@ export default function DashboardLayout({
     const sidebarRole = user?.role || "user"
 
     return (
-        <div className="flex min-h-screen bg-gray-50 md:overflow-hidden font-sans">
+        <div className="flex min-h-screen bg-gray-50 md:overflow-hidden overflow-x-hidden font-sans">
             <Sidebar role={sidebarRole as any} />
             <main
                 className={cn(

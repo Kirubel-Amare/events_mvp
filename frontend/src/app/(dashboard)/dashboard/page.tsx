@@ -182,9 +182,6 @@ export default function DashboardPage() {
                                             {user.name?.charAt(0).toUpperCase()}
                                         </span>
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 border-2 border-background flex items-center justify-center">
-                                        <div className="h-2 w-2 rounded-full bg-white" />
-                                    </div>
                                 </div>
                                 <div>
                                     <h1 className="text-3xl md:text-4xl font-bold">
@@ -483,7 +480,6 @@ export default function DashboardPage() {
                     {/* Become Organizer Callout */}
                     {!user.isOrganizer && (
                         <Card className="border-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-background shadow-lg overflow-hidden">
-                            <div className="absolute top-0 right-0 h-32 w-32 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-full -translate-y-16 translate-x-16" />
                             <CardHeader className="relative">
                                 <div className="flex items-center gap-3">
                                     <div className="rounded-full bg-gradient-to-r from-primary to-purple-600 p-2">

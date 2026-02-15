@@ -75,7 +75,7 @@ export default function Header() {
 
   return (
     <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 ${isDashboardPath ? "md:hidden" : ""}`}>
-      <div className="container flex h-16 items-center justify-between">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-8 flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2" onClick={() => setActiveNav("home")}>
@@ -201,11 +201,6 @@ export default function Header() {
               <Link href="/notifications">
                 <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 h-9 w-9">
                   <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <Badge className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 flex items-center justify-center bg-red-500 text-[9px] text-white rounded-full border-2 border-white">
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </Badge>
-                  )}
                 </Button>
               </Link>
               <Link href="/profile">
