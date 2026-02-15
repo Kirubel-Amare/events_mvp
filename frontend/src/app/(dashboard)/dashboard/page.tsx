@@ -170,7 +170,7 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8 animate-fade-in">
             {/* Enhanced Header */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-background to-background p-8 border">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-background to-background p-6 md:p-8 border">
                 <div className="absolute inset-0 bg-grid-pattern opacity-5" />
                 <div className="relative">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
