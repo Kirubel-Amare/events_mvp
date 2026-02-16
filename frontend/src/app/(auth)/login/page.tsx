@@ -54,25 +54,6 @@ export default function LoginPage() {
     })
   }
 
-  const handleDemoLogin = async () => {
-    // Pre-fill demo credentials
-    setFormData({
-      email: "demo@example.com",
-      password: "password123",
-    })
-    
-    // Auto-submit after a short delay
-    setTimeout(async () => {
-      try {
-        await login("demo@example.com", "password123")
-        toast.success("Demo login successful!")
-        router.push("/")
-      } catch (error) {
-        toast.error("Demo login failed. Please try regular login.")
-      }
-    }, 500)
-  }
-
   const handleSocialLogin = (provider: string) => {
     toast.error(`${provider} login not implemented yet`)
   }
@@ -259,24 +240,6 @@ export default function LoginPage() {
                     )}
                   </Button>
                 </form>
-
-                {/* Demo Login Button */}
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-11 border-dashed border-gray-300 hover:border-blue-600 hover:bg-blue-50"
-                    onClick={handleDemoLogin}
-                    disabled={isLoading}
-                  >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Try Demo Account
-                  </Button>
-                  <p className="text-xs text-center text-gray-500 mt-2">
-                    Use demo credentials to explore the app
-                  </p>
-                </div>
-                
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300"></div>
@@ -291,7 +254,7 @@ export default function LoginPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     variant="outline" 
-                    type="button" 
+                    type="button"
                     disabled={isLoading}
                     className="h-11 border-gray-300 hover:bg-gray-100 hover:border-gray-400"
                     onClick={() => handleSocialLogin("Google")}
